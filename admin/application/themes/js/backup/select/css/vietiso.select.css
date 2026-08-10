@@ -1,0 +1,94 @@
+/*
+     VietISO Select Dropdown
+     
+==================================*/
+
+
+
+.vietiso_selectbox {
+    position: relative !important;
+    display: inline-block;
+    zoom: 1;
+    *display: inline;
+}
+.vietiso_selectbox .vietiso_selected { 
+    position: relative !important;
+    z-index: 4000;
+    cursor: pointer !important; 
+    display: inline-block;
+    zoom: 1;
+    *display: inline; 
+    height: 100%; 
+    padding: 5px 20px 5px 10px !important; 
+    border: 1px solid !important; 
+    border-color: #C6C6C6 !important; 
+    border-radius: 2px !important; 
+    *background: #F8F8F6 !important;
+    background-image: -webkit-gradient(linear,left top,left bottom,from(whiteSmoke),to(#F1F1F1)) !important; 
+    background-image: -moz-gradient(linear,left top,left bottom,from(whiteSmoke),to(#F1F1F1)) !important;
+}
+.vietiso_selectbox .vietiso_selected:hover {
+    background: whiteSmoke !important;
+}
+.vietiso_selectbox .vietiso_selected span {
+    color: #666 !important; 
+    font: normal 13px arial,sans-serif !important;
+}
+.vietiso_selectbox .vietiso_selected:hover span {
+    color: #333 !important;
+}
+.vietiso_selectbox .vietiso_selected span.vietiso_selectbox_icon_dropdown {
+    border-color: #777 transparent !important; 
+    border-style: solid !important; 
+    border-width: 4px 4px 0 4px !important; 
+    height: 0 !important; 
+    width: 0 !important; 
+    position: absolute !important; 
+    right: 5px !important; 
+    top: 12px !important;
+    z-index: 4500;
+}
+.vietiso_select_list { 
+    width: 2000px; 
+    border: 1px solid #C6C6C6 !important; 
+    position: absolute !important; 
+    top: 28px !important; 
+    left: 0 !important;
+    margin: 0 !important; 
+    z-index: 5000; 
+    background: white !important; 
+    -webkit-box-shadow: 0 0 5px#888 !important; 
+    -moz-box-shadow: 0 0 5px#888 !important;
+}
+.vietiso_select_list p {
+    font: 12px arial,sans-serif !important; 
+    cursor: pointer !important; 
+    padding: 3px 10px !important; 
+    color: #666 !important;
+}
+.vietiso_select_list p span.value {
+    display: none;
+}
+.vietiso_select_list p.vietiso_select_active {
+    font-weight: bold !important;
+}
+.vietiso_select_list p:hover { 
+    background: #F2F2F2; 
+    color: #333 !important;
+}
+.vietiso_select_list div {
+    display: inline-block; 
+    zoom: 1;
+    *display: inline;
+    margin-left: 10px !important; 
+    float: left !important;
+}
+.vietiso_select_list div:first-child {
+    margin-left: 0 !important;
+}
+.vietiso_select_list_mask {
+    display: inline-block;
+    zoom: 1;
+    *display: inline; 
+    padding: 5px !important; 
+}

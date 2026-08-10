@@ -1,0 +1,53 @@
+<div class="container-xxl flex-grow-1 pt-2 container-p-y">
+	<div class="form-row">
+		<div class="col-12 col-lg-9 col-xxxl-7 mx-auto">
+			<div class="card">
+				<div class="card-header">
+					<div class="d-flex  align-items-center justify-content-between">
+						<h5 class="chat-title mb-0"><a href="{$clsISO->getLink('billing')}" class="btn btn-sm btn-outline-warning me-2"><i class="bx bx-reply"></i> GD chốt</a>Mẫu lời chúc</h5>
+						<button onClick="$Core.template.openTemplate(this, event)" template_id="0" type="button" class="btn btn-outline-default {if $deviceType eq 'phone'}btn-sm{/if}">
+							<i class="bx bx-plus"></i> Thêm mẫu
+						</button>
+					</div>
+				</div>
+				<div class="card-body">
+					<div class="table-container no-shadow overflow-x-auto mb-3">
+						<table cellpadding="0" cellspacing="0" width="100%" class="table table-striped dragable table-bordered">
+							<thead><tr>
+								<!--<th class="align-center h-px-35 bg-lighter">Type</th> -->
+								<th class="align-center h-px-35 bg-lighter" width="40px">STT</th>
+								<th class="align-center h-px-35 bg-lighter" >Tiêu đề</th>
+								<th class="align-center h-px-35 bg-lighter text-center">Thời gian</th>
+								<th class="align-center h-px-35 bg-lighter" width="40px"></th>
+							</tr></thead>
+							<tbody class="holder_chatlogs">
+								{if !empty($lstItem)}
+									{foreach from=$lstItem item=_oItem key=key name=i}
+										<tr class="tr">
+											<td class="text-left" width="40">{$smarty.foreach.i.iteration}</td>
+											<td class="text-left">{$_oItem.title}</td>
+											<td class="text-nowrap text-center">{$clsISO->formatTimeDate($_oItem.upd_date)}</td>
+											<td class="text-nowrap text-center">
+												<div class="btn-group">
+													<a href="javascript:void(0);" title="Sửa" class="btn btn-icon btn-sm btn-outline-default" onclick="$Core.template.openTemplate(this,event)" template_id="{$_oItem.template_id}"><i class="bx bx-edit-alt"></i></a>
+													<a href="javascript:void(0);" title="Xóa" class="btn btn-icon btn-sm btn-outline-default" onclick="$Core.template.deleteTemplate(this,event)" template_id="{$_oItem.template_id}"><i class="bx bx-trash"></i></a>
+												</div>
+											</td>
+										</tr>
+									{/foreach} 
+								{else}
+									<tr class="tr">
+										<td colspan="4" class="text-center">Danh sách trống</td>
+									</tr>
+								{/if}
+							</tbody>
+						</table>
+					</div>
+						{if !empty($html_pager)}
+							<div class="pagination justify-content-center">{$html_pager}</div>
+						{/if}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

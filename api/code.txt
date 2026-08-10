@@ -1,0 +1,132 @@
+/* $app->post('/search/get_stocks', function ($request, $response, $args) use ($app) {
+	global $dbconn, $clsISO;
+	$helper = new Helper();
+	$clsStock = new Stock();
+	$clsProject = new Project();
+	$clsProperty =  new Property();
+	$clsProjectMeta = new ProjectMeta();
+	$apiresults = array('error' => 1, 'result' => 'error', 'message' => "Error");
+	$inputs = $request->getParsedBody();
+	$block_name = $helper->getFieldValue("block_name", $inputs);
+	$building_name = $helper->getFieldValue("building_name", $inputs);
+	$home_direction = $helper->getFieldValue("direction_home", $inputs);
+	$bedroom_type = $helper->getFieldValue("bedroom_type", $inputs);
+	$sort_by = $helper->getFieldValue("sort_by", $inputs, "ASC");
+	$limit_by = $helper->getFieldValue("limit_by", $inputs, 10);
+	$cond = "`is_trash`=0 and `stock_type`='"._BLOCK_TYPE_HIGHLEVEL_SALE."'";
+	$cond.= " and (`status_id`>0 and `status_id`<>'"._STOCK_STATUS_SOLD_ID."' and `status_id`<>'"._STOCK_STATUS_NON_ID."')";
+	if(defined('_STOCK_SEARCH_HIDE_ENABLE') && _STOCK_SEARCH_HIDE_ENABLE==0){
+		$cond.= " and `status_id`<>'"._STOCK_STATUS_HIDDEN_ID."'";
+	}
+	if(!empty($block_name)){
+		$list_blocks = array();
+		$field = "{$clsProperty->pkey}";
+		if(!$clsISO->checkContainer($block_name, "Masteri Waterfront", "")){
+			$block_name = str_replace(array('Masteri', 'MWF'), "Masteri Waterfront", $block_name);
+		}
+		$blocks_arrs = @explode(",", $block_name);
+		if(!empty($blocks_arrs) && count($blocks_arrs) > 1){ $ii = 0;
+			$sql_string = " and (";
+			foreach($blocks_arrs as $bl){
+				$sql_string.= ($ii == 0 ? "" : " or ")."`slug`='".$clsISO->replaceSpace($bl)."'";
+				++$ii;
+			}
+			$sql_string.= ")";
+			$tmp = $clsProperty->getAll("`is_trash`=0 and `property_type`='_BLOCK'".$sql_string, $field);
+		} else {
+			$tmp = $clsProperty->getAll("`is_trash`=0 and `property_type`='_BLOCK' 
+			and `slug`='{$clsISO->replaceSpace($block_name)}'", $field);
+		}
+		if(!empty($tmp)){
+			foreach($tmp as $key => $val){
+				$list_blocks[] = $val[$clsProperty->pkey];
+			}
+			unset($tmp);
+		}
+		if(!empty($list_blocks)) $cond.= " and `block_id` in (".implode(",", $list_blocks).")";
+	}
+	if(!empty($building_name)){
+		$list_buildings = array();
+		$field = "{$clsProperty->pkey}";
+		$building_arrs = @explode(",", $building_name);
+		if(!empty($building_arrs) && count($building_arrs) > 1){ $ii = 0;
+			$sql_string = " and (";
+			foreach($building_arrs as $bl){
+				$sql_string.= ($ii == 0 ? "" : " or ")."(`slug`='".$clsISO->replaceSpace($bl)."' 
+					or `slug_vn`='".$clsISO->replaceSpace($bl)."')";
+				++$ii;
+			}
+			$sql_string.= ")";
+			$tmp = $clsProperty->getAll("`is_trash`=0 and `property_type`='_BUILDING'".$sql_string, $field);
+		} else {
+			$tmp = $clsProperty->getAll("`is_trash`=0 and `property_type`='_BUILDING' 
+			and (`slug`='{$clsISO->replaceSpace($building_name)}' 
+				or `slug_vn`='{$clsISO->replaceSpace($building_name)}'
+			)", $field);
+		}
+		if(!empty($tmp)){
+			foreach($tmp as $key => $val){
+				$list_buildings[] = $val[$clsProperty->pkey];
+			}
+			unset($tmp);
+		}
+		if(!empty($list_buildings)) $cond.= " and `building_id` in (".implode(",", $list_buildings).")";
+	}
+	if(!empty($home_direction)){
+		$field = "{$clsProperty->pkey}";
+		$tmp = $clsProperty->getByCond("`is_trash`=0 and `property_type`='_DIRECTION' 
+		and `slug`='{$clsISO->replaceSpace($home_direction)}'", $field);
+		if(!empty($tmp)) $cond.= " and `home_direction_id`='".$tmp[$clsProperty->pkey]."'";
+	}
+	if(!empty($bedroom_type)){
+		$field = "{$clsProperty->pkey}";
+		$tmp = $clsProperty->getByCond("`is_trash`=0 and `property_type`='_BEDROOM' 
+		and `slug`='{$clsISO->replaceSpace($bedroom_type)}'", $field);
+		if(!empty($tmp)) $cond.= " and `bedroom_id`='".$tmp[$clsProperty->pkey]."'";
+	}
+	$order_by = " order by `total_price_vat` {$sort_by}";
+	$limitCond = " limit 0,{$limit_by}";
+	$field = "{$clsStock->pkey},`ms_code`,`more_information`";
+	$list_stocks = $clsStock->getAll($cond.$order_by.$limitCond, $field);
+	$data = array();
+	if(!empty($list_stocks)){
+		foreach($list_stocks as $key => $val){
+			$more_information = $val['more_information'];
+			$more_information = $clsISO->to_array_json($more_information);
+			$total_price_vat = isset($more_information['total_price_vat']) 
+				? $clsISO->processSmartNumber($more_information['total_price_vat']) : "";
+			$total_price_early = isset($more_information['total_price_early']) 
+				? $clsISO->processSmartNumber($more_information['total_price_early']) : "";
+			$total_price_bank = isset($more_information['total_price_bank']) 
+				? $clsISO->processSmartNumber($more_information['total_price_bank']) : "";
+			$total_price_progress = isset($more_information['total_price_progress']) 
+				? $clsISO->processSmartNumber($more_information['total_price_progress']) : "";
+			$data[] = array(
+				'id' => $val[$clsStock->pkey],
+				'link' => DOMAIN_URL . sprintf('/%s.html', $val['ms_code']),
+				'ms_code' => $val['ms_code'],
+				'DT_TT' => $more_information['DT_TT'],
+				'DT_Tim' => $more_information['DT_Tim'],
+				'total_price_vat' => $total_price_vat,
+				'total_price_early' => $total_price_early,
+				'total_price_bank' => $total_price_bank,
+				'total_price_progress' => $total_price_progress
+			);
+		}
+		$apiresults = array(
+			'error' => 0,
+			'cond' => $cond,
+			'result' => 'success',
+			'list_stocks' => $data
+		);
+	} else {
+		$apiresults = array(
+			'error' => 0,
+			'cond' => $cond,
+			'result' => 'success',
+			'list_stocks' => '_empty'
+		);
+	}
+	// Return
+	echo echoResponse('200', $apiresults);
+}); */

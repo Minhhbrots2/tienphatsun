@@ -1,0 +1,3017 @@
+@charset "utf-8";
+/* Chat nội bộ — widget float (block chat). Scope #fhchat + tiền tố fhc-* để không đụng CSS app. */
+#fhchat {
+	--fhc-fh: #9f223a;
+	--fhc-fh-d: #bb141a;
+	--fhc-accent: #4f46e5;
+	--fhc-accent-soft: #eef0ff;
+	--fhc-ink: #0f172a;
+	--fhc-sub: #64748b;
+	--fhc-muted: #94a3b8;
+	--fhc-line: #eef1f5;
+	--fhc-line2: #e6eaf0;
+	--fhc-bg: #f7f8fa;
+	--fhc-ok: #16a34a;
+	--fhc-ok-soft: #e9f7ef;
+	--fhc-warn: #d97706;
+	--fhc-warn-soft: #fff5e8;
+	--fhc-bad: #dc2626;
+	--fhc-bad-soft: #fdecec;
+}
+#fhchat * {
+	box-sizing: border-box
+}
+/* FAB */
+.fhc-fab {
+	position: fixed;
+	right: 22px;
+	bottom: 80px;
+	width: 52px;
+	height: 52px;
+	border-radius: 10px;
+	background: var(--fhc-fh);
+	color: var(--bs-white);
+	border: 0;
+	box-shadow: 0 10px 26px rgba(225, 27, 34, .4), 0 2px 6px rgba(225, 27, 34, .3);
+	cursor: pointer;
+	z-index: 99980;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: transform .2s;
+}
+.fhc-fab:hover {
+	transform: translateY(-3px);
+	background: var(--fhc-fh-d)
+}
+.fhc-fab.fhc-hide {
+	transform: scale(.3);
+	opacity: 0;
+	pointer-events: none
+}
+.fhc-fab .fhc-badge {
+	position: fixed;
+	display: none
+}
+.fhc-fab>.fhc-badge {
+	position: absolute;
+	top: -5px;
+	right: -5px;
+	background: var(--bs-white);
+	color: var(--fhc-fh);
+	font-size: 11px;
+	font-weight: 800;
+	border-radius: 20px;
+	min-width: 21px;
+	height: 21px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 6px;
+	box-shadow: 0 2px 6px rgba(15, 23, 42, .18)
+}
+/* panel */
+.fhc-panel {
+	position: fixed;
+	top: 0;
+	right: 0;
+	height: 100vh;
+	width: 490px;
+	max-width: 100vw;
+	background: var(--fhc-bg);
+	z-index: 5;
+	border-radius: 6px 0 0 6px;
+	-moz-border-radius: 6px 0 0 6px;
+	-webkit-border-radius: 6px 0 0 6px;
+	-khtml-border-radius: 6px 0 0 6px;
+	overflow: hidden;
+	box-shadow: -16px 0 46px rgba(15, 23, 42, .16);
+	display: flex;
+	flex-direction: column;
+	transform: translateX(100%);
+	transition: transform .3s cubic-bezier(.32, .72, 0, 1)
+}
+.fhc-panel.fhc-open {
+	transform: translateX(0)
+}
+.fhc-head {
+	background: linear-gradient(135deg, var(--rank-1) 0%, var(--sky-primary) 50%, var(--rank-2) 100%);
+	border-bottom: none;
+	padding: 12px 16px;
+	display: flex;
+	align-items: center;
+	gap: 8px
+}
+.fhc-logo {
+	width: 34px;
+	height: 34px;
+	border: 2.5px solid var(--fhc-fh);
+	color: var(--fhc-fh);
+	font-weight: 800;
+	font-size: 11px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transform: rotate(45deg);
+	border-radius: 7px;
+	flex-shrink: 0
+}
+.fhc-logo b {
+	transform: rotate(-45deg)
+}
+.fhc-logo-img {
+/*
+	width: 34px;
+	height: 34px;
+*/
+	object-fit: cover;
+	flex-shrink: 0;
+	filter: brightness(0) invert(1);
+}
+.fhc-ti {
+	flex: 1;
+	min-width: 0
+}
+.fhc-ti .fhc-t {
+	font-weight: 800;
+	font-size: 15.5px;
+	color: var(--bs-white)
+}
+.fhc-ti .fhc-s {
+	color: rgba(255, 255, 255, .7);
+	font-size: 12px;
+	margin-top: 1px
+}
+.fhc-x {
+	width: 34px;
+	height: 34px;
+	border: 0;
+	background: rgba(255, 255, 255, .15);
+	border-radius: 25px;
+	color: rgba(255, 255, 255, .85);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background .2s
+}
+.fhc-x:hover {
+	background: rgba(255, 255, 255, .28);
+	color: var(--bs-white)
+}
+.fhc-tabs {
+	display: flex;
+	gap: 4px;
+	padding: 4px;
+	background: #eef1f6;
+	border-radius: 12px;
+	margin: 12px 16px 8px;
+	border-bottom: 0;
+	overflow: hidden;
+}
+.fhc-tab {
+	flex: 1;
+	white-space: nowrap;
+	border: 0;
+	background: transparent;
+	border-radius: 8px;
+	padding: 8px 12px;
+	font-size: 13px;
+	color: var(--fhc-sub);
+	font-weight: 600;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	transition: all 0.2s ease;
+}
+.fhc-tab.active {
+	background: var(--bs-white);
+	color: var(--fhc-ink);
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+/* Banner nhắc bật thông báo trình duyệt (khi chưa cấp quyền) */
+.fhc-notifybar {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 16px 8px;
+	padding: 9px 12px;
+	background: var(--fhc-accent-soft);
+	color: var(--fhc-accent);
+	border-radius: 12px;
+	font-size: 12.5px
+}
+.fhc-nb-ic {
+	flex-shrink: 0;
+	display: flex
+}
+.fhc-nb-txt {
+	flex: 1;
+	line-height: 1.4
+}
+.fhc-nb-on {
+	flex-shrink: 0;
+	border: 0;
+	background: var(--fhc-accent);
+	color: var(--bs-white);
+	font-weight: 700;
+	font-size: 12px;
+	padding: 5px 12px;
+	border-radius: 999px;
+	cursor: pointer
+}
+.fhc-nb-x {
+	flex-shrink: 0;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-accent);
+	font-size: 18px;
+	line-height: 1;
+	padding: 0 2px;
+	cursor: pointer;
+	opacity: .7
+}
+.fhc-nb-x:hover {
+	opacity: 1
+}
+.fhc-body {
+	flex: 1;
+	overflow-y: auto;
+	overflow-x: hidden;
+	min-width: 0;
+	padding: 14px
+}
+#fhchat .fhc-body.fhc-body-jn { padding: 0;background: #FFF }	/* màn Hành trình trải sát mép; back về idle → padding lại như cũ */
+.fhc-body::-webkit-scrollbar {
+	width: 7px
+}
+.fhc-body::-webkit-scrollbar-thumb {
+	background: #dde3ec;
+	border-radius: 10px
+}
+/* info card */
+.fhc-info {
+	background: var(--bs-white);
+	border: 1px solid var(--fhc-line);
+	border-radius: 14px;
+	padding: 14px;
+	margin-bottom: 13px
+}
+/* ===== Thống kê hôm nay ===== */
+.fhc-stats { position: relative; background: var(--bs-white); border: 1px solid var(--fhc-line); border-radius: 14px; padding: 12px 14px; margin-bottom: 13px }
+.fhc-stats-hd {display: flex;align-items: center;gap: 5px;flex-wrap: wrap}
+.fhc-stats-ic { width: 30px; height: 30px; flex: 0 0 auto; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #7c3aed; background: rgba(124,58,237,.12) }
+.fhc-stats-t { font-size: 15px; font-weight: 800; color: var(--fhc-ink) }
+.fhc-stats-scope {display: inline-flex;align-items: center;gap: 0px;font-size: 11px;font-weight: 700;color: var(--fhc-fh);background: var(--fhc-bad-soft, #fdecec);border-radius: 8px;padding: 4px 6px;cursor: pointer;white-space: nowrap}
+.fhc-stdate {margin-left: auto;display: inline-flex;align-items: center;gap: 3px;}
+.fhc-stchip {display: inline-flex;align-items: center;gap: 4px;font-size: 11px;font-weight: 700;color: #16a34a;background: rgba(22,163,74,.1);border: 1px solid rgba(22,163,74,.4);border-radius: 999px;padding: 4px 6px;cursor: pointer}
+.fhc-stchip:not(.on) { color: var(--fhc-sub); background: var(--fhc-bg); border-color: var(--fhc-line) }
+.fhc-stcal { position: relative; width: 32px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--fhc-line); border-radius: 8px; color: var(--fhc-ink); cursor: pointer; font-size: 17px }
+.fhc-stcal input[type=date] { position: absolute; inset: 0; opacity: 0; border: 0; padding: 0; margin: 0; cursor: pointer }
+.fhc-stmenu { position: absolute; z-index: 20; top: 46px; left: 46px; min-width: 190px; max-height: 300px; overflow-y: auto; background: var(--bs-white); border: 1px solid var(--fhc-line); border-radius: 12px; box-shadow: 0 8px 26px rgba(15,23,42,.16); padding: 6px }
+.fhc-stgrp { font-size: 11px; font-weight: 700; color: var(--fhc-muted); text-transform: uppercase; letter-spacing: .03em; padding: 8px 10px 4px }
+.fhc-stopt { -webkit-appearance: none; appearance: none; width: 100%; display: flex; align-items: center; gap: 8px; border: 0; background: transparent; border-radius: 8px; padding: 9px 10px; font-size: 13.5px; color: var(--fhc-ink); cursor: pointer; text-align: left }
+.fhc-stopt:hover { background: var(--fhc-bg) }
+.fhc-stopt.on { color: var(--fhc-fh); font-weight: 700 }
+.fhc-stopt .fhc-stck { margin-left: auto; color: var(--fhc-fh) }
+.fhc-stnums { display: flex; align-items: center; gap: 4px; margin-top: 12px }
+.fhc-stnum { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; position: relative; cursor: pointer; padding: 7px 2px 6px; border-radius: 10px; transition: background .12s ease; -webkit-tap-highlight-color: transparent }
+.fhc-stnum:hover { background: var(--fhc-accent-soft) }
+.fhc-stnum:active { background: var(--fhc-line2) }
+.fhc-stnum + .fhc-stnum::before { content: ""; position: absolute; left: -2px; top: 15%; height: 70%; width: 1px; background: var(--fhc-line) }
+.fhc-stnum-go { position: absolute; top: 4px; right: 5px; font-size: 14px; line-height: 1; color: var(--fhc-muted); opacity: .45 }
+.fhc-stnum:hover .fhc-stnum-go { opacity: .85; color: var(--fhc-accent) }
+.fhc-stn-ic { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px }
+.fhc-stnum b { font-size: 26px; font-weight: 800; line-height: 1 }
+.fhc-stnum span { font-size: 12px; color: var(--fhc-sub) }
+.fhc-stfoot { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--fhc-line); font-size: 11.5px; color: var(--fhc-muted) }
+.fhc-strefresh { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; border: 0; background: transparent; border-radius: 7px; color: var(--fhc-sub); cursor: pointer; font-size: 17px; display: flex; align-items: center; justify-content: center }
+.fhc-strefresh:hover { background: var(--fhc-bg) }
+.fhc-strefresh.spin i { animation: fhc-spin 0.8s linear infinite }
+@keyframes fhc-spin { to { transform: rotate(360deg) } }
+.fhc-info .fhc-top {
+	display: flex;
+	gap: 11px
+}
+.fhc-clock {
+	width: 42px;
+	height: 42px;
+	border-radius: 12px;
+	background: var(--fhc-accent-soft);
+	color: var(--fhc-accent);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0
+}
+.fhc-info h2 {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 800;
+	color: var(--fhc-ink)
+}
+.fhc-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: var(--fhc-ok-soft);
+	color: var(--fhc-ok);
+	font-weight: 700;
+	font-size: 11.5px;
+	border-radius: 999px;
+	padding: 3px 10px;
+	margin-top: 6px
+}
+.fhc-chip .fhc-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--fhc-ok)
+}
+.fhc-info p {
+	margin: 7px 0 0;
+	color: var(--fhc-sub);
+	font-size: 12px;
+	line-height: 1.45
+}
+.fhc-prog {
+	margin-top: 12px
+}
+.fhc-prog .fhc-pt {
+	display: flex;
+	justify-content: space-between;
+	font-size: 12px;
+	margin-bottom: 6px;
+	color: var(--fhc-sub)
+}
+.fhc-prog .fhc-pt b {
+	font-weight: 800;
+	color: var(--fhc-ink)
+}
+.fhc-bar {
+	height: 8px;
+	background: #eef1f5;
+	border-radius: 999px;
+	overflow: hidden
+}
+.fhc-bar>i {
+	display: block;
+	height: 100%;
+	background: linear-gradient(90deg, #22c55e, #16a34a);
+	border-radius: 999px;
+	transition: width .4s
+}
+/* my-status */
+.fhc-my {
+	border-radius: 14px;
+	padding: 15px;
+	margin-bottom: 14px;
+	border: 1px solid var(--fhc-line);
+	background: var(--bs-white)
+}
+.fhc-my.done {
+	background: linear-gradient(180deg, #f3fbf6, var(--bs-white));
+	border-color: #cdeed8
+}
+.fhc-my.bad {
+	background: var(--fhc-bad-soft);
+	border-color: #f3cfcf
+}
+.fhc-my .fhc-h {
+	font-weight: 800;
+	font-size: 14.5px;
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	color: var(--fhc-ink)
+}
+.fhc-my .fhc-ico {
+	width: 30px;
+	height: 30px;
+	border-radius: 9px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0
+}
+.fhc-my.idle .fhc-ico {
+	background: var(--fhc-bad-soft);
+	color: var(--fhc-fh)
+}
+.fhc-my.locating .fhc-ico {
+	background: var(--fhc-accent-soft);
+	color: var(--fhc-accent)
+}
+.fhc-my.done .fhc-ico {
+	background: var(--fhc-ok-soft);
+	color: var(--fhc-ok)
+}
+.fhc-my.retry {
+	background: var(--fhc-bad-soft);
+	border-color: #f3cfcf
+}
+.fhc-my.retry .fhc-ico {
+	background: var(--fhc-bad-soft);
+	color: var(--fhc-fh)
+}
+.fhc-my .fhc-stxt {
+	font-size: 12px;
+	color: var(--fhc-sub);
+	margin-top: 6px;
+	line-height: 1.5
+}
+.fhc-my .fhc-stxt .fhc-geo-good {
+	color: var(--fhc-ok);
+	font-weight: 800
+}
+.fhc-my .fhc-stxt .fhc-geo-bad {
+	color: var(--fhc-warn);
+	font-weight: 800
+}
+/* PC (không camera/GPS đáng tin): thay nút chụp bằng note yêu cầu dùng Mobile */
+.fhc-ck-pcnote {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	margin-top: 12px;
+	padding: 11px 13px;
+	background: var(--fhc-warn-soft);
+	color: var(--fhc-warn);
+	border-radius: 12px;
+	font-size: 12.5px;
+	line-height: 1.5
+}
+.fhc-ck-pcnote svg {
+	flex-shrink: 0
+}
+.fhc-ck-pcnote b {
+	font-weight: 800
+}
+.fhc-cta {
+	margin-top: 12px;
+	width: 100%;
+	border: 0;
+	border-radius: 12px;
+	padding: 13px;
+	font-size: 14.5px;
+	font-weight: 700;
+	color: var(--bs-white);
+	background: var(--sky-primary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 9px;
+	cursor: pointer
+}
+.fhc-cta:hover {
+	background: var(--rank-2)
+}
+.fhc-cta:disabled {
+	background: #bcc2d4;
+	cursor: default
+}
+.fhc-thumb {
+	width: 100%;
+	height: 150px;
+	border-radius: 12px;
+	margin-top: 12px;
+	object-fit: cover;
+	border: 1px solid var(--fhc-line2)
+}
+.fhc-spin {
+	animation: fhc-sp 1s linear infinite
+}
+@keyframes fhc-sp {
+	to {
+		transform: rotate(360deg)
+	}
+}
+/* feed */
+.fhc-feedh {
+	font-size: 11px;
+	font-weight: 800;
+	color: var(--fhc-muted);
+	letter-spacing: .6px;
+	margin: 4px 2px 10px;
+	text-transform: uppercase;
+	display: flex;
+	justify-content: space-between
+}
+.fhc-feedh.fhc-feedh2 {
+	margin-top: 16px
+}
+.fhc-feedhint {
+	padding: 0 2px 12px;
+	font-size: 12.5px;
+	color: var(--fhc-muted)
+}
+.fhc-feedh .fhc-cnt {
+	background: #eef1f5;
+	color: var(--fhc-sub);
+	border-radius: 999px;
+	padding: 2px 8px
+}
+.fhc-row {
+	background: var(--bs-white);
+	border: 1px solid var(--fhc-line);
+	border-radius: 13px;
+	padding: 10px;
+	margin-bottom: 9px;
+	display: flex;
+	align-items: center;
+	gap: 10px
+}
+.fhc-av {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	-moz-border-radius: 50%;
+	-webkit-border-radius: 50%;
+	-khtml-border-radius: 50%;
+	flex-shrink: 0;
+	object-fit: cover;
+	background: #eef0ff
+}
+.fhc-who {
+	flex: 1;
+	min-width: 0
+}
+.fhc-who .fhc-nm {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-weight: 700;
+	font-size: 13.5px;
+	color: var(--fhc-ink);
+	min-width: 0
+}
+.fhc-who .fhc-nm .fhc-nmtxt {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	min-width: 0
+}
+/* Badge code phòng ban cạnh tên (vd FH18) — không co, không bị ellipsis */
+.fhc-dept {
+	flex-shrink: 0;
+	padding: 1px 7px;
+	background: var(--fhc-bg);
+	color: var(--fhc-sub);
+	border-radius: 6px;
+	font-size: 10.5px;
+	font-weight: 700;
+	letter-spacing: .02em
+}
+.fhc-who .fhc-tm {
+	color: var(--fhc-muted);
+	font-size: 9.5px;
+	margin-top: 2px
+}
+.fhc-cap {
+	width: 54px;
+	height: 42px;
+	border-radius: 9px;
+	flex-shrink: 0;
+	object-fit: cover;
+	border: 1px solid var(--fhc-line2);
+	background: #e7edf4;
+	cursor: zoom-in
+}
+/* Nút "Hành trình" trong row Người khác (hiện khi >=2 lượt check-in) */
+.fhc-jnbtn {-webkit-appearance: none;appearance: none;-webkit-tap-highlight-color: transparent;flex-shrink: 0;display: inline-flex;align-items: center;gap: 4px;padding: 5px 9px;border: 1px solid var(--sky-primary);background: color-mix(in srgb, var(--sky-primary) 10%, transparent);color: var(--sky-primary);border-radius: 999px;font-size: 11px;font-weight: 700;line-height: 1;white-space: nowrap;cursor: pointer}
+.fhc-jnbtn svg { flex: 0 0 auto; display: block; pointer-events: none }
+.fhc-jnbtn:hover {background: var(--sky-primary);color: #fff}
+.fhc-pill {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 11px;
+	font-weight: 700;
+	border-radius: 999px;
+	padding: 4px 9px;
+	background: var(--fhc-ok-soft);
+	color: #15803d
+}
+.fhc-empty {
+	text-align: center;
+	color: var(--fhc-muted);
+	font-size: 12.5px;
+	padding: 18px 0
+}
+/* Empty-state thread (chưa có tin nhắn) — icon + tiêu đề + mô tả, căn giữa */
+.fhc-emptyc {
+	margin: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	padding: 24px 28px;
+	max-width: 320px
+}
+.fhc-emptyc-ic {
+	width: 66px;
+	height: 66px;
+	border-radius: 20px;
+	background: var(--bs-white, #fff);
+	color: var(--fhc-fh);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 8px 22px rgba(159, 34, 58, .14), 0 2px 6px rgba(15, 23, 42, .06);
+	margin-bottom: 10px
+}
+.fhc-emptyc-t {
+	font-weight: 800;
+	font-size: 14px;
+	color: var(--fhc-ink)
+}
+.fhc-emptyc-s {
+	margin-top: 6px;
+	font-size: 12.5px;
+	color: var(--fhc-sub);
+	line-height: 1.55
+}
+/* empty-state feed check-in */
+.fhc-feedempty {
+	text-align: center;
+	background: var(--bs-white);
+	border: 1px dashed var(--fhc-line2);
+	border-radius: 14px;
+	padding: 26px 18px 22px
+}
+.fhc-feedempty .fhc-fe-ic {
+	width: 52px;
+	height: 52px;
+	margin: 0 auto 12px;
+	border-radius: 10px;
+	background: var(--fhc-warn-soft);
+	color: var(--fhc-warn);
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+.fhc-feedempty .fhc-fe-t {
+	font-weight: 800;
+	font-size: 14px;
+	color: var(--fhc-ink)
+}
+.fhc-feedempty .fhc-fe-s {
+	margin-top: 4px;
+	font-size: 12px;
+	color: var(--fhc-sub);
+	line-height: 1.5
+}
+/* ===== Form xác nhận check-in (ảnh + vị trí + ghi chú) ===== */
+.fhc-review {
+	border: 1px solid var(--fhc-line);
+	background: var(--bs-white);
+	border-radius: 14px;
+	padding: 15px;
+	margin-bottom: 14px
+}
+.fhc-rvh {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 14px
+}
+.fhc-rvt {
+	font-weight: 800;
+	font-size: 15.5px;
+	color: var(--fhc-ink)
+}
+.fhc-rvx {
+	width: 30px;
+	height: 30px;
+	border: 0;
+	border-radius: 50%;
+	background: var(--fhc-bg);
+	color: var(--fhc-sub);
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+	flex-shrink: 0
+}
+.fhc-rvx:hover {
+	background: var(--fhc-line2)
+}
+.fhc-fld {
+	margin-bottom: 13px
+}
+.fhc-flbl {
+	display: block;
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--fhc-sub);
+	margin-bottom: 6px
+}
+.fhc-loc {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	border: 1px solid var(--fhc-line2);
+	border-radius: 11px;
+	padding: 11px 12px;
+	background: var(--fhc-bg);
+	font-size: 13px;
+	color: var(--fhc-ink);
+	line-height: 1.45
+}
+.fhc-loc.ready {
+	border-color: #cdeed8;
+	background: var(--fhc-ok-soft)
+}
+.fhc-loc.bad {
+	border-color: #f3cfcf;
+	background: var(--fhc-bad-soft)
+}
+.fhc-loc .fhc-locico {
+	flex-shrink: 0;
+	color: var(--fhc-fh)
+}
+.fhc-loc.ready .fhc-locico {
+	color: var(--fhc-ok)
+}
+.fhc-loc .fhc-loctxt {
+	flex: 1;
+	min-width: 0;
+	word-break: break-word
+}
+.fhc-loc .fhc-locwait {
+	color: var(--fhc-sub)
+}
+.fhc-loc .fhc-locok {
+	flex-shrink: 0;
+	color: var(--fhc-ok)
+}
+.fhc-rvlink {
+	color: var(--fhc-fh);
+	font-weight: 700;
+	cursor: pointer;
+	white-space: nowrap
+}
+.fhc-rvcoarse {
+	display: inline-block;
+	margin-top: 6px;
+	padding: 5px 12px;
+	border: 1px solid var(--fhc-fh);
+	border-radius: 8px;
+	white-space: normal
+}
+.fhc-shot {
+	border-radius: 12px;
+	overflow: hidden;
+	border: 1px solid var(--fhc-line2);
+	background: #e7edf4
+}
+.fhc-shot img {
+	display: block;
+	width: 100%;
+	max-height: 220px;
+	object-fit: cover
+}
+#fhchat .fhc-noteinp {
+	width: 100%;
+	border: 1px solid var(--fhc-line2);
+	border-radius: 11px;
+	padding: 11px 12px;
+	font-size: 13.5px;
+	color: var(--fhc-ink);
+	background: var(--bs-white);
+	outline: none;
+	box-shadow: none
+}
+#fhchat .fhc-noteinp:focus {
+	border-color: var(--fhc-fh)
+}
+#fhchat .fhc-noteinp::placeholder {
+	color: var(--fhc-muted)
+}
+.fhc-suberr {
+	font-size: 12.5px;
+	font-weight: 700;
+	color: var(--fhc-bad);
+	margin-top: 4px
+}
+/* Cảnh báo: check-in ngoài VP → bắt buộc chọn tag hoặc nhập ghi chú */
+.fhc-hint-out {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--fhc-warn, #d97706);
+	background: var(--fhc-warn-soft, #fff5e8);
+	border: 1px solid var(--fhc-warn, #d97706);
+	border-radius: 8px;
+	padding: 8px 10px;
+	margin-top: 8px
+}
+.fhc-who .fhc-rnote {
+	font-size: 12px;
+	color: var(--fhc-sub);
+	margin-top: 3px;
+	line-height: 1.45;
+	word-break: break-word
+}
+/* ===== Chat thread + composer (kênh Toàn công ty / Phòng ban) ===== */
+.fhc-tab .fhc-ub {
+	background: var(--fhc-fh);
+	color: var(--bs-white);
+	font-size: 10px;
+	font-weight: 800;
+	border-radius: 999px;
+	min-width: 17px;
+	height: 17px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 5px;
+	margin-left: 2px
+}
+.fhc-tab.active .fhc-ub {
+	background: var(--fhc-fh);
+	color: var(--bs-white)
+}
+.fhc-thread {
+	min-height: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding-bottom: 12px
+		/* chừa chỗ cho badge cảm xúc nhô dưới bóng tin CUỐI (chống #fhc-body overflow cắt) */
+}
+.fhc-daydiv {
+	align-self: center;
+	background: #e9edf3;
+	color: var(--fhc-sub);
+	font-size: 11px;
+	font-weight: 700;
+	border-radius: 999px;
+	padding: 4px 12px;
+	margin: 8px 0
+}
+.fhc-unread {
+	align-self: stretch;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	color: var(--fhc-fh);
+	font-size: 11px;
+	font-weight: 800;
+	margin: 8px 2px;
+	letter-spacing: .4px
+}
+.fhc-unread:before,
+.fhc-unread:after {
+	content: "";
+	height: 1px;
+	background: var(--fhc-fh);
+	opacity: .35;
+	flex: 1
+}
+.fhc-msg {
+	display: flex;
+	gap: 9px;
+	align-items: flex-end;
+	max-width: 85%;
+	margin-top: 10px
+}
+.fhc-msg.me {
+	margin-left: auto;
+	flex-direction: row-reverse
+}
+.fhc-mav {
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	align-self: flex-end;
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 800;
+	font-size: 12.5px
+}
+.fhc-mav img {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover
+}
+.fhc-mwrap {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	max-width: 100%;
+	position: relative;
+}
+.fhc-msg.me .fhc-mwrap {
+	align-items: flex-end
+}
+.fhc-mname {
+	font-size: 11.5px;
+	font-weight: 800;
+	color: var(--fhc-accent);
+	margin: 0 0 3px
+}
+.fhc-bub-img .fhc-mname {
+	padding: 3px 6px 1px
+}
+.fhc-bub {
+	position: relative;
+	background: var(--bs-white);
+	border: 1px solid var(--fhc-line);
+	border-radius: 10px;
+	border-bottom-left-radius: 5px;
+	padding: 8px 10px;
+	font-size: 13px;
+	line-height: 1.45;
+	color: var(--fhc-ink);
+	/* KHÔNG pre-wrap ở container: template xuống dòng/thụt lề giữa các div con (mname/quote/album/bcap/btx/mtime)
+	   sẽ bị render thành dòng trống → bóng cao bất thường. Giữ pre-wrap RIÊNG ở .fhc-btx/.fhc-bcap (chữ tin). */
+	word-break: break-word;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, .05)
+}
+.fhc-btx {
+	white-space: pre-wrap;
+	word-break: break-word
+}
+/* ===== Quote / trả lời ===== */
+/* Hộp quote TRẮNG đồng nhất cho cả người gửi (bóng indigo) lẫn người nhận (bóng trắng);
+   phân biệt người gửi bằng vị trí trái/phải, KHÔNG đổi màu quote. */
+.fhc-quote {
+	background: #F5F5F5;
+	border-left: 3px solid var(--fhc-accent);
+	padding: 4px 8px;
+	margin-bottom: 5px;
+	font-size: 12px;
+	line-height: 1.35;
+	cursor: pointer;
+	max-width: 100%
+}
+.fhc-quote b {
+	display: block;
+	color: var(--fhc-accent);
+	font-weight: 700;
+	font-size: 11px;
+	margin-bottom: 1px
+}
+.fhc-quote .fhc-q-prev {
+	display: block;
+	color: var(--fhc-sub);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+.fhc-bub-img .fhc-quote {
+	margin: 2px 2px 4px
+}
+.fhc-reply {
+	flex-shrink: 0;
+	align-self: center;
+	width: 26px;
+	height: 26px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-muted);
+	opacity: 0;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: opacity .12s
+}
+.fhc-msg:hover .fhc-reply {
+	opacity: 1
+}
+.fhc-reply:hover {
+	background: #eef1f5;
+	color: var(--fhc-accent)
+}
+@media (max-width:560px) {
+	.fhc-reply {
+		display: none
+	}
+}
+/* Thu hồi: nút (desktop hover-reveal như reply; mobile LUÔN hiện vì hover không có) + placeholder tin đã thu hồi */
+.fhc-recall {
+	flex-shrink: 0;
+	align-self: center;
+	width: 26px;
+	height: 26px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-muted);
+	opacity: 0;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: opacity .12s
+}
+.fhc-msg:hover .fhc-recall {
+	opacity: 1
+}
+.fhc-recall:hover {
+	background: var(--fhc-bad-soft);
+	color: var(--fhc-bad)
+}
+@media (max-width:560px) {
+	.fhc-recall {
+		display: flex;
+		opacity: 1
+	}
+}
+.fhc-recalled {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-style: italic;
+	font-size: 13px;
+	color: var(--fhc-muted)
+}
+.fhc-recalled svg {
+	flex-shrink: 0;
+	opacity: .8
+}
+.fhc-bub-recalled {
+	background: transparent;
+	border: 1px dashed var(--fhc-line2);
+	box-shadow: none
+}
+/* Ghim hội thoại: nút (desktop hover-reveal; ghim rồi LUÔN hiện crimson; mobile luôn hiện) */
+.fhc-conv-pin {
+	flex-shrink: 0;
+	width: 28px;
+	height: 28px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-muted);
+	opacity: 0;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: opacity .12s
+}
+.fhc-conv:hover .fhc-conv-pin {
+	opacity: 1
+}
+.fhc-conv-pin.on {
+	opacity: 1;
+	color: var(--fhc-fh)
+}
+.fhc-conv-pin:hover {
+	background: #eef1f5
+}
+@media (max-width:560px) {
+	.fhc-conv-pin {
+		opacity: 1
+	}
+}
+/* Ghim tin: banner sticky đầu thread + nút ghim mỗi tin (desktop hover) */
+.fhc-pinbar {
+	position: sticky;
+	top: 0;
+	z-index: 5;
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	padding: 9px 12px;
+	background: var(--fhc-warn-soft);
+	border-bottom: 1px solid #f0e2c8;
+	cursor: pointer
+}
+.fhc-pinbar .fhc-pb-ic {
+	flex-shrink: 0;
+	color: var(--fhc-warn)
+}
+.fhc-pb-body {
+	flex: 1;
+	min-width: 0
+}
+.fhc-pb-lbl {
+	font-size: 11px;
+	font-weight: 800;
+	color: var(--fhc-warn);
+	text-transform: uppercase;
+	letter-spacing: .4px
+}
+.fhc-pb-prev {
+	font-size: 12.5px;
+	color: var(--fhc-ink);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+.fhc-pb-x {
+	flex-shrink: 0;
+	width: 26px;
+	height: 26px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+.fhc-pb-x:hover {
+	background: rgba(0, 0, 0, .06)
+}
+.fhc-pb-toggle {
+	flex-shrink: 0;
+	width: 26px;
+	height: 26px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.2s;
+}
+.fhc-pb-toggle:hover {
+	background: rgba(0, 0, 0, .06);
+}
+.fhc-pin-list {
+	background: var(--fhc-bg);
+	border-bottom: 1px solid var(--fhc-line2);
+	max-height: 180px;
+	overflow-y: auto;
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+.fhc-pin-item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 12px;
+	border-bottom: 1px solid var(--fhc-line);
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+.fhc-pin-item:last-child {
+	border-bottom: 0;
+}
+.fhc-pin-item:hover {
+	background: rgba(0, 0, 0, 0.03);
+}
+.fhc-pin-item-body {
+	flex: 1;
+	font-size: 12.5px;
+	color: var(--fhc-ink);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.fhc-pin-item-x {
+	flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+}
+.fhc-pin-item-x:hover {
+	background: rgba(0, 0, 0, 0.06);
+	color: var(--fhc-bad);
+}
+.fhc-pinmsg {
+	flex-shrink: 0;
+	align-self: center;
+	width: 26px;
+	height: 26px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-muted);
+	opacity: 0;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: opacity .12s
+}
+.fhc-msg:hover .fhc-pinmsg {
+	opacity: 1
+}
+.fhc-pinmsg:hover {
+	background: #eef1f5;
+	color: var(--fhc-warn)
+}
+@media (max-width:560px) {
+	.fhc-pinmsg {
+		display: none
+	}
+}
+/* Nút bật thông báo trình duyệt (hiện khi chưa cấp quyền) — vàng gold nổi trên nền header tối */
+.fhc-bell {
+	color: #fbbf24 !important;
+	animation: fhc-bellpulse 2s ease-in-out infinite;
+}
+@keyframes fhc-bellpulse {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.15);
+	}
+}
+/* Action gọn: nút ⋮ + dropdown (mở rộng nhiều chức năng) — giữ Trả lời đứng riêng */
+.fhc-act {
+	position: relative;
+	align-self: center;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center
+}
+.fhc-more {
+	width: 26px;
+	height: 26px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-muted);
+	opacity: 0;
+	cursor: pointer;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: opacity .12s
+}
+.fhc-msg:hover .fhc-more,
+.fhc-more.active {
+	opacity: 1
+}
+.fhc-more:hover,
+.fhc-more.active {
+	background: #eef1f5;
+	color: var(--fhc-accent)
+}
+.fhc-menu {
+	position: absolute;
+	top: calc(100% + 4px);
+	right: 0;
+	min-width: 156px;
+	background: var(--bs-white);
+	border: 1px solid var(--fhc-line2);
+	border-radius: 12px;
+	box-shadow: 0 6px 24px rgba(15, 23, 42, .16);
+	padding: 5px;
+	z-index: 40
+}
+.fhc-msg.me .fhc-menu {
+	right: auto;
+	left: 0
+}
+.fhc-menu-item {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	width: 100%;
+	border: 0;
+	background: transparent;
+	padding: 8px 10px;
+	border-radius: 8px;
+	font-size: 13px;
+	color: var(--fhc-ink);
+	cursor: pointer;
+	white-space: nowrap;
+	text-align: left
+}
+.fhc-menu-item:hover {
+	background: var(--fhc-bg)
+}
+.fhc-menu-item svg {
+	flex-shrink: 0;
+	color: var(--fhc-sub)
+}
+.fhc-menu-danger {
+	color: var(--fhc-bad)
+}
+.fhc-menu-danger svg {
+	color: var(--fhc-bad)
+}
+@media (max-width:560px) {
+	.fhc-reply,
+	.fhc-more {
+		display: flex;
+		opacity: 1
+	}
+}
+/* Dropdown ⋮ trên hàng hội thoại (Ghim nhóm + Tắt/Bật thông báo) + chỉ báo 🔕 muted */
+.fhc-conv-act {
+	position: relative;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center
+}
+.fhc-conv-more {
+	width: 28px;
+	height: 28px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-muted);
+	opacity: 0;
+	cursor: pointer;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: opacity .12s
+}
+.fhc-conv:hover .fhc-conv-more {
+	opacity: 1
+}
+.fhc-conv-more:hover {
+	background: #eef1f5;
+	color: var(--fhc-accent)
+}
+@media (max-width:560px) {
+	.fhc-conv-more {
+		opacity: 1
+	}
+}
+.fhc-conv-menu {
+	position: absolute;
+	top: calc(100% + 2px);
+	right: 0;
+	min-width: 170px;
+	background: var(--bs-white);
+	border: 1px solid var(--fhc-line2);
+	border-radius: 12px;
+	box-shadow: 0 6px 24px rgba(15, 23, 42, .16);
+	padding: 5px;
+	z-index: 40
+}
+.fhc-conv-muteic {
+	flex-shrink: 0;
+	color: var(--fhc-muted)
+}
+/* Popup ai-đã-reaction (chạm badge cảm xúc) — vị trí như picker */
+/* Popup "ai đã thả cảm xúc" — modal-over-panel (tái dùng pattern .fhc-cg) + hàng .fhc-rl-* */
+.fhc-rx {
+	position: fixed;
+	inset: 0;
+	z-index: 99992;
+	background: rgba(15, 23, 42, .45);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px
+}
+.fhc-rx-box {
+	width: 320px;
+	max-width: 100%;
+	max-height: 70vh;
+	background: var(--bs-white);
+	border-radius: 16px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	box-shadow: 0 18px 50px rgba(15, 23, 42, .3)
+}
+.fhc-rx-total {
+	color: var(--fhc-sub);
+	font-weight: 600
+}
+.fhc-rx-sum {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	padding: 10px 14px;
+	border-bottom: 1px solid var(--fhc-line)
+}
+.fhc-rx-sumi {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 3px 9px;
+	background: var(--fhc-bg);
+	border-radius: 999px;
+	font-size: 13px
+}
+.fhc-rx-sumi b {
+	font-weight: 700;
+	color: var(--fhc-sub);
+	font-size: 12px
+}
+.fhc-rx-list {
+	flex: 1;
+	overflow-y: auto;
+	padding: 6px 8px
+}
+.fhc-rl-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 8px;
+	border-radius: 8px
+}
+.fhc-rl-item:hover {
+	background: var(--fhc-bg)
+}
+.fhc-rl-av {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	object-fit: cover;
+	background: #eef0ff
+}
+.fhc-rl-nm {
+	flex: 1;
+	min-width: 0;
+	font-size: 13px;
+	color: var(--fhc-ink);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+.fhc-rl-emo {
+	flex-shrink: 0;
+	font-size: 15px
+}
+.fhc-rl-empty {
+	padding: 8px 10px;
+	font-size: 12.5px;
+	color: var(--fhc-muted)
+}
+/* Đã xem bởi ai (read receipt) — bar nhỏ trên composer */
+.fhc-seen {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 0 14px;
+	margin-left: auto;
+	flex-shrink: 0
+}
+.fhc-seen-lbl {
+	font-size: 11px;
+	color: var(--fhc-muted);
+	margin-right: 2px
+}
+.fhc-seen-av {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	object-fit: cover;
+	background: #eef0ff;
+	border: 1.5px solid var(--bs-white);
+	margin-left: -6px
+}
+.fhc-seen-more {
+	font-size: 11px;
+	color: var(--fhc-muted);
+	margin-left: 2px
+}
+/* @mention: highlight trong tin + bóng nhắc-mình + picker @ */
+.fhc-composer {
+	position: relative
+}
+.fhc-men {
+	color: var(--fhc-accent);
+	font-weight: 700
+}
+.fhc-bub-men {
+	background: var(--fhc-accent-soft) !important;
+	box-shadow: inset 2.5px 0 0 var(--fhc-accent)
+}
+.fhc-at {
+	position: absolute;
+	bottom: 100%;
+	left: 0;
+	right: 0;
+	margin-bottom: 6px;
+	max-height: 220px;
+	overflow-y: auto;
+	background: var(--bs-white);
+	border: 1px solid var(--fhc-line2);
+	border-radius: 12px;
+	box-shadow: 0 6px 24px rgba(15, 23, 42, .18);
+	padding: 5px;
+	z-index: 20
+}
+.fhc-at-item {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	width: 100%;
+	border: 0;
+	background: transparent;
+	padding: 7px 9px;
+	border-radius: 8px;
+	cursor: pointer;
+	text-align: left
+}
+.fhc-at-item.fhc-at-on {
+	background: var(--fhc-accent-soft)
+}
+.fhc-at-item:hover {
+	background: var(--fhc-bg)
+}
+.fhc-at-av {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	object-fit: cover;
+	background: #eef0ff
+}
+.fhc-at-nm {
+	flex: 1;
+	min-width: 0;
+	font-size: 13.5px;
+	color: var(--fhc-ink);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+/* Nút tải tin cũ hơn (load-more quá khứ) */
+.fhc-loadmore {
+	text-align: center;
+	padding: 4px 0 10px
+}
+.fhc-loadmore button {
+	border: 1px solid var(--fhc-line2);
+	background: var(--bs-white);
+	color: var(--fhc-sub);
+	font-size: 12.5px;
+	padding: 5px 14px;
+	border-radius: 14px;
+	cursor: pointer
+}
+.fhc-loadmore button:hover {
+	background: var(--fhc-bg)
+}
+.fhc-loadmore button:disabled {
+	opacity: .6;
+	cursor: default
+}
+/* Ô tìm hội thoại (lọc danh sách) */
+.fhc-conv-search {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	margin: 0 12px 8px;
+	padding: 7px 11px;
+	background: var(--fhc-bg);
+	border: 1px solid var(--fhc-line2);
+	border-radius: 12px;
+	color: var(--fhc-muted)
+}
+.fhc-conv-search input {
+	flex: 1;
+	min-width: 0;
+	border: 0;
+	background: transparent;
+	font-size: 13.5px;
+	color: var(--fhc-ink);
+	outline: none
+}
+.fhc-conv-clr {
+	border: 0;
+	background: transparent;
+	color: var(--fhc-muted);
+	font-size: 18px;
+	line-height: 1;
+	cursor: pointer;
+	padding: 0 2px;
+	flex-shrink: 0
+}
+/* Tìm tin nhắn trong kênh (overlay phủ panel) */
+/* Overlay tìm tin nhắn — PHẢI mirror .fhc-panel (fixed right, cùng width) + z-index > 99981,
+   vì .fhc-srch là ANH EM của .fhc-panel trong #fhchat (absolute/inset:0 sẽ neo viewport = tràn full-page, lại z<panel bị panel che). */
+.fhc-srch {
+	position: fixed;
+	top: 0;
+	right: 0;
+	width: 490px;
+	max-width: 100vw;
+	height: 100vh;
+	z-index: 99982;
+	background: var(--fhc-bg);
+	display: flex;
+	flex-direction: column;
+	border-radius: 6px 0 0 6px;
+	overflow: hidden
+}
+.fhc-srch-bar {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	padding: 13px 14px;
+	border-bottom: 1px solid var(--fhc-line);
+	background: var(--bs-white, #fff);
+	color: var(--fhc-muted)
+}
+.fhc-srch-bar input {
+	flex: 1;
+	min-width: 0;
+	border: 0;
+	background: transparent;
+	font-size: 14px;
+	color: var(--fhc-ink);
+	outline: none
+}
+.fhc-srch-x {
+	border: 0;
+	background: transparent;
+	color: var(--fhc-muted);
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+	padding: 0 2px;
+	flex-shrink: 0
+}
+.fhc-srch-results {
+	flex: 1;
+	overflow-y: auto;
+	padding: 8px
+}
+.fhc-srch-hint {
+	text-align: center;
+	color: var(--fhc-muted);
+	font-size: 12.5px;
+	padding: 18px 12px
+}
+.fhc-srch-item {
+	display: block;
+	width: 100%;
+	text-align: left;
+	border: 0;
+	background: transparent;
+	padding: 9px 11px;
+	border-radius: 9px;
+	cursor: pointer
+}
+.fhc-srch-item:hover {
+	background: var(--fhc-line)
+}
+.fhc-srch-rhead {
+	display: flex;
+	justify-content: space-between;
+	gap: 8px;
+	font-size: 11.5px;
+	color: var(--fhc-sub);
+	margin-bottom: 2px
+}
+.fhc-srch-rhead b {
+	color: var(--fhc-ink);
+	font-weight: 700
+}
+.fhc-srch-snip {
+	font-size: 13px;
+	color: var(--fhc-ink);
+	line-height: 1.45;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden
+}
+.fhc-flash {
+	animation: fhc-flash 1.2s ease
+}
+@keyframes fhc-flash {
+	0%,
+	100% {
+		background: transparent
+	}
+	25% {
+		background: rgba(79, 70, 229, .12)
+	}
+}
+/* thanh quote ở composer */
+.fhc-reply-bar {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	padding: 8px 14px;
+	background: var(--bs-white);
+	border-top: 1px solid var(--fhc-line)
+}
+.fhc-reply-bar .fhc-rb-ic {
+	color: var(--fhc-accent);
+	flex-shrink: 0
+}
+.fhc-reply-bar .fhc-rb-body {
+	flex: 1;
+	min-width: 0;
+	border-left: 2px solid var(--fhc-accent);
+	padding-left: 9px
+}
+.fhc-reply-bar .fhc-rb-name {
+	font-size: 11.5px;
+	font-weight: 800;
+	color: var(--fhc-accent)
+}
+.fhc-reply-bar .fhc-rb-prev {
+	font-size: 12px;
+	color: var(--fhc-sub);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+.fhc-reply-bar .fhc-rb-x {
+	flex-shrink: 0;
+	width: 28px;
+	height: 28px;
+	border: 0;
+	background: #f4f6f9;
+	border-radius: 50%;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+.fhc-reply-bar .fhc-rb-x:hover {
+	background: #e9edf3;
+	color: var(--fhc-ink)
+}
+/* Bong bóng "mình" — tông hồng nhạt thương hiệu để phân biệt rõ với người gửi */
+.fhc-msg.me .fhc-bub {
+	background: linear-gradient(135deg, #fdf2f4 0%, #fce8ec 100%);
+	border-color: #f5d0d8;
+	border-bottom-left-radius: 14px;
+	border-bottom-right-radius: 5px
+}
+/* bong bóng tin ẢNH */
+.fhc-bub-img {
+	padding: 4px;
+	overflow: hidden
+}
+.fhc-bimg {
+	display: block;
+	width: 210px;
+	max-width: 100%;
+	border-radius: 9px;
+	border: 1px solid var(--fhc-line2);
+	cursor: pointer
+}
+.fhc-bcap {
+	padding: 5px 7px 2px;
+	font-size: 13px;
+	line-height: 1.4;
+	white-space: pre-wrap;
+	word-break: break-word
+}
+/* ===== Album nhiều ảnh (grid kiểu Zalo) ===== */
+.fhc-album {
+	display: grid;
+	gap: 2px;
+	width: 222px;
+	max-width: 100%;
+	border-radius: 9px;
+	overflow: hidden
+}
+.fhc-acell {
+	position: relative;
+	overflow: hidden;
+	cursor: pointer;
+	background: #e7edf4
+}
+.fhc-acell img {
+	width: 100%;
+	height: 100%;
+	display: block;
+	object-fit: cover
+}
+.fhc-album.album-1 {
+	width: auto;
+	grid-template-columns: 1fr
+}
+.fhc-album.album-1 .fhc-acell {
+	background: none
+}
+.fhc-album.album-1 .fhc-acell img {
+	width: auto;
+	height: auto;
+	max-width: 222px;
+	max-height: 260px;
+	object-fit: contain
+}
+.fhc-album.album-2 {
+	grid-template-columns: 1fr 1fr
+}
+.fhc-album.album-2 .fhc-acell {
+	aspect-ratio: 1 / 1
+}
+.fhc-album.album-3 {
+	grid-template-columns: 2fr 1fr;
+	grid-template-rows: 1fr 1fr;
+	aspect-ratio: 1 / 1
+}
+.fhc-album.album-3 .fhc-acell:nth-child(1) {
+	grid-row: 1 / 3
+}
+.fhc-album.album-4 {
+	grid-template-columns: 1fr 1fr
+}
+.fhc-album.album-4 .fhc-acell {
+	aspect-ratio: 1 / 1
+}
+.fhc-album.album-more {
+	grid-template-columns: 1fr 1fr
+}
+.fhc-album.album-more .fhc-acell {
+	aspect-ratio: 1 / 1
+}
+.fhc-album.album-more .fhc-acell:nth-child(n+5) {
+	display: none
+}
+.fhc-amore {
+	position: absolute;
+	inset: 0;
+	background: rgba(15, 23, 42, .52);
+	color: var(--bs-white);
+	font-size: 22px;
+	font-weight: 800;
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+/* ===== Lightbox ===== */
+.fhc-lb {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	background: rgba(8, 10, 16, .94);
+	display: none;
+	align-items: center;
+	justify-content: center
+}
+.fhc-lb.fhc-open {
+	display: flex
+}
+.fhc-lb-bar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 52px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 14px;
+	z-index: 2
+}
+.fhc-lb-count {
+	color: var(--bs-white);
+	font-size: 13.5px;
+	font-weight: 700;
+	text-shadow: 0 1px 3px rgba(0, 0, 0, .5)
+}
+.fhc-lb-x {
+	width: 38px;
+	height: 38px;
+	border: 0;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, .14);
+	color: var(--bs-white);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer
+}
+.fhc-lb-x:hover {
+	background: rgba(255, 255, 255, .26)
+}
+.fhc-lb-stage {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden
+}
+.fhc-lb-img {
+	max-width: 100vw;
+	max-height: 100vh;
+	object-fit: contain;
+	transition: transform .15s ease;
+	user-select: none;
+	-webkit-user-drag: none;
+	touch-action: none
+}
+.fhc-lb-nav {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 44px;
+	height: 44px;
+	border: 0;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, .14);
+	color: var(--bs-white);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	z-index: 2
+}
+.fhc-lb-nav:hover {
+	background: rgba(255, 255, 255, .26)
+}
+.fhc-lb-prev {
+	left: 12px
+}
+.fhc-lb-next {
+	right: 12px
+}
+@media (max-width:560px) {
+	.fhc-lb-nav {
+		width: 38px;
+		height: 38px
+	}
+	.fhc-lb-prev {
+		left: 6px
+	}
+	.fhc-lb-next {
+		right: 6px
+	}
+}
+/* Popup danh sách người theo số thống kê (Đã CI / Chưa CI / Tổng NS) — bottom sheet, click 1 người → hành trình */
+.fhc-stl { position: fixed; inset: 0; z-index: 100001; background: rgba(8, 10, 16, .5); display: none; align-items: flex-end; justify-content: center }
+.fhc-stl.fhc-open { display: flex }
+.fhc-stl-sheet { width: 100%; max-width: 460px; max-height: 76vh; background: #fff; border-radius: 18px 18px 0 0; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 -8px 30px rgba(0, 0, 0, .22); animation: fhc-stl-up .22s cubic-bezier(.22, .61, .36, 1) }
+@keyframes fhc-stl-up { from { transform: translateY(100%) } to { transform: translateY(0) } }
+.fhc-stl-bar { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 13px 14px; border-bottom: 1px solid var(--fhc-line) }
+.fhc-stl-title { font-size: 15px; font-weight: 800; color: var(--fhc-ink) }
+.fhc-stl-count { font-size: 12px; font-weight: 700; color: var(--fhc-sub); background: var(--fhc-line); border-radius: 20px; padding: 1px 9px }
+.fhc-stl-x { margin-left: auto; width: 32px; height: 32px; border: 0; border-radius: 50%; background: var(--fhc-line); color: var(--fhc-sub); display: flex; align-items: center; justify-content: center; cursor: pointer }
+.fhc-stl-x:hover { background: var(--fhc-line2) }
+.fhc-stl-body { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px 0 calc(8px + env(safe-area-inset-bottom)) }
+.fhc-stl-hint { text-align: center; color: var(--fhc-sub); font-size: 13px; padding: 26px 12px }
+.fhc-stl-item { display: flex; align-items: center; gap: 10px; padding: 9px 14px; cursor: pointer; transition: background .12s ease }
+.fhc-stl-item:hover { background: var(--fhc-accent-soft) }
+.fhc-stl-item:active { background: var(--fhc-line2) }
+.fhc-stl-av { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex: 0 0 auto; background: var(--fhc-line) }
+.fhc-stl-meta { flex: 1 1 auto; min-width: 0 }
+.fhc-stl-nm { font-size: 14px; font-weight: 700; color: var(--fhc-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.fhc-stl-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; margin-top: 2px }
+.fhc-stl-dept { font-size: 11.5px; color: var(--fhc-sub) }
+.fhc-stl-tm { font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px }
+.fhc-stl-tm i { font-size: 13px }
+.fhc-stl-in { color: var(--fhc-ok) }
+.fhc-stl-out { color: var(--fhc-bad) }
+.fhc-stl-badge { flex: 0 0 auto; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 20px; background: var(--fhc-warn-soft); color: var(--fhc-warn); font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center }
+.fhc-stl-go { flex: 0 0 auto; font-size: 18px; color: var(--fhc-muted); opacity: .5 }
+/* Camera check-in trong app (getUserMedia) + filter — overlay toàn màn hình, trên panel widget (99981). Màu literal. */
+.fhc-cam { position: fixed; inset: 0; z-index: 100002; background: #000; display: flex; flex-direction: column }
+.fhc-cam-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #000 }
+.fhc-cam-video.mirror { transform: scaleX(-1) }
+.fhc-cam-top { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; padding-top: calc(12px + env(safe-area-inset-top)) }
+.fhc-cam-ic { width: 42px; height: 42px; border: 0; border-radius: 50%; background: rgba(0, 0, 0, .4); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-appearance: none; appearance: none; padding: 0 }
+.fhc-cam-ic:active { background: rgba(0, 0, 0, .65) }
+.fhc-cam-hint { color: #fff; font-size: 13px; font-weight: 600; text-shadow: 0 1px 3px rgba(0, 0, 0, .6) }
+.fhc-cam-bottom { position: relative; z-index: 2; margin-top: auto; padding: 12px 0 calc(20px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: center; gap: 14px; background: linear-gradient(to top, rgba(0, 0, 0, .55), transparent) }
+.fhc-cam-filters { display: flex; gap: 8px; overflow-x: auto; max-width: 100%; padding: 0 14px; -webkit-overflow-scrolling: touch }
+.fhc-cam-fbtn { flex: 0 0 auto; border: 1.5px solid rgba(255, 255, 255, .5); background: rgba(0, 0, 0, .35); color: #fff; font-size: 12.5px; font-weight: 600; padding: 6px 14px; border-radius: 20px; cursor: pointer; white-space: nowrap; -webkit-appearance: none; appearance: none }
+.fhc-cam-fbtn.on { background: #fff; color: #111; border-color: #fff }
+.fhc-cam-shoot { width: 68px; height: 68px; border-radius: 50%; border: 4px solid #fff; background: rgba(255, 255, 255, .35); cursor: pointer; -webkit-appearance: none; appearance: none; padding: 0; box-shadow: 0 0 0 2px rgba(0, 0, 0, .3) }
+.fhc-cam-shoot:active { transform: scale(.94); background: #fff }
+/* Toggle Check-in / Check-out (chế độ bắt đầu / kết thúc ngày làm việc) */
+.fhc-io { display: flex; gap: 10px; margin-bottom: 8px }
+.fhc-io-btn { flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 11px 12px; border: 2px solid var(--fhc-line2); background: #fff; border-radius: 14px; cursor: pointer; text-align: left; -webkit-appearance: none; appearance: none }
+.fhc-io-ic { width: 38px; height: 38px; flex: 0 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center }
+.fhc-io-ic.in { color: var(--fhc-fh); background: rgba(159, 34, 58, .1) }
+.fhc-io-ic.out { color: var(--fhc-ok); background: var(--fhc-ok-soft) }
+.fhc-io-tt { display: flex; flex-direction: column; min-width: 0; overflow: hidden }
+.fhc-io-tt b { font-size: 15px; font-weight: 800; color: var(--fhc-ink); line-height: 1.2; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.fhc-io-tt small { display: block; max-width: 100%; font-size: 11.5px; color: var(--fhc-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.fhc-io-btn.io-in.on { border-color: var(--fhc-fh); background: rgba(159, 34, 58, .06) }
+.fhc-io-btn.io-in.on .fhc-io-tt b { color: var(--fhc-fh) }
+.fhc-io-btn.io-out.on { border-color: var(--fhc-ok); background: var(--fhc-ok-soft) }
+.fhc-io-btn.io-out.on .fhc-io-tt b { color: var(--fhc-ok) }
+.fhc-io-hint { font-size: 12.5px; color: var(--fhc-sub); margin-bottom: 12px; padding: 0 2px }
+.fhc-io-hint b { color: var(--fhc-ink) }
+.fhc-mtime {
+	font-size: 8px;
+	color: var(--fhc-muted);
+	margin-top: 4px;
+	text-align: left
+}
+/* Tin GỬI: đẩy giờ về phải (tránh badge cảm xúc mirror góc dưới-trái đè lên giờ) */
+.fhc-msg.me .fhc-mtime {
+	text-align: right
+}
+.fhc-bub-img .fhc-mtime {
+	padding: 2px 6px 1px
+}
+.fhc-statusbar {
+	display: flex;
+	align-items: center;
+	min-height: 24px;
+	padding: 2px 0 4px
+}
+.fhc-typing {
+	padding: 0 14px;
+	font-size: 11.5px;
+	font-style: italic;
+	color: var(--fhc-muted);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+.fhc-composer {
+	padding: 10px 14px 10px;
+	background: var(--bs-white);
+	border-top: 1px solid var(--fhc-line)
+}
+/* Pill nhập tin: 1 khối bo tròn chứa icon đính kèm + ô gõ + gửi; dòng gợi ý phím bên dưới. */
+.fhc-cbar {
+	display: flex;
+	align-items: flex-end;
+	gap: 4px;
+	background: #f4f6f9;
+	border: 1px solid var(--fhc-line2);
+	border-radius: 24px;
+	padding: 4px 6px
+}
+.fhc-cbar:focus-within {
+	border-color: var(--fhc-fh);
+	box-shadow: 0 0 0 2px rgba(159, 34, 58, .1);
+	background: var(--bs-white)
+}
+#fhc-input {
+	flex: 1;
+	min-width: 0;
+	resize: none;
+	border: 0;
+	background: transparent;
+	outline: none;
+	padding: 8px 4px;
+	font-size: 14px;
+	line-height: 1.4;
+	max-height: 96px;
+	overflow-y: auto;
+	font-family: inherit;
+	color: var(--fhc-ink)
+}
+.fhc-attach {
+	flex-shrink: 0;
+	width: 36px;
+	height: 36px;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--fhc-muted);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer
+}
+.fhc-attach:hover {
+	background: rgba(15, 23, 42, .05);
+	color: var(--fhc-accent)
+}
+.fhc-attach:disabled {
+	opacity: .5;
+	cursor: default
+}
+.fhc-send {
+	flex-shrink: 0;
+	width: 36px;
+	height: 36px;
+	border: 0;
+	border-radius: 50%;
+	background: var(--fhc-fh);
+	color: var(--bs-white);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: background .2s, box-shadow .2s
+}
+.fhc-send:hover {
+	background: #7a1a2e;
+	box-shadow: 0 2px 8px rgba(159, 34, 58, .35)
+}
+.fhc-send:disabled {
+	background: #bcc2d4;
+	box-shadow: none;
+	cursor: default
+}
+.fhc-hint {
+	text-align: center;
+	font-size: 11px;
+	color: var(--fhc-muted);
+	margin-top: 3px
+}
+.fhc-hint b {
+	font-weight: 700;
+	color: var(--fhc-sub)
+}
+/* mobile */
+@media (max-width:560px) {
+	.fhc-panel {
+		width: 100vw
+	}
+	.fhc-srch {
+		width: 100vw
+	}
+	.fhc-fab {
+		left: 16px;
+		bottom: 74px
+	}
+}
+/* ===== Thả cảm xúc (6 emoji) ===== */
+.fhc-react {
+	flex-shrink: 0;
+	align-self: center;
+	width: 26px;
+	height: 26px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-muted);
+	opacity: 0;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: opacity .12s
+}
+.fhc-msg:hover .fhc-react {
+	opacity: 1
+}
+.fhc-react:hover {
+	background: #eef1f5;
+	color: var(--fhc-accent)
+}
+@media (max-width:560px) {
+	.fhc-react {
+		display: none
+	}
+}
+/* popup chọn cảm xúc (nổi trên bóng kiểu Zalo, dùng chung 1 instance).
+   z-index PHẢI > .fhc-panel (99981) vì picker là anh em của panel trong #fhchat —
+   thấp hơn sẽ bị panel che khuất (picker mở ra nhưng nằm sau panel → như không bấm được). */
+.fhc-picker {
+	position: fixed;
+	z-index: 99990;
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	padding: 5px 7px;
+	background: var(--bs-white);
+	border: 1px solid var(--fhc-line2);
+	border-radius: 22px;
+	box-shadow: 0 6px 24px rgba(15, 23, 42, .18);
+	transform-origin: center bottom;
+	animation: fhcPkIn .12s ease
+}
+@keyframes fhcPkIn {
+	from {
+		opacity: 0;
+		transform: translateY(4px) scale(.92)
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1)
+	}
+}
+.fhc-pk-emo {
+	width: 34px;
+	height: 34px;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+	font-size: 22px;
+	line-height: 1;
+	border-radius: 50%;
+	transition: transform .1s, background .1s
+}
+.fhc-pk-emo:hover {
+	transform: scale(1.25);
+	background: #f1f3f7
+}
+.fhc-pk-emo.on {
+	background: var(--fhc-accent-soft)
+}
+.fhc-pk-sep {
+	width: 1px;
+	height: 22px;
+	margin: 0 3px;
+	background: var(--fhc-line2)
+}
+.fhc-pk-reply {
+	width: 32px;
+	height: 32px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%
+}
+.fhc-pk-reply:hover {
+	background: #eef1f5;
+	color: var(--fhc-accent)
+}
+/* ===== Badge cảm xúc kiểu ZALO — pill nhỏ ĐÈ ~nửa chip lên GÓC DƯỚI bóng =====
+   .fhc-mwrap có position:relative → badge absolute neo theo wrap (bao cả .fhc-bub / .fhc-bub-img).
+   Tin NHẬN → góc dưới-PHẢI bóng; tin GỬI (.me) → mirror dưới-TRÁI. Không dùng :has(). */
+.fhc-reacts {
+	position: absolute;
+	bottom: -9px;
+	/* đè ~nửa chip (cao 19px) lên mép dưới bóng — overlap, KHÔNG tách rời */
+	right: 40px;
+	/* TIN NHẬN: bám góc dưới-PHẢI */
+	left: auto;
+	z-index: 2;
+	/* nổi trên bóng & giờ; dưới picker fixed (99990) */
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	margin: 0;
+	padding: 1px 6px;
+	height: 19px;
+	box-sizing: border-box;
+	background: var(--bs-white);
+	border-radius: 999px;
+	box-shadow: 0 1px 3px rgba(15, 23, 42, .14);
+	cursor: pointer;
+	white-space: nowrap;
+	line-height: 1
+}
+/* TIN GỬI của mình: MIRROR sang góc dưới-TRÁI bóng; badge nằm KỀ bên phải nút trigger (trigger ở left:8px) */
+.fhc-msg.me .fhc-reacts {
+	right: auto;
+	left: 40px
+}
+.fhc-reacts .fhc-rc {
+	font-size: 13px;
+	line-height: 1
+}
+/* Số tổng: JS chỉ render khi total>1 (1 cảm xúc → chỉ emoji, kiểu Zalo) */
+.fhc-reacts .fhc-rn {
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--fhc-sub);
+	margin-left: 2px;
+	line-height: 1
+}
+.fhc-reacts.mine .fhc-rn {
+	color: var(--fhc-accent)
+}
+@media (max-width: 560px) {
+	.fhc-reacts {
+		height: 18px;
+		padding: 1px 5px;
+		bottom: -8px;
+		/* phải dời khỏi nút trigger (right:8px, rộng 24px → mép trái 32px) + 6px hở; KHÔNG để 6px sẽ chồng nút */
+		right: 38px
+	}
+	.fhc-msg.me .fhc-reacts {
+		left: 38px;
+		right: auto
+	}
+	.fhc-reacts .fhc-rc {
+		font-size: 12.5px
+	}
+}
+/* ===== Tạo nhóm (P2): nút tab + modal + picker ===== */
+.fhc-tab-new {
+	color: var(--fhc-accent);
+	border-color: var(--fhc-accent-soft);
+	font-weight: 700
+}
+.fhc-tab-new:hover {
+	background: var(--fhc-accent-soft)
+}
+/* Overlay — z-index > .fhc-panel (99981) để nổi trên panel */
+.fhc-cg {
+	position: fixed;
+	inset: 0;
+	z-index: 99990;
+	background: rgba(15, 23, 42, .45);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px
+}
+.fhc-cg-box {
+	width: 380px;
+	max-width: 100%;
+	max-height: 86vh;
+	background: var(--bs-white);
+	border-radius: 16px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	box-shadow: 0 18px 50px rgba(15, 23, 42, .3)
+}
+.fhc-cg-head {
+	display: flex;
+	align-items: center;
+	padding: 14px 16px;
+	border-bottom: 1px solid var(--fhc-line)
+}
+.fhc-cg-title {
+	flex: 1;
+	font-weight: 800;
+	font-size: 15.5px;
+	color: var(--fhc-ink)
+}
+.fhc-cg-x {
+	width: 32px;
+	height: 32px;
+	border: 0;
+	background: #f4f6f9;
+	border-radius: 50%;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+.fhc-cg-x:hover {
+	background: #e9edf3;
+	color: var(--fhc-ink)
+}
+.fhc-cg-top {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 16px
+}
+.fhc-cg-ava {
+	width: 52px;
+	height: 52px;
+	flex-shrink: 0;
+	border-radius: 50%;
+	border: 2px dashed var(--fhc-line2);
+	background-size: cover;
+	background-position: center;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+.fhc-cg-ava.has {
+	border-style: solid;
+	border-color: var(--fhc-accent)
+}
+.fhc-cg-ava-ph {
+	font-size: 22px;
+	color: var(--fhc-muted);
+	line-height: 1
+}
+.fhc-cg-name {
+	flex: 1;
+	min-width: 0;
+	border: 1px solid var(--fhc-line2);
+	border-radius: 10px;
+	padding: 10px 12px;
+	font-size: 14px;
+	color: var(--fhc-ink)
+}
+.fhc-cg-name:focus {
+	outline: 0;
+	border-color: var(--fhc-accent)
+}
+.fhc-cg-filter {
+	display: flex;
+	gap: 8px;
+	padding: 0 16px 10px
+}
+.fhc-cg-dept,
+.fhc-cg-q {
+	border: 1px solid var(--fhc-line2);
+	border-radius: 9px;
+	padding: 8px 10px;
+	font-size: 13px;
+	color: var(--fhc-ink);
+	background: var(--bs-white)
+}
+.fhc-cg-dept {
+	flex-shrink: 0;
+	max-width: 45%
+}
+.fhc-cg-q {
+	flex: 1;
+	min-width: 0
+}
+.fhc-cg-list {
+	flex: 1;
+	overflow-y: auto;
+	border-top: 1px solid var(--fhc-line);
+	padding: 6px 8px
+}
+.fhc-cg-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 7px 8px;
+	border-radius: 10px;
+	cursor: pointer
+}
+.fhc-cg-row:hover {
+	background: var(--fhc-bg)
+}
+.fhc-cg-row.on {
+	background: var(--fhc-accent-soft)
+}
+.fhc-cg-av {
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	object-fit: cover;
+	background: var(--fhc-line)
+}
+.fhc-cg-info {
+	flex: 1;
+	min-width: 0
+}
+.fhc-cg-nm {
+	font-size: 13.5px;
+	font-weight: 600;
+	color: var(--fhc-ink);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+.fhc-cg-dp {
+	font-size: 11.5px;
+	color: var(--fhc-sub);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+.fhc-cg-ck {
+	width: 20px;
+	height: 20px;
+	flex-shrink: 0;
+	border: 2px solid var(--fhc-line2);
+	border-radius: 50%
+}
+.fhc-cg-row.on .fhc-cg-ck {
+	border-color: var(--fhc-accent);
+	background: var(--fhc-accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/13px no-repeat
+}
+.fhc-cg-empty {
+	text-align: center;
+	color: var(--fhc-muted);
+	font-size: 13px;
+	padding: 22px 10px
+}
+.fhc-cg-foot {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 16px;
+	border-top: 1px solid var(--fhc-line)
+}
+.fhc-cg-cnt {
+	flex: 1;
+	font-size: 12.5px;
+	color: var(--fhc-sub)
+}
+.fhc-cg-btn {
+	border: 0;
+	border-radius: 10px;
+	padding: 10px 18px;
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--bs-white);
+	background: var(--fhc-accent);
+	cursor: pointer
+}
+.fhc-cg-btn:disabled {
+	background: #bcc2d4;
+	cursor: default
+}
+@media (max-width: 560px) {
+	.fhc-cg-box {
+		width: 100%;
+		max-height: 92vh
+	}
+}
+/* Chế độ Thêm-TV: ẩn ô tên + ảnh (tái dùng modal tạo nhóm) */
+.fhc-cg.fhc-cg-addmode .fhc-cg-top {
+	display: none
+}
+/* ===== Panel quản trị nhóm (P3) ===== */
+.fhc-mng {
+	position: fixed;
+	inset: 0;
+	z-index: 99990;
+	background: rgba(15, 23, 42, .45);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px
+}
+.fhc-mng-box {
+	width: 380px;
+	max-width: 100%;
+	max-height: 86vh;
+	background: var(--bs-white);
+	border-radius: 16px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	box-shadow: 0 18px 50px rgba(15, 23, 42, .3)
+}
+.fhc-mng-head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 14px;
+	border-bottom: 1px solid var(--fhc-line)
+}
+.fhc-mng-x {
+	width: 32px;
+	height: 32px;
+	border: 0;
+	background: #f4f6f9;
+	border-radius: 50%;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+/* Nút icon quản trị trên header (Thêm TV / Đổi tên / Đổi ảnh) */
+.fhc-mng-hbtn {
+	width: 32px;
+	height: 32px;
+	border: 0;
+	background: transparent;
+	border-radius: 9px;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0
+}
+.fhc-mng-hbtn:hover {
+	background: #f4f6f9;
+	color: var(--fhc-ink)
+}
+.fhc-mng-x:hover {
+	background: #e9edf3;
+	color: var(--fhc-ink)
+}
+.fhc-mng-title {
+	flex: 1;
+	font-weight: 800;
+	font-size: 15px;
+	color: var(--fhc-ink);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+.fhc-mng-body {
+	flex: 1;
+	overflow-y: auto;
+	padding: 10px 0
+}
+.fhc-mng-load,
+.fhc-mng-sec {
+	padding: 8px 16px;
+	font-size: 12px;
+	color: var(--fhc-sub);
+	font-weight: 700
+}
+.fhc-mng-list {
+	padding: 0 8px
+}
+.fhc-mng-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 6px 8px;
+	border-radius: 10px
+}
+.fhc-mng-row:hover {
+	background: var(--fhc-bg)
+}
+.fhc-mng-badge {
+	font-size: 10.5px;
+	font-weight: 700;
+	color: var(--fhc-accent);
+	background: var(--fhc-accent-soft);
+	border-radius: 999px;
+	padding: 1px 7px;
+	margin-left: 4px
+}
+.fhc-mng-mini {
+	width: 28px;
+	height: 28px;
+	flex-shrink: 0;
+	border: 1px solid var(--fhc-line2);
+	background: var(--bs-white);
+	border-radius: 8px;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	font-size: 13px;
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+.fhc-mng-mini:hover {
+	background: var(--fhc-bg)
+}
+.fhc-mng-mini.danger:hover {
+	background: var(--fhc-bad-soft);
+	color: var(--fhc-bad);
+	border-color: #f3cfcf
+}
+.fhc-mng-acts {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 12px 16px;
+	border-top: 1px solid var(--fhc-line)
+}
+.fhc-mng-btn {
+	display: block;
+	border: 1px solid var(--fhc-line2);
+	background: var(--bs-white);
+	border-radius: 10px;
+	padding: 10px 12px;
+	font-size: 13.5px;
+	font-weight: 600;
+	color: var(--fhc-ink);
+	cursor: pointer;
+	text-align: center
+}
+.fhc-mng-btn:hover {
+	background: var(--fhc-bg)
+}
+.fhc-mng-btn.danger {
+	color: var(--fhc-bad);
+	border-color: #f3cfcf
+}
+.fhc-mng-btn.danger:hover {
+	background: var(--fhc-bad-soft)
+}
+@media (max-width: 560px) {
+	.fhc-fab {
+		visibility: hidden;
+	}
+	.fhc-mng-box {
+		width: 100%;
+		max-height: 92vh
+	}
+}
+/* ===== Vỏ nav P4: header mode (list/thread) + danh sách hội thoại Zalo ===== */
+.fhc-back {
+	width: 34px;
+	height: 34px;
+	border: 0;
+	background: #f4f6f9;
+	border-radius: 25px;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0
+}
+.fhc-back:hover {
+	background: #e9edf3;
+	color: var(--fhc-ink)
+}
+#fhchat.fhc-mode-thread .fhc-back {
+	display: flex
+}
+#fhchat.fhc-mode-thread .fhc-logo,
+#fhchat.fhc-mode-thread .fhc-logo-img {
+	display: none
+}
+#fhc-manage {
+	display: none
+}
+#fhchat.fhc-mode-thread.fhc-has-gmenu #fhc-manage {
+	display: flex
+}
+.fhc-conv-top {
+	display: flex;
+	align-items: center;
+	padding: 6px 14px 6px
+}
+.fhc-conv-h {
+	flex: 1;
+	font-weight: 800;
+	font-size: 15px;
+	color: var(--fhc-ink)
+}
+.fhc-conv-newbtn {
+	border: 1px solid var(--fhc-accent-soft);
+	background: var(--fhc-accent-soft);
+	color: var(--fhc-accent);
+	font-weight: 700;
+	font-size: 12.5px;
+	border-radius: 999px;
+	padding: 6px 12px;
+	cursor: pointer
+}
+.fhc-conv-newbtn:hover {
+	background: #e3e6ff
+}
+.fhc-conv-sec {
+	padding: 9px 14px 4px;
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--fhc-sub);
+	text-transform: uppercase;
+	letter-spacing: .3px
+}
+.fhc-conv-empty {
+	padding: 8px 14px 16px;
+	color: var(--fhc-muted);
+	font-size: 13px
+}
+.fhc-conv {
+	display: flex;
+	align-items: center;
+	gap: 11px;
+	padding: 9px 14px;
+	cursor: pointer;
+	transition: background .15s ease;
+	border-radius: 8px;
+	margin: 0 6px
+}
+.fhc-conv:hover {
+	background: #fdf2f4
+}
+.fhc-conv-av {
+	width: 44px;
+	height: 44px;
+	flex-shrink: 0;
+	border-radius: 50%;
+	position: relative;
+	overflow: hidden
+}
+.fhc-conv-gl {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 800;
+	font-size: 17px
+}
+.fhc-conv-img {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover
+}
+.fhc-conv-main {
+	flex: 1;
+	min-width: 0
+}
+.fhc-conv-nm {
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--fhc-ink);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+.fhc-conv-last {
+	font-size: 12.5px;
+	color: var(--fhc-sub);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-top: 2px
+}
+.fhc-conv-who {
+	font-weight: 600;
+	color: var(--fhc-ink)
+}
+/* AngularJS: ẩn template tới khi compile xong (an toàn nếu thiếu style built-in) */
+[ng-cloak] {
+	display: none !important
+}
+/* Picker cảm xúc inline (bản Angular) — nổi ngay trên bóng tin */
+.fhc-picker-inline {
+	position: absolute;
+	bottom: 100%;
+	right: 0;
+	margin-bottom: 6px;
+	z-index: 5
+}
+/* Thanh thả cảm xúc kiểu Zalo — hiện khi RÊ CHUỘT vào tin (hoặc menu ⋮ mở .fhc-pk-open) */
+.fhc-picker-quick {
+	position: absolute;
+	bottom: 30px;
+	left: 0;
+	z-index: 8;
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	padding: 4px 7px;
+	background: var(--bs-white, #fff);
+	border: 1px solid var(--fhc-line2);
+	border-radius: 22px;
+	box-shadow: 0 6px 22px rgba(15, 23, 42, .18);
+	opacity: 0;
+	transform: translateY(5px) scale(.95);
+	transform-origin: bottom left;
+	transition: opacity .12s ease, transform .12s ease;
+	pointer-events: none
+}
+.fhc-msg.me .fhc-picker-quick {
+	left: auto;
+	right: 0;
+	transform-origin: bottom right
+}
+.fhc-picker-quick.fhc-pk-open {
+	opacity: 1;
+	transform: translateY(0) scale(1);
+	pointer-events: auto
+}
+.fhc-picker-quick .fhc-pk-emo {
+	width: 30px;
+	height: 30px;
+	font-size: 19px
+}
+.fhc-picker-quick .fhc-pk-emo:hover {
+	transform: scale(1.35);
+	background: var(--fhc-line)
+}
+/* Nút cảm xúc trong góc dưới-phải bóng tin (click → pop picker) */
+.fhc-react-btn {
+	position: absolute;
+	bottom: -10px;
+	right: 8px;
+	width: 24px;
+	height: 24px;
+	border: 0;
+	background: var(--bs-white, #fff);
+	color: var(--fhc-muted);
+	border-radius: 50%;
+	box-shadow: 0 1px 5px rgba(15, 23, 42, .22);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: opacity .12s, transform .1s, color .1s;
+	z-index: 4
+}
+/* TIN GỬI: trigger mirror sang góc dưới-TRÁI (trong) bóng để kề badge, đồng bộ với tin nhận */
+.fhc-msg.me .fhc-react-btn {
+	right: auto;
+	left: 8px
+}
+#fhchat.fhc-mode-thread .fhc-mwrap {
+	position: relative
+}
+.fhc-conv-meta {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 4px;
+	flex-shrink: 0
+}
+.fhc-conv-tm {
+	font-size: 11px;
+	color: var(--fhc-muted)
+}
+.fhc-conv-ub {
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	border-radius: 999px;
+	background: var(--fhc-fh);
+	color: var(--bs-white);
+	font-size: 11px;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+/* ===== Chọn tag (chip multi-select, icon + label + check) trong form check-in ===== */
+#fhchat .fhc-cats { display: flex; flex-wrap: wrap; gap: 8px }
+#fhchat .fhc-cat { display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px; border: 1px solid var(--fhc-line2); border-radius: 10px; background: var(--bs-white); color: var(--fhc-ink); font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all .15s }
+#fhchat .fhc-cat:hover { border-color: var(--fhc-muted) }
+#fhchat .fhc-cat-ic { font-size: 17px; line-height: 1; flex: 0 0 auto }
+#fhchat .fhc-cat-lb { white-space: nowrap }
+#fhchat .fhc-cat-ck { font-size: 15px; line-height: 1; margin-left: 1px; flex: 0 0 auto }
+#fhchat .fhc-cat.on { font-weight: 700 }
+/* ===== Màn Hành trình (Timeline Check-in) ===== */
+#fhchat .fhc-jn { padding-bottom: 10px }
+#fhchat .fhc-jn-top { display: flex; align-items: center; gap: 10px; padding: 12px; position: sticky; top: 0; background: var(--sky-primary); z-index: 3 }
+#fhchat .fhc-jn-back { -webkit-appearance: none; appearance: none; padding: 0; -webkit-tap-highlight-color: transparent; width: 32px; height: 32px; border: 0; background: rgba(255, 255, 255, .18); border-radius: 8px; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; flex: 0 0 auto }
+#fhchat .fhc-jn-back:hover { background: rgba(255, 255, 255, .3) }
+#fhchat .fhc-jn-t {font-size: 15px;font-weight: 800;color: #fff;}
+#fhchat .fhc-jn-s {color: rgba(255, 255, 255, .7);font-size: 12px;margin-top: 1px;}
+#fhchat .fhc-jn-profile { display: flex; align-items: center; gap: 10px; padding: 12px }
+#fhchat .fhc-jn-av { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; flex: 0 0 auto; background: var(--fhc-bg) }
+#fhchat .fhc-jn-nm { font-size: 15px; font-weight: 800; color: var(--fhc-ink); display: flex; align-items: center; gap: 6px; flex-wrap: wrap }
+#fhchat .fhc-jn-badge { font-size: 10px; font-weight: 700; color: var(--fhc-fh); background: var(--fhc-bad-soft); padding: 1px 7px; border-radius: 999px }
+#fhchat .fhc-jn-role { font-size: 12.5px; color: var(--fhc-sub); margin-top: 1px }
+#fhchat .fhc-jn-dept { font-size: 12px; color: var(--fhc-muted); margin-top: 1px }
+#fhchat .fhc-jn-datebar { display: flex; align-items: center; gap: 8px; padding: 0 12px 10px }
+#fhchat .fhc-jn-nav { -webkit-appearance: none; appearance: none; padding: 0; -webkit-tap-highlight-color: transparent; width: 30px; height: 30px; border: 1px solid var(--fhc-line2); background: var(--bs-white); border-radius: 8px; color: var(--fhc-ink); display: flex; align-items: center; justify-content: center; cursor: pointer; flex: 0 0 auto }
+#fhchat .fhc-jn-nav:disabled { opacity: .4; cursor: default }
+/* iOS Safari: SVG là flex-item KHÔNG có min-size → bị co/méo; khoá lại + không nhận click (ng-click về button) */
+#fhchat .fhc-jn-nav svg, #fhchat .fhc-jn-back svg { flex: 0 0 auto; display: block; pointer-events: none }
+#fhchat .fhc-jn-datepick { position: relative; flex: 1 1 auto; min-width: 0 }
+#fhchat .fhc-jn-date { text-align: center; font-size: 13px; font-weight: 700; color: var(--fhc-fh); background: var(--fhc-bad-soft); border-radius: 8px; padding: 7px 8px; cursor: pointer }
+#fhchat .fhc-jn-dateinp { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; border: 0; padding: 0; margin: 0; cursor: pointer }
+#fhchat .fhc-jn-report { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--fhc-fh); border: 1px solid var(--fhc-line2); border-radius: 8px; padding: 6px 9px; text-decoration: none; white-space: nowrap }
+#fhchat .fhc-jn-report:hover { background: var(--fhc-bad-soft) }
+#fhchat .fhc-jn-ov { margin: 0px 12px 12px; padding: 12px; background: var(--fhc-bg); border-radius: 12px }
+#fhchat .fhc-jn-ovh { font-size: 13px; font-weight: 700; color: var(--fhc-ink); margin-bottom: 10px }
+#fhchat .fhc-jn-stats { display: flex; gap: 8px }
+#fhchat .fhc-jn-stat { flex: 1 1 0; min-width: 0; background: var(--bs-white); border: 1px solid var(--fhc-line); border-radius: 10px; padding: 10px 6px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px }
+#fhchat .fhc-jn-sic { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 2px }
+#fhchat .fhc-jn-stat b { font-size: 18px; font-weight: 800; color: var(--fhc-ink); line-height: 1 }
+#fhchat .fhc-jn-statl { font-size: 11px; color: var(--fhc-sub) }
+#fhchat .fhc-jn-tlh { font-size: 14px; font-weight: 800; color: var(--fhc-ink); padding: 0 12px 8px }
+#fhchat .fhc-jn-empty { text-align: center; color: var(--fhc-muted); font-size: 13px; padding: 20px }
+#fhchat .fhc-jn-tl { padding: 0 12px }
+#fhchat .fhc-jn-item { display: flex; gap: 10px; position: relative; padding-bottom: 16px }
+#fhchat .fhc-jn-item::before { content: ""; position: absolute; left: 49px; top: 22px; bottom: -2px; width: 2px; background: var(--fhc-line2) }
+#fhchat .fhc-jn-item:last-child::before { display: none }
+#fhchat .fhc-jn-side { width: 50px; flex: 0 0 auto; text-align: right; position: relative; padding-top: 1px; padding-right: 16px }
+#fhchat .fhc-jn-time { font-size: 12px; font-weight: 700; color: var(--fhc-ink) }
+#fhchat .fhc-jn-dot { position: absolute; right: -6px; top: 4px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--bs-white); box-shadow: 0 0 0 1.5px var(--fhc-line2) }
+#fhchat .fhc-jn-card { flex: 1 1 auto; min-width: 0; background: var(--bs-white); border: 1px solid var(--fhc-line); border-radius: 12px; padding: 10px; box-shadow: 0 1px 3px rgba(15, 23, 42, .04) }
+#fhchat .fhc-jn-cardtop { display: flex; align-items: flex-start; gap: 8px;justify-content: space-between }
+#fhchat .fhc-jn-pin { flex: 0 0 auto; margin-top: 3px }
+#fhchat .fhc-jn-cardmain { flex: 1 1 auto; min-width: 0 }
+#fhchat .fhc-jn-place { font-size: 13.5px; font-weight: 700; color: var(--fhc-ink); word-break: break-word }
+#fhchat .fhc-jn-tag { display: inline-block; margin: 4px 4px 0 0; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px }
+#fhchat .fhc-jn-photo {flex: 0 0 auto;width: 80px;height: 90px;border-radius: 8px;object-fit: cover;cursor: pointer;background: var(--fhc-bg)}
+#fhchat .fhc-jn-note { font-size: 12.5px; color: var(--fhc-ink); margin-top: 8px; line-height: 1.45 }
+#fhchat .fhc-jn-addr { font-size: 11.5px; color: var(--fhc-muted); margin-top: 6px; display: flex; align-items: flex-start; gap: 4px }
+#fhchat .fhc-jn-addr svg { flex: 0 0 auto; margin-top: 2px }
+#fhchat .fhc-jn-foot { display: flex; align-items: center; gap: 6px; justify-content: center; font-size: 11.5px; color: var(--fhc-warn); background: var(--fhc-warn-soft); margin: 6px 12px 0; padding: 8px; border-radius: 8px }
+/*modal timeline check-in*/
+.cj-modal{border-radius:16px;overflow:hidden}
+.cj-modal .cj-top{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--sky-primary);color:#fff}
+.cj-modal .cj-back{width:34px;height:34px;border:0;border-radius:9px;background:rgba(255,255,255,.18);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;font-size:22px;line-height:1}
+.cj-modal .cj-back:hover{background:rgba(255,255,255,.32)}
+.cj-modal .cj-top-tt{flex:1 1 auto;min-width:0}
+.cj-modal .cj-top-t{font-size:16px;font-weight:700;line-height:1.2}
+.cj-modal .cj-top-s{font-size:12.5px;color:rgba(255,255,255,.85)}
+.cj-modal .cj-scroll{max-height:calc(100vh - 170px);overflow-y:auto;background:#fff}
+.cj-modal .cj-profile{display:flex;align-items:center;gap:12px;padding:14px 16px 10px}
+.cj-modal .cj-av{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:0 0 auto;background:#f1f3f6}
+.cj-modal .cj-nm{font-size:16px;font-weight:700;color:#0f172a}
+.cj-modal .cj-role{font-size:13px;color:#64748b}
+.cj-modal .cj-dept{font-size:12px;color:#94a3b8}
+.cj-modal .cj-datebar{display:flex;align-items:center;gap:8px;padding:0 16px 12px}
+.cj-modal .cj-nav{width:32px;height:32px;border:1px solid #e6eaf0;background:#fff;border-radius:8px;color:#0f172a;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;font-size:18px}
+.cj-modal .cj-nav:disabled{opacity:.4;cursor:default}
+.cj-modal .cj-date{flex:1 1 auto;text-align:center;font-size:13px;font-weight:700;color:#9f223a;background:#fdecec;border-radius:8px;padding:8px}
+.cj-modal .cj-ov{margin:0 16px 14px;padding:14px;background:#f7f8fa;border-radius:14px}
+.cj-modal .cj-ovh{font-size:13px;font-weight:700;color:#0f172a;margin-bottom:10px}
+.cj-modal .cj-stats{display:flex;gap:8px}
+.cj-modal .cj-stat{flex:1 1 0;min-width:0;background:#fff;border:1px solid #eef1f5;border-radius:10px;padding:12px 6px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px}
+.cj-modal .cj-sic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.cj-modal .cj-stat b{font-size:20px;font-weight:800;color:#0f172a;line-height:1}
+.cj-modal .cj-statl{font-size:11px;color:#64748b}
+.cj-modal .cj-tlh{font-size:15px;font-weight:800;color:#0f172a;padding:0 16px 10px}
+.cj-modal .cj-timeline{padding:0 16px 4px}
+.cj-modal .cj-item{display:flex;gap:10px;position:relative;padding-bottom:16px}
+.cj-modal .cj-item::before{content:"";position:absolute;left:47px;top:20px;bottom:-2px;width:2px;background:#e6eaf0}
+.cj-modal .cj-item:last-child::before{display:none}
+.cj-modal .cj-side{width:52px;flex:0 0 auto;text-align:right;position:relative;padding-top:1px;padding-right:14px}
+.cj-modal .cj-time{font-size:12px;font-weight:700;color:#0f172a}
+.cj-modal .cj-dot{position:absolute;right:-6px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px #e6eaf0}
+.cj-modal .cj-card{flex:1 1 auto;min-width:0;background:#fff;border:1px solid #eef1f5;border-radius:12px;padding:10px;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+.cj-modal .cj-cardtop{display:flex;align-items:flex-start;gap:8px}
+.cj-modal .cj-cardmain{flex:1 1 auto;min-width:0}
+.cj-modal .cj-place{font-size:13.5px;font-weight:700;color:#0f172a;word-break:break-word}
+.cj-modal .cj-tags{margin-top:5px;display:flex;flex-wrap:wrap;gap:4px}
+.cj-modal .cj-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+.cj-modal .cj-photo{flex:0 0 auto;width:80px;height:90px;border-radius:8px;object-fit:cover;cursor:pointer;background:#f1f3f6}
+.cj-modal .cj-note{font-size:12.5px;color:#0f172a;margin-top:8px;line-height:1.45}
+.cj-modal .cj-addr{font-size:11.5px;color:#94a3b8;margin-top:6px}
+.cj-modal .cj-foot{display:flex;align-items:center;gap:6px;justify-content:center;font-size:11.5px;color:#d97706;background:#fff5e8;margin:6px 16px 16px;padding:9px;border-radius:8px}
+/*end modal timeline check-in*/

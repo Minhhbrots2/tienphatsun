@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "future-homes-d041a",
+  "private_key_id": "f698b64eac081eabb6adead6c70612b9a593012e",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQD30/xCo7rGUemO\nB6YY2mnrZ7u6bJ4EzlM9s3qYcrKZxYZy5AJANE7berpGC6QEbGmgWRhqPogiS0LP\nwQEGw2SaPWs8ipBK6iR+xsat5rKf6fdAYwhuzoiLeaKsevxHbDC/HZ6H9oPE7ism\nvbLmYQ7xi8YwVpSSCjSGLxgSGfghTZxEHf24FCFXeGjN4zzynElp9L4AI6TvpbTW\n4YVEkXaAamicp4WtCfiGauXMLpjE12XYW4gYE8wmCrusXBsLeDIZrTE+pvGSRwDj\naFOn5Uq5rggLu4+V9m6fqo0DmuTlNbhags9Z2EZK+FksKuWrDlCdTdUX8YI9F8eE\nyRuxT2U/AgMBAAECggEAKSjjchvoRszO6eBaVTFdOxQg6R7mBa1QxOQcndoa0JAu\nOsGkoA4v9KLG8iA3zuZEirWRaP/Wsz9lqsSGy51DBZzixQzMVyzY/9c6oyI4E3gT\nsPVhrqmNowCCJHxOjvwogm1EaZdnHhtiPk5uOnXvOe25bkjK5xBb1ddXe5YlkD4U\nZIJrrdcAD5G48Du2Uq3unqeKaYazrrCTD4KbqRkXrkyvfGn4G+aV1cbC/l+levx2\nIqO5o+DQ3ikMAGUVHWBPANww+tnyX9TIDN42yKsWcYpJwzHi8kr6y2dSAMRJFAy5\n0sVLGCEIPVO/ds6dE98kl7v1vLIoGZoIUGbJw2XpTQKBgQD+ma2sSjKXEBK4ripP\nrSpKyvTT8+x82LDiX36dR8r/gbUj+QqtgSd+LdJeskM9dZKYJbdiVjq7Ww+W0bb5\nQUBwKZgMtXl+abPmXaGkGW2k/s1uy88dO2wNsd81MI7uPfsNP+iyyhEY0l+LAN0p\nCLH0/WXZM3f3IUc5WW00hRnNPQKBgQD5MMabfJCZeJH5scyxnbtwhl7rojuq35jC\nnLJE9LO5juYNkMA9snu3AbA0qVzUsQ2fm86PBGLZkblwG095G5L+RgreThkKjFRn\nJWvocQ8cjGWhb1j5lm9mRUXoBYNgZtA4pTxskM9XkBfmHGPuLcS9Ne/gH7Mo32O1\nTsP2RJhcKwKBgBewkPphBQgNVNCeVA2J3U+MRu+Z2L1dJEhL/moADiFsHkC0oYu3\nYsdY2CQ7jgof8H37tG6P+3MHbBHqfY3/xlEpbZ5xHFbo2vZqa+nq+8rIcrEGgcUE\njG9Rx6UZWZNNbRi0g6BvMNwQZxd2Ax4YUwaqtVlacqUqEYiCi6jBYb85AoGBAPL+\nKD2I62xskVQ+mA9/cz9YGImISszmew0TRhdN01AX06fYxk2jlVYw1EWV/Yr+F/3T\nLkpyCX6FxqFWUFoVlHJVlNWQrISHsOpgKGiijwzUr2oLrWS82GaPGIsXjTPdLiB+\nqHxpfXaycUuX1a51fQrQ5NfVsZwishUj+J1V6Ii/AoGBAJJAl7D6JLP3WAv2lDgX\npgOp4mhoPV3dOvu3aa9XLfDiOfkKfn5JVybYTEBztKz2r+q+C0THlJ5jOCahb161\nT8Z/I/FWDrjc1TAAr6D1j6HVNGgXlCEGE6ruqJQ0YzWGATpLRR5a/J2xCWaffBsU\nNvqeYjL2goer50w4KoqqaKF7\n-----END PRIVATE KEY-----\n",
+  "client_email": "push-fcm@future-homes-d041a.iam.gserviceaccount.com",
+  "client_id": "111490705027606195898",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/push-fcm%40future-homes-d041a.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

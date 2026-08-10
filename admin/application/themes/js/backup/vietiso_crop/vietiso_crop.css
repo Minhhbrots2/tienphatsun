@@ -1,0 +1,73 @@
+/* Jquery ISO Upload Plugin
+** Stylesheet
+** Create by quyet spring - quyetnx@vietiso.com
+** Date Create: 1/14/2013 11:54:01 AM
+*/
+#isoOverlay{background:#000;position:fixed;top:0;left:0;right:0;bottom:0;z-index:2000;opacity:.7;}
+#form_is_up{width:900px;min-height:400px;position:absolute;top:100px;z-index:2200;background:#fff;border:10px rgb(102, 102, 102) solid;border-radius:8px;}
+#form_is_up h1{display:block;background:rgb(241, 241, 241);height:33px;line-height:33px;padding:0 10px;color:rgb(69, 69, 69);font-size:15px;font-family:Arial;font-weight:bold;}
+#form_is_up h1 a#closeForm{display:inline-block;float:right;color:#68BADA;font-weight:bold;font-size:15px;text-decoration:none;cursor:pointer;}
+/*Input File*/
+.hiddenFile{opacity: 0;filter: alpha(opacity = 50);width:0px;height:0px;}
+.dw2d{width:534px;border:1px #0058CC solid;padding:1px;margin:180px auto;}
+.dw2d span.appendtxt{font-size:12px;color:#222;display:inline-block;height:26px;line-height:26px;padding:0 10px;font-weight:bold;width:325px;overflow:hidden;}
+.progress{display:none;width:100%;height:5px;background:#C0C0C0;margin:1px 0 0;position:relative;clear:both;}
+.percent{display:inline-block;width:0%;height:5px;background:#138ECB;}
+.isDel{position:absolute;top:0;bottom:0;left:0;right:0;background:#000;font-weight:bold;color:#FF0000;font-size:24px;opacity:.5;padding:10px;display:none;}
+a#action_crop img{float:left;margin:9px 5px 0 0;}
+/**/
+.jcrop-holder{direction:ltr;text-align:left;}
+.jcrop-vline,.jcrop-hline{background:#fff url(images/Jcrop.gif);font-size:0;position:absolute;}
+.jcrop-vline{height:100%;width:1px!important;}
+.jcrop-vline.right{right:0;}
+.jcrop-hline{height:1px!important;width:100%;}
+.jcrop-hline.bottom{bottom:0;}
+.jcrop-tracker{height:100%;width:100%;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;}
+.jcrop-handle{background-color:#333;border:1px #eee solid;width:7px;height:7px;font-size:1px;}
+.jcrop-handle.ord-n{left:50%;margin-left:-4px;margin-top:-4px;top:0;}
+.jcrop-handle.ord-s{bottom:0;left:50%;margin-bottom:-4px;margin-left:-4px;}
+.jcrop-handle.ord-e{margin-right:-4px;margin-top:-4px;right:0;top:50%;}
+.jcrop-handle.ord-w{left:0;margin-left:-4px;margin-top:-4px;top:50%;}
+.jcrop-handle.ord-nw{left:0;margin-left:-4px;margin-top:-4px;top:0;}
+.jcrop-handle.ord-ne{margin-right:-4px;margin-top:-4px;right:0;top:0;}
+.jcrop-handle.ord-se{bottom:0;margin-bottom:-4px;margin-right:-4px;right:0;}
+.jcrop-handle.ord-sw{bottom:0;left:0;margin-bottom:-4px;margin-left:-4px;}
+.jcrop-dragbar.ord-n,.jcrop-dragbar.ord-s{height:7px;width:100%;}
+.jcrop-dragbar.ord-e,.jcrop-dragbar.ord-w{height:100%;width:7px;}
+.jcrop-dragbar.ord-n{margin-top:-4px;}
+.jcrop-dragbar.ord-s{bottom:0;margin-bottom:-4px;}
+.jcrop-dragbar.ord-e{margin-right:-4px;right:0;}
+.jcrop-dragbar.ord-w{margin-left:-4px;}
+.jcrop-light .jcrop-vline,.jcrop-light .jcrop-hline{background:#fff;filter:alpha(opacity=70)!important;opacity:.70!important;}
+.jcrop-light .jcrop-handle{-moz-border-radius:3px;-webkit-border-radius:3px;background-color:#000;border-radius:3px;border-color:#fff;}
+.jcrop-dark .jcrop-vline,.jcrop-dark .jcrop-hline{background:#000;filter:alpha(opacity=70)!important;opacity:0.7!important;}
+.jcrop-dark .jcrop-handle{-moz-border-radius:3px;-webkit-border-radius:3px;background-color:#fff;border-radius:3px;border-color:#000;}
+.solid-line .jcrop-vline,.solid-line .jcrop-hline{background:#fff;}
+.jcrop-holder img,img.jcrop-preview{max-width:none;}
+/* Fix for twitter bootstrap et al. */
+.jcrop-holder img,img.jcrop-preview{ max-width: none; }
+.frmCropPop{background:#EDEDED;border:1px solid #AAAAAA;color:#222;display:none;font-size:12px;overflow:hidden; position: absolute; border-radius:4px;-moz-border-radius:4px;-webkit-border-radius:4px;}
+.headCropPop{ display:inline-block; width:96%; padding:0 2% 8px 2%; margin-bottom:10px; border-bottom:1px solid #ccc; background:url(images/ui-bg_highlight-soft_75_cccccc_1x100.png) repeat-x scroll 50% 50% #CCCCCC; border-bottom:1px solid #AAAAAA;}
+.headCropPop h3{ display:block; font-family:Arial; font-size:14px; line-height:26px; height:22px; color: #222;}
+a.closeEv{background:url(images/combined.png) no-repeat scroll -228px -48px transparent;display:block;height:13px;position:absolute;right:10px;top:6px;width:13px;}
+.contentCropPop{width:98%; height:430px; overflow:hidden; position:relative; padding:0 1% 1% 1%;}
+.modal-bottom {border-top:1px solid #E2E7E9; display: inline-block; margin-top: 10px; padding:10px 2% 0; width:96%;}
+.help_cropPop{ display:block; margin-bottom:10px;}
+
+.corner4px{-moz-border-radius:3px;border-radius:3px;-webkit-border-radius:3px;}
+.jcrop-holder{ margin:0px auto;}
+.leftCropPop{ width:25%; height:362px; border-right:1px solid #ccc; float:left;}
+.rightCropPop{ width:74%; float:right;}
+.tabs_CropPop{ display:inline-block; width:100%; margin:0; padding:0; list-style:none; border-bottom:1px solid #ccc;border-top:1px solid #ccc;}
+.tabs_CropPop li{ display:inline-block; float:left; height:28px; border-left:1px solid #ccc;}
+.tabs_CropPop li a{ display:block; float:left; height:28px; line-height:28px; background:#e5e5e5;}
+.tabs_CropPop li a.resize{padding:0 18px 0px 18px;}
+.tabs_CropPop li a.crop{padding:0 16px 0px 16px;}
+.tabs_CropPop li a.rotate{padding:0 17px 0px 17px;}
+.tabs_CropPop li a.current{ background:#fff; height:29px;}
+.content_tabs_CropPop{ padding:10px 10px 10px 0px;}
+.crop_tabbox{ display:inline-block; width:80%; padding:0 0 0 20%; display:none;}
+.crop_line{ display:inline-block; width:100%; margin-bottom:10px;}
+.crop_line label{ display:block; float:left; height:24px; line-height:24px; width:40px;}
+.crop_line .crop_txt{ float:left; width:60px; height:22px; line-height:22px; border:1px solid #ccc; padding:0px !important}
+#preview_CropPop{ display:block !important; width:600px; height:340px; background:#fff; border:1px solid #ccc; padding:10px; overflow:auto;}

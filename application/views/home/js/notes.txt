@@ -1,0 +1,6 @@
+layer.bindPopup(data, {
+	minWidth:300, 
+	keepInView: true,
+	autoPan: true, // Di chuyển bản đồ nếu popup bị che khuất
+	autoPanPadding: [50, 50]
+}).openPopup(); 

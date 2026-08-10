@@ -1,0 +1,112 @@
+html,body,div,h1,h2,h3,h4,h5,h6,p,img,dl,dt,dd,ol,ul,li,table,tr,td,form,object,embed,article,aside,canvas,command,details,figcaption,figure,footer,group,header,hgroup,mark,menu,meter,nav,output,progress,section,summary,time,audio,video{border:0;margin:0;padding:0}
+article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}
+html{font:81.25% arial, helvetica, sans-serif;background:#fff;color:#333;line-height:1;direction:ltr}
+a{color:#15c;text-decoration:none}
+a:active{color:#d14836}
+h1,h2,h3,h4,h5,h6{color:#222;font-size:1.54em;font-weight:400;line-height:24px;margin:0 0 .46em}
+p{line-height:17px;margin:0 0 1em}
+ol,ul{list-style:none;line-height:17px;margin:0 0 1em}
+table{border-collapse:collapse;border-spacing:0}
+strong{color:#222}
+button,input,select,textarea{font-family:inherit;font-size:inherit}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0}
+html,body{position:absolute;height:100%;min-width:100%}
+.wrapper{position:relative;min-height:100%}
+.content{width:auto;max-width:1000px;min-width:780px;margin:0 auto;padding:0 44px}
+.google-header-bar{height:71px;background:#f5f5f5;border-bottom:1px solid #e5e5e5;overflow:hidden}
+.google-header-bar .brand{display:inline-block!important;float:left;font-size:28px;font-weight:700;height:54px;line-height:54px;text-decoration:none;color:#15C;margin:10px 0 0}
+.google-header-bar .brand img{display:block;float:left;margin-right:5px}
+.refColor{color:#F98834}
+.header .logo{float:left;margin:18px 0 0 -1px}
+.header .signin,.header .signup{float:right;font-weight:700;margin:28px 0 0}
+.header .signup-button{float:right;margin:22px 0 0}
+.header .signup-button a{position:relative;top:-1px;margin:0 0 0 1em}
+.main{padding-top:23px;padding-bottom:125px}
+.google-footer-bar{position:absolute;bottom:0;height:35px;width:100%;border-top:1px solid #ebebeb;overflow:hidden}
+.footer{padding-top:9px;font-size:.85em;white-space:nowrap;line-height:0}
+.footer a{color:#333}
+.footer ul{color:#999;float:left;margin:0}
+.footer ul li{display:inline;padding:0 1.5em 0 0}
+.footer form{float:right}
+.footer form .change-language-label{display:none}
+.announce-bar{position:absolute;bottom:35px;height:33px;z-index:2;width:100%;background:#f9edbe;border-top:1px solid #efe1ac;border-bottom:1px solid #efe1ac;overflow:hidden}
+.announce-bar .message{font-size:.85em;line-height:33px;margin:0}
+.announce-bar a{margin:0 0 0 1em}
+.kd-announce .message{background:#f9edbe;color:#333;padding:.6em 1em}
+.kd-announce a{padding-left:.8em;color:#15c}
+.clearfix:after{visibility:hidden;display:block;font-size:0;content:'.';clear:both;height:0}
+input[type=email],input[type=password],input[type=text],input[type=url],select{display:inline-block;height:29px;padding-left:8px;background:#fff;border:1px solid #d9d9d9;border-top:1px solid silver;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;-webkit-border-radius:1px;-moz-border-radius:1px;border-radius:1px;margin:0}
+input[type=email]:hover,input[type=password]:hover,input[type=text]:hover,input[type=url]:hover,select:hover{border:1px solid #b9b9b9;border-top:1px solid #a0a0a0;-webkit-box-shadow:inset 0 1px 2px rgba(0,0,0,0.1);-moz-box-shadow:inset 0 1px 2px rgba(0,0,0,0.1);box-shadow:inset 0 1px 2px rgba(0,0,0,0.1)}
+input[type=email]:focus,input[type=password]:focus,input[type=text]:focus,input[type=url]:focus{outline:none;border:1px solid #4d90fe;-webkit-box-shadow:inset 0 1px 2px rgba(0,0,0,0.3);-moz-box-shadow:inset 0 1px 2px rgba(0,0,0,0.3);box-shadow:inset 0 1px 2px rgba(0,0,0,0.3)}
+input[type=email][disabled=disabled],input[type=password][disabled=disabled],input[type=text][disabled=disabled],input[type=url][disabled=disabled]{border:1px solid #e5e5e5;background:#f5f5f5}
+input[type=email][disabled=disabled]:hover,input[type=password][disabled=disabled]:hover,input[type=text][disabled=disabled]:hover,input[type=url][disabled=disabled]:hover{-webkit-box-shadow:none;-moz-box-shadow:none;box-shadow:none}
+input[type=checkbox],input[type=radio]{-webkit-appearance:none;appearance:none;width:13px;height:13px;cursor:pointer;vertical-align:bottom;background:#fff;border:1px solid #dcdcdc;-webkit-border-radius:1px;-moz-border-radius:1px;border-radius:1px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;position:relative;margin:0}
+input[type=checkbox]:active,input[type=radio]:active{background:#ebebeb;border-color:#c6c6c6}
+input[type=checkbox]:hover{-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.1);-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,0.1);box-shadow:inset 0 1px 1px rgba(0,0,0,0.1);border-color:#c6c6c6}
+input[type=radio]{-webkit-border-radius:1em;-moz-border-radius:1em;border-radius:1em;width:15px;height:15px}
+input[type=checkbox]:checked,input[type=radio]:checked{background:#fff}
+input[type=radio]:checked::after{content:'';display:block;position:relative;top:3px;left:3px;width:7px;height:7px;background:#666;-webkit-border-radius:1em;-moz-border-radius:1em;border-radius:1em}
+input[type=checkbox]:checked::after{content:url(//ssl.gstatic.com/ui/v1/menu/checkmark.png);display:block;position:absolute;top:-6px;left:-5px}
+input[type=checkbox]:focus{outline:none;border-color:#4d90fe}
+.g-button{display:inline-block;min-width:54px;text-align:center;color:#555;font-size:11px;font-weight:700;height:27px;line-height:27px;-webkit-border-radius:2px;-moz-border-radius:2px;border-radius:2px;-webkit-transition:all .218s;-moz-transition:all .218s;-ms-transition:all .218s;-o-transition:all .218s;transition:all .218s;border:1px solid rgba(0,0,0,0.1);background-color:#f5f5f5;background-image:linear-gradient(top,#f5f5f5,#f1f1f1);-webkit-user-select:none;-moz-user-select:none;user-select:none;cursor:default;padding:0 8px}
+*+html .g-button{min-width:70px}
+button.g-button,input[type=submit].g-button{height:29px;line-height:29px}
+*+html button.g-button,*+html input[type=submit].g-button{overflow:visible}
+.g-button:hover{border:1px solid #c6c6c6;color:#333;-webkit-transition:all 0;-moz-transition:all 0;-ms-transition:all 0;-o-transition:all 0;transition:all 0;background-color:#f8f8f8;background-image:linear-gradient(top,#f8f8f8,#f1f1f1);-webkit-box-shadow:0 1px 1px rgba(0,0,0,0.1);-moz-box-shadow:0 1px 1px rgba(0,0,0,0.1);box-shadow:0 1px 1px rgba(0,0,0,0.1)}
+.g-button:active{background-color:#f6f6f6;background-image:linear-gradient(top,#f6f6f6,#f1f1f1);-webkit-box-shadow:inset 0 1px 2px rgba(0,0,0,0.1);-moz-box-shadow:inset 0 1px 2px rgba(0,0,0,0.1);box-shadow:inset 0 1px 2px rgba(0,0,0,0.1)}
+.g-button:visited{color:#666}
+.g-button-submit{border:1px solid #3079ed;color:#fff;text-shadow:0 1px rgba(0,0,0,0.1);background-color:#4d90fe;background-image:linear-gradient(top,#4d90fe,#4787ed)}
+.g-button-submit:hover{border:1px solid #2f5bb7;color:#fff;text-shadow:0 1px rgba(0,0,0,0.3);background-color:#357ae8;background-image:linear-gradient(top,#4d90fe,#357ae8)}
+.g-button-share{border:1px solid #29691d;color:#fff;text-shadow:0 1px rgba(0,0,0,0.1);background-color:#3d9400;background-image:linear-gradient(top,#3d9400,#398a00)}
+.g-button-share:hover{border:1px solid #2d6200;color:#fff;text-shadow:0 1px rgba(0,0,0,0.3);background-color:#368200;background-image:linear-gradient(top,#3d9400,#368200)}
+.g-button-red{border:1px solid transparent;color:#fff;text-shadow:0 1px rgba(0,0,0,0.1);text-transform:uppercase;background-color:#d14836;background-image:linear-gradient(top,#dd4b39,#d14836)}
+.g-button-red:hover{border:1px solid #b0281a;color:#fff;text-shadow:0 1px rgba(0,0,0,0.3);background-color:#c53727;background-image:linear-gradient(top,#dd4b39,#c53727);-webkit-box-shadow:0 1px 1px rgba(0,0,0,0.2);-moz-box-shadow:0 1px 1px rgba(0,0,0,0.2);-ms-box-shadow:0 1px 1px rgba(0,0,0,0.2);-o-box-shadow:0 1px 1px rgba(0,0,0,0.2);box-shadow:0 1px 1px rgba(0,0,0,0.2)}
+.g-button-red:active{border:1px solid #992a1b;background-color:#b0281a;background-image:linear-gradient(top,#dd4b39,#b0281a);-webkit-box-shadow:inset 0 1px 2px rgba(0,0,0,0.3);-moz-box-shadow:inset 0 1px 2px rgba(0,0,0,0.3);box-shadow:inset 0 1px 2px rgba(0,0,0,0.3)}
+.g-button-white{border:1px solid #dcdcdc;color:#666;background:#fff}
+
+.g-button-white:hover{border:1px solid #c6c6c6;color:#333;background:#fff;-webkit-box-shadow:0 1px 1px rgba(0,0,0,0.1);-moz-box-shadow:0 1px 1px rgba(0,0,0,0.1);box-shadow:0 1px 1px rgba(0,0,0,0.1)}
+.g-button-white:active{background:#fff;-webkit-box-shadow:inset 0 1px 2px rgba(0,0,0,0.1);-moz-box-shadow:inset 0 1px 2px rgba(0,0,0,0.1);box-shadow:inset 0 1px 2px rgba(0,0,0,0.1)}
+.g-button-submit:focus,.g-button-share:focus,.g-button-red:focus{-webkit-box-shadow:inset 0 0 0 1px #fff;-moz-box-shadow:inset 0 0 0 1px #fff;box-shadow:inset 0 0 0 1px #fff}
+.g-button-share:focus{border-color:#29691d}
+.g-button-red:focus{border-color:#d14836}
+.g-button-submit:focus:hover,.g-button-share:focus:hover,.g-button-red:focus:hover{-webkit-box-shadow:inset 0 0 0 1px #fff, 0 1px 1px rgba(0,0,0,0.1);-moz-box-shadow:inset 0 0 0 1px #fff, 0 1px 1px rgba(0,0,0,0.1);box-shadow:inset 0 0 0 1px #fff, 0 1px 1px rgba(0,0,0,0.1)}
+select.lang-chooser{height:21px;line-height:21px;direction:ltr}
+.product-info{margin:0 385px 0 0}
+.product-info h3{font-size:1.23em;font-weight:400}
+.product-info a:visited{color:#61c}
+.sign-in{width:335px;float:right}
+.signin-box,.accountchooser-box{background:#f5f5f5;border:1px solid #e5e5e5;margin:12px 0 0;padding:20px 25px 15px}
+.product-headers{margin:0 0 1.5em}
+.product-headers h1{color:#dd4b39;font-size:25px;margin:0}
+.product-headers h2{font-size:16px;margin:.4em 0 0}
+.features{overflow:hidden;margin:2em 0 0}
+.features li{margin:3px 0 2em}
+.features img{float:left;margin:-3px 0 0}
+.features p{margin:0 0 0 68px}
+.features .title{font-size:16px;margin-bottom:.3em}
+.features .small-title{font-size:1em;font-weight:700}
+.notification-bar{background:#f9edbe;padding:8px}
+.signin-box h2{font-size:16px;line-height:16px;height:16px;position:relative;margin:0 0 1.2em}
+.signin-box h2 strong{display:inline-block;position:absolute;right:0;top:1px;height:19px;width:52px;background:url(http://cgi.vietiso.com/a/image/ISOCMS.png) transparent no-repeat}
+.signin-box label{display:block;margin:0 0 1.5em}
+.signin-box input[type=text],.signin-box input[type=password]{width:100%;height:32px;font-size:20px}
+.signin-box .email-label,.signin-box .passwd-label{font-weight:700;display:block;-webkit-user-select:none;-moz-user-select:none;user-select:none;margin:0 0 .5em}
+.signin-box .reauth{display:inline-block;font-size:15px;height:29px;line-height:29px;margin:0}
+.signin-box label.remember{display:inline-block;position:relative;top:-1px}
+.signin-box .remember-label{font-weight:400;color:#666;line-height:17px;position:relative;top:2px;-webkit-user-select:none;-moz-user-select:none;user-select:none;padding:0 0 0 .4em}
+.signin-box input[type=submit]{height:32px;font-size:13px;margin:0 1.5em 1.2em 0}
+.errormsg{display:block;color:#dd4b39;line-height:17px;margin:.5em 0 0}
+.training-msg{background:#f9edbe;padding:.5em 8px}
+input[type=password].form-error,input[type=text].form-error{border:1px solid #dd4b39}
+.help-link{background:#dd4b39;color:#fff;font-weight:700;display:inline-block;-webkit-border-radius:1em;-moz-border-radius:1em;border-radius:1em;text-decoration:none;position:relative;top:0;padding:0 5px}
+.help-link:hover{opacity:.7;color:#fff}
+.mail ul.mail-links{list-style:none;overflow:hidden;margin:0}
+.mail ul.mail-links li{float:left;margin:0 20px 0 0}
+#login_error{color:#DD4B39;border:1px solid #DD4B39;background:#fff;-webkit-box-shadow:inset 0 1px 2px rgba(0,0,0,0.1);-moz-box-shadow:inset 0 1px 2px rgba(0,0,0,0.1);box-shadow:inset 0 1px 2px rgba(0,0,0,0.1);padding:4px}
+#kayako_sitebadgebg:hover{background-color:#5faf5f!important}
+#kayako_sitebadgebg{background-color:#198c19;border-color:#5faf5f #126212 #126212!important}
+li,.training-msg p{margin:0 0 .5em}
+* html .clearfix,:first-child+html .clearfix{zoom:1}
+.g-button-submit:active,.g-button-share:active{-webkit-box-shadow:inset 0 1px 2px rgba(0,0,0,0.3);-moz-box-shadow:inset 0 1px 2px rgba(0,0,0,0.3);box-shadow:inset 0 1px 2px rgba(0,0,0,0.3)}
+.g-button-red:visited,.g-button-share:visited,.g-button-submit:visited,.help-link:visited{color:#fff}
+.features.no-icon p,.signin-box ul{margin:0}

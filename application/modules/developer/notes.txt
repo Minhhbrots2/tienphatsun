@@ -1,0 +1,80 @@
+$list_stocks = $clsStock->getAll("`stock_type`='"._BLOCK_TYPE_HIGHLEVEL_SALE."' AND `status_id`='"._STOCK_STATUS_LOCK_ID."' AND building_id='10623'", "{$clsStock->pkey},`ms_code`,`more_information`");
+	// $clsISO->print_pre($list_stocks); die();
+	$curl = new \Curl\Curl();
+	$curl->get('https://masterisehomes.id.vn/api/data');
+	if(!$curl->error){
+		$response = toArray($curl->response);
+		if(!empty($response)){
+			foreach($response as $key => $val){
+				$stock_code = $val['Mã căn'];
+				$link_ptg = $val['Link PTG'];
+				if(!empty($link_ptg)){
+					foreach($list_stocks as $okey => $oval){
+						if($oval['ms_code'] == $stock_code){
+							$more_information = $oval['more_information'];
+							$more_information = $clsISO->to_array_json($more_information);
+							$price_sheets = $core->get_field($more_information, "price_sheets", []);
+							if(!empty($price_sheets)){
+								
+							} else {
+								$price_sheet_id = $clsISO->getUniqid();
+								$price_sheets[$price_sheet_id]['sheets'] = array(
+									$clsISO->getUniqid() => array(
+										'title' => 'PTG TẠM TÍNH',
+										'image' => $link_ptg
+									)
+								);
+								$price_sheets[$price_sheet_id]['reg_date'] = time();
+								$price_sheets[$price_sheet_id]['upd_date'] = time();
+								// $price_sheets[$price_sheet_id]['csbh'] = $csbh;
+								// $price_sheets[$price_sheet_id]['user_id'] = $profile_id;
+								// $price_sheets[$price_sheet_id]['user_update_id'] = $profile_id;
+								$more_information['price_sheets'] = $price_sheets;
+								// $clsISO->print_pre($more_information); die();
+								$clsStock->updateOne($oval[$clsStock->pkey], array(
+									'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE)
+								));
+							}
+						}
+					}
+				}
+				// $clsISO->print_pre($stock_code); die();
+			}
+		}
+		
+		$clsISO->print_pre($response); die();
+	}
+	
+	
+	
+	die();
+	
+	
+	$ranges = 'BÁO CÁO DOANH SỐ';
+	$response = $service->spreadsheets_values->get($spreadsheetId, $ranges);
+	$tblData = $response->getValues();
+	$clsISO->print_pre($tblData); die();
+	if(!empty($tblData) && 1=2=){
+		$total_updated = 0;
+		$total_records = count($tblData);
+		for($i=1; $i<$total_records; $i++){
+			$stock_code = trim($tblData[$i][2]);
+			$otp_customer = $tblData[$i][3];
+			$otp_date = $tblData[$i][4];
+			$otp_reg_link = $tblData[$i][5];
+			if(!empty($stock_code) && !empty($otp_date) && !empty($otp_reg_link) && !empty($otp_customer)){
+				$tmp = $clsBilling->getByCond("`stock_code`='{$stock_code}' and `billing_type`='{$billing_type}'");
+				if(!empty($tmp)){
+					$more_information = $tmp['more_information'];
+					$more_information = $clsISO->to_array_json($more_information);
+					$more_information['otp_customer'] = $otp_customer;
+					$more_information['otp_reg_link'] = $otp_reg_link;
+					$more_information['otp_date'] = $otp_date;
+					$clsBilling->updateOne($tmp[$clsBilling->pkey], array(
+						'otp_date' => $clsISO->toTime($otp_date),
+						'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE)
+					));
+				}
+			}
+		}
+	}

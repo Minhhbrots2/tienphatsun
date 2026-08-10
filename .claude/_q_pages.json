@@ -1,0 +1,46 @@
+{
+  "magic": 1111,
+  "conn_errno": 0,
+  "results": [
+    {
+      "errno": 0,
+      "affected_rows": 2,
+      "insert_id": 0,
+      "num_fields": 8,
+      "num_rows": 2,
+      "columns": [
+        "page_id",
+        "title",
+        "slug",
+        "intro",
+        "image",
+        "is_online",
+        "is_trash",
+        "more_information"
+      ],
+      "rows": [
+        [
+          "2",
+          "Điều khoản sử dụng",
+          "dieu-khoan-su-dung",
+          "Điều khoản sử dụng",
+          "",
+          "1",
+          "0",
+          null
+        ],
+        [
+          "4",
+          "Chinh sách bảo mật",
+          "chinh-sach-bao-mat",
+          "Chinh sách bảo mật",
+          "",
+          "1",
+          "0",
+          null
+        ]
+      ],
+      "_sep": 0
+    }
+  ]
+}

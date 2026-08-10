@@ -1,0 +1,1 @@
+<?php if (!defined('ABSPATH')) exit('No direct script access allowed');	global $core, $dbconn, $clsISO;		$clsService = new Service();	$smarty->assign('clsService', $clsService);	$lstService = $clsService->getAll("is_trash=0 and is_online='1' and is_homepage=1 order by order_no ASC limit 0,8");	$smarty->assign('lstService', $lstService); unset($lstService);?>

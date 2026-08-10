@@ -1,0 +1,5 @@
+{
+    "require": {
+        "dtkahl/php-simple-redis-cache": "^1.0"
+    }
+}

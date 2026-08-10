@@ -1,0 +1,237 @@
+.item_folder{height: 140px;}
+.item_folder .icon_folder {
+    color: #f8d875;
+    font-size: 60px;
+}
+.item_doc .time {
+    position: relative;
+    padding-left: 10px;
+}
+
+.item_doc .time:before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #778798;
+    border-radius: 50%;
+    left: 2px;
+    top: 7px;
+}
+.item_doc .info_bottom {
+    width: calc(100% - 30px);
+}
+.title_collapse:hover {
+    background: #f0f0f0 !important;
+}
+.title_collapse:before {
+    content: "\ea57";
+    font-family: boxicons !important;
+    font-size: 20px;
+    vertical-align: text-bottom;
+}
+
+.title_collapse.collapsed:before {
+    content: "\ea4a";
+}
+.body_collapse.show{
+	margin-top: 15px
+}
+.box_view{
+	top: 0;
+	right: 0
+}
+.pin:before {
+    content: "\ebbb";
+    font-family: boxicons !important;
+    vertical-align: sub;
+    font-size: 18px;
+    margin-right: 0.25rem;
+	line-height: 1;
+}
+.pin.active:before {
+    content: "\ee70";
+    color: #696cff;
+}
+.btn_left {
+    border-top-left-radius: 20px !important;
+    border-bottom-left-radius: 20px !important;
+}
+.btn_right {
+    border-top-right-radius: 20px !important;
+    border-bottom-right-radius: 20px !important;
+}
+.btn_view_docs {
+    transition: 0.5s all;
+    width: 60px !important;
+}
+.btn_view_docs.active {
+    background: #696cff !important;
+    color: #FFF;
+}
+.btn_view_docs.active:before {
+/*    content: "\ea41";*/
+    font-family: boxicons !important;
+    vertical-align: middle;
+    /* font-size: 20px; */
+    margin-right: 5px
+}
+.form_search{
+	max-width: 800px;
+	width: 100%;
+	margin: auto;
+	position: relative;
+}
+.form_search .input-group-text {
+    border-top-left-radius: 25px;
+    border-bottom-left-radius: 25px;
+}
+.form_search .input_search {
+    border-top-right-radius: 25px;
+    border-bottom-right-radius: 25px;
+}
+.lst_doc .table > :not(caption) > * > * {
+    padding: 0.75rem 0.75rem;
+}
+.item_doc.active,.item_doc.active td {
+    background: #c2e7ff !important;
+}
+.input-group .btn:focus{
+	z-index: 1!important
+}
+
+.btn_slider_search {
+	position: absolute;
+	right: 7px;
+	top: 7px;
+}
+
+.btn_slider_search:hover>button,.btn_slider_search>button.show {
+	background: #f5f7f8;
+}
+.list_action_folder {
+    position: absolute;
+    right: 5px;
+    top: 7px;
+}
+.btn_suggest_docs:checked ~ label {
+	color: #696cff;
+	text-decoration: underline
+}
+.box_search_suggestion {
+    top: 51px;
+}
+.lst_suggest_docs {
+    max-height: 50vh;
+}
+.body_detail_doc .tab-content.no-shadow {
+    box-shadow: 0 0 0 !important;
+}
+.body_detail_doc .nav-link.active span {
+    color: #787bff;
+    border-bottom: 2px solid;
+}
+.body_detail_doc .nav-item {
+    margin-bottom: 1px;
+}
+.body_detail_doc .content-right_log {
+	width: calc(100% - 40px)
+}
+.icon_folder{
+	color: #f8d875;
+}
+.folder_detail{
+	width:fit-content
+}
+.item_folder_suggest .icon_folder {
+    font-size: 20px;
+}
+
+.tag_document .tag_document_item {
+	font-size: 11px;
+	display: inline-block;
+	border-radius: 3px;
+	padding: .2em .5em .2em;
+	border-radius: 2px;
+	background: var(--tag-bg);
+	color: var(--text-color);
+	margin: .25em .1em;
+	background: #ededed;
+}
+.img-square-wrapper {
+  width: 100%; 
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.img-square-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.toggle-icon {
+	cursor: pointer;
+	{* margin-left: 5px; *}
+	user-select: none;
+}
+.submenu {
+	display: block;
+	padding-left: 20px;
+}
+
+.img-square-wrapper {
+	position: relative; /* Làm gốc để ảnh nền mờ absolute */
+	display: inline-block;
+	overflow: hidden; /* Ẩn phần ảnh tràn ra ngoài */
+	border-radius: 8px; /* Bo góc giống ảnh */
+}
+
+.image_background {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover !important;
+	filter: blur(8px);
+	opacity: 0.3;
+	z-index: 0;
+}
+
+.item_document-image {
+	position: relative;
+	z-index: 1; /* Ảnh chính nằm trên ảnh nền */
+}
+.box-document .category_link,
+.box-document .document_link {
+	color: #697a8d;
+}
+.content_document .title {
+	 font-size: clamp(15px, 1vw + 0.5rem, 20px);
+}
+@media screen and (max-width:768px){
+	
+	}
+
+@media screen and (max-width:767px) {
+	.btn_view_docs{
+		width: 75px !important;
+	}
+	.btn_view_docs.active:before{
+		font-size:16px
+	}
+	.lst_doc .table > :not(caption) > * > * {
+		padding: 0.325rem 0.625rem;
+	}
+	
+	.item_document {
+		padding: 0.5rem !important;
+	}
+}

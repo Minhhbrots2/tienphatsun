@@ -1,0 +1,22 @@
+if($profile_id == _PROFILE_TECH_ID && 1==2){
+	$arr_admin[] = 324;
+	$arr_admin[] = _PROFILE_TECH_ID;
+	$titleNoty = sprintf('<strong>%s(%s)</strong> yêu cầu phiếu tính giá căn [<strong>%s</strong>]', 
+	$clsProfile->getFullName($profile_id), $clsProperty->getTitle($department_id), $oStock['ms_code']);
+	$subscribers = array();
+	$tmp = $clsFcmToken->getAll("`push_type`='_pushalert' 
+		and `user_id` in (".implode(',', $arr_admin).") and `token`<>''", "token");		
+	if(!empty($tmp)){
+		foreach($tmp as $key => $val){
+			if(!in_array($val['token'], $subscribers)){
+				$subscribers[] = $val['token'];
+			}
+		}
+		$clsNotify->send_subscriber_notification(array(
+			'title' => ($is_urgent==1?"[GẤP] ":"[A.Thiêm TEST]")."Yêu cầu phiếu tính giá",
+			'message' => strip_tags($titleNoty),
+			'url' => PCMS_URL . $clsISO->getLink("request_ptg")
+		), $subscribers);
+	}
+	$clsISO->print_pre("xxx"); die();
+}

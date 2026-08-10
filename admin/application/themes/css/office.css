@@ -1,0 +1,332 @@
+/* Office check-in geofence config (module admin office). CSS riêng theo module.
+   Port từ thiết kế previews/_preview_checkin_zone.html; scope dưới .office-wrap +
+   tiền tố .of-* để KHÔNG đụng .card/.btn/.badge của Bootstrap admin. */
+.office-wrap {
+  --of-fh: #e11b22;
+  --of-fh-d: #b3151b;
+  --of-ink: #1f2733;
+  --of-muted: #6b7685;
+  --of-line: #e6e9ef;
+  --of-ok: #16a34a;
+  --of-warn: #d97706;
+  --of-bad: #dc2626;
+  color: var(--of-ink);
+  font-size: 14px;
+}
+
+.office-wrap .of-note {
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  color: #3730a3;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.office-wrap .of-note b {
+  color: #312e81;
+}
+
+.office-wrap .of-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.office-wrap .of-card {
+  background: #fff;
+  border: 1px solid var(--of-line);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+}
+
+.office-wrap .of-card-hd {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--of-line);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.office-wrap .of-card-bd {
+  padding: 16px;
+}
+
+.office-wrap .of-btn {
+  border: 0;
+  border-radius: 9px;
+  padding: 9px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13.5px;
+}
+
+.office-wrap .of-btn-p {
+  background: var(--of-fh);
+  color: #fff;
+}
+
+.office-wrap .of-btn-p:hover {
+  background: var(--of-fh-d);
+}
+
+.office-wrap .of-btn-p:disabled {
+  background: #cbd0dd;
+  cursor: default;
+}
+
+.office-wrap .of-btn-g {
+  background: #fff;
+  border: 1px solid var(--of-line);
+  color: var(--of-ink);
+}
+
+.office-wrap .of-btn-sm {
+  padding: 6px 10px;
+  font-size: 12.5px;
+}
+
+.office-wrap .of-zone {
+  border: 1px solid var(--of-line);
+  border-radius: 11px;
+  padding: 11px;
+  margin-bottom: 9px;
+  cursor: pointer;
+  transition: .15s;
+}
+
+.office-wrap .of-zone:hover {
+  border-color: #cdd4e0;
+  background: #fafbfd;
+}
+
+.office-wrap .of-zone.active {
+  border-color: var(--of-fh);
+  box-shadow: 0 0 0 2px rgba(225, 27, 34, .08);
+}
+
+.office-wrap .of-zone-nm {
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+}
+
+.office-wrap .of-zone-code {
+  color: var(--of-muted);
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.office-wrap .of-zone-meta {
+  color: var(--of-muted);
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+.office-wrap .of-zone-nocoord {
+  color: var(--of-warn);
+  font-weight: 600;
+}
+
+.office-wrap .of-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.office-wrap .of-b-on {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.office-wrap .of-b-off {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.office-wrap .of-fl {
+  display: block;
+  font-weight: 600;
+  margin: 0 0 5px;
+  font-size: 13px;
+}
+
+.office-wrap .of-hint {
+  color: var(--of-muted);
+  font-size: 11.5px;
+  margin-top: 4px;
+}
+
+.office-wrap .of-input {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--of-line);
+  border-radius: 9px;
+  font-size: 13.5px;
+  outline: none;
+  background: #fff;
+}
+
+.office-wrap .of-input:focus {
+  border-color: var(--of-fh);
+  box-shadow: 0 0 0 3px rgba(225, 27, 34, .08);
+}
+
+.office-wrap .of-fg {
+  margin-bottom: 14px;
+}
+
+.office-wrap #office-map {
+  height: 300px;
+  border-radius: 11px;
+  border: 1px solid var(--of-line);
+}
+
+.office-wrap .of-coordbar {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.office-wrap .of-slider {
+  width: 100%;
+}
+
+.office-wrap .of-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  margin: 0;
+}
+
+.office-wrap .of-switch input {
+  display: none;
+}
+
+.office-wrap .of-sl {
+  position: absolute;
+  inset: 0;
+  background: #cbd5e1;
+  border-radius: 24px;
+  transition: .2s;
+  cursor: pointer;
+}
+
+.office-wrap .of-sl:before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: .2s;
+}
+
+.office-wrap .of-switch input:checked+.of-sl {
+  background: var(--of-ok);
+}
+
+.office-wrap .of-switch input:checked+.of-sl:before {
+  transform: translateX(20px);
+}
+
+.office-wrap .of-val {
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.office-wrap .of-val.err {
+  color: var(--of-bad);
+}
+
+.office-wrap .of-val.ok {
+  color: var(--of-ok);
+}
+
+.office-wrap .of-test {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 11px;
+  padding: 12px;
+  margin-top: 6px;
+}
+
+.office-wrap .of-test-res {
+  font-weight: 700;
+  margin-top: 8px;
+  color: var(--of-muted);
+}
+
+.office-wrap .of-divider {
+  height: 1px;
+  background: var(--of-line);
+  margin: 16px 0;
+}
+
+.office-wrap .of-section {
+  font-weight: 700;
+  font-size: 13px;
+  color: #334155;
+  margin: 2px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.office-wrap .of-ico {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: rgba(225, 27, 34, .1);
+  color: var(--of-fh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.office-wrap .of-global-note {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 11px 13px;
+  font-size: 12.5px;
+  color: #166534;
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+}
+
+.office-wrap .of-global-note b {
+  color: #14532d;
+}
+
+.office-wrap .of-k {
+  background: #f1f5f9;
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-size: 12px;
+}
+
+.office-wrap .of-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+@media (max-width: 900px) {
+  .office-wrap .of-grid {
+    grid-template-columns: 1fr;
+  }
+}

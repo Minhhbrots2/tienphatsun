@@ -1,0 +1,411 @@
+body{
+
+	background-size: cover;
+
+	background-image: url('../images/backgrounds/bg.jpg');
+
+	background-position: center bottom;
+
+	background-attachment: fixed;
+
+	background-repeat: no-repeat;
+
+}
+
+.eznyDbxTuI{
+
+	padding:10px;
+
+	border-radius:5px;
+
+	-moz-border-radius:5px;
+
+	-webkit-border-radius:5px;
+
+	-khtml-border-radius:5px;
+
+	background:rgba(255,255,255,0.8);
+
+}
+
+.qjkYlYqD9P{
+
+	line-height:24px;
+
+	font-size:16px;
+
+}
+
+.qjkYlYqD9P table,
+
+.qjkYlYqD9P img{
+
+	max-width:100%;
+
+	height:auto;
+
+}
+
+.h5hjavlMWX{
+
+	font-size:18px;
+
+	margin-bottom:6px;
+
+}
+
+.sWU0bvPK5E{
+
+	max-height:40px;
+
+}
+
+.home-links .rQXIEnXZrq{
+
+	min-height: 110px;
+
+}
+
+.text-red{
+
+	color:rgb(192,0,0) !important;
+
+}
+
+.text-link{
+
+	color:rgb(124,60,16) !important	
+
+}
+
+.table-stock th.pheader {
+
+    padding: 10px 15px;
+
+    background: #7c3c10;
+
+    color: #eaddb0 !important;
+
+}
+
+.table-stock th.pcell {
+
+    color: #7c3c10 !important;
+
+    background: #eaddb0 !important;
+
+	border-top:1px solid #7c3c10 !important;
+
+	border-right:1px solid #7c3c10 !important;
+
+}
+
+.table-stock td{
+
+	background:var(--bs-white);
+
+	border:1px solid #7c3c10 !important;
+
+}
+
+.table-stock-MLS th.pheader{
+
+	padding: 12px 15px;
+
+	background: rgb(171 77 37) !important;
+
+	color: var(--bs-white) !important;
+
+	border-bottom:0px !important
+
+}
+
+.table-stock-MLS th.pcell{
+
+	color: var(--bs-white) !important;
+
+    background: rgb(171 77 37) !important;
+
+	border-top:1px solid rgb(232 169 142) !important;
+
+    border-right: 1px solid rgb(232 169 142) !important;
+
+}
+
+.table-stock-MLS td{
+
+	border: 1px solid rgb(232 169 142) !important;
+
+}
+
+.table-stock-MLS a.text-link{
+
+	color:rgb(171,77,37) !important
+
+}
+
+.table-stock-LSB th.pheader{
+
+	padding: 12px 15px;
+
+	background: rgb(2,70,56);
+
+	color: var(--bs-white) !important;
+
+	border-bottom:0px !important
+
+}
+
+.table-stock-LSB th.pcell{
+
+	color: var(--bs-white) !important;
+
+	background: rgb(2,70,56) !important;
+
+	border-right: 1px solid rgb(178,205,154) !important;
+
+	border-top: 1px solid rgb(178,205,154) !important
+
+}
+
+.table-stock-LSB td{
+
+	border: 1px solid rgb(178,205,154) !important;
+
+}
+
+.table-stock-LSB a.text-link{
+
+	color:rgb(2,70,56) !important
+
+}
+
+.table-stock-MTS th.pheader{
+
+	padding: 12px 15px;
+
+	background: #8c613f;
+
+	color: var(--bs-white) !important;
+
+	border-bottom:0px !important
+
+}
+
+.table-stock-MTS th.pcell{
+
+	color: var(--bs-white) !important;
+
+	background: #8c613f !important;
+
+	border-right: 1px solid #c8b19e !important;
+
+	border-top: 1px solid #c8b19e !important
+
+}
+
+.table-stock-MTS td{
+
+	border: 1px solid #c8b19e !important;
+
+}
+
+.table-stock-MTS a.text-link{
+
+	color:rgb(140,97,63) !important
+
+}
+
+.total_price_early{
+
+	color:var(--bs-white) !important;
+
+	background:#C00000 !important;
+
+}
+
+.total_price_progress{
+
+	color:var(--bs-white) !important;
+
+	background:#4c0057 !important;
+
+}
+
+.total_price_bank{
+
+	color:var(--bs-white) !important;
+
+	background:#8e7803 !important;
+
+}
+
+.total_price_bank_half{
+
+	color:var(--bs-white) !important;
+
+	background:#00624e !important;
+
+}
+
+.table-freeze{
+
+	border-radius:3px;
+
+	-moz-border-radius:3px;
+
+	-webkit-border-radius:3px;
+
+	border:1px solid rgb(124 60 16);
+
+	overflow:hidden;
+
+}
+
+.table-freeze.border-MLS{
+
+	border-color: rgb(171,77,37) !important;
+
+}
+
+.table-freeze.border-MTS{
+
+	border-color: rgb(140,97,63) !important;
+
+}
+
+.table-freeze.border-MTS{
+
+	border-color: rgb(140,97,63) !important;
+
+}
+
+.table-freeze.border-LSB{
+
+	border-color: rgb(2,70,56) !important;
+
+}
+
+.table-freeze > table{
+
+	border-collapse:separate;
+
+}
+
+.table-freeze > table tr th,
+
+.table-freeze > table tr td{
+
+	border-left:0px !important;
+
+	border-bottom:0px !important;
+
+}
+
+.table-freeze > table tr td:last-child{
+
+	border-right:0px !important;
+
+}
+
+.table-freeze > table tr.rowspan td:first-child{
+
+	border-right:1px solid #7c3c10 !important;
+
+	border-color: inherit !important
+
+}
+
+.table-freeze.border-MLS > table tr.rowspan td:first-child{
+
+	border-right:1px solid #e8a98e !important;
+
+}
+
+.table-freeze.border-LSB > table tr.rowspan td:first-child{
+
+	border-right:1px solid #b2cd9a !important;
+
+}
+
+.table-freeze.border-MTS > table tr.rowspan td:first-child{
+
+	border-right:1px solid #c8b19e !important;
+
+}
+
+.table-freeze:not(.no-freeze) > table tr th:nth-child(1),
+
+.table-freeze > table tr th:nth-child(2){
+
+	position:sticky;
+
+	left:0;
+
+}
+
+.table-freeze:not(.no-freeze) > table tr.rowspan td:nth-child(1),
+
+.table-freeze:not(.no-freeze) > table tr:not(.rowspan) td:nth-child(1){
+
+	position:sticky;
+
+	left:0;
+
+}
+
+.table-freeze:not(.no-freeze) > table tr th:nth-child(2),
+
+.table-freeze:not(.no-freeze) > table tr:not(.rowspan) td:nth-child(1){
+
+	left:48px;
+
+}
+
+.table-stock-color th.pheader,.table-stock th.pcell {
+
+    color: inherit !important;
+
+    background: inherit !important;
+
+}
+
+
+
+.table-stock-color th.pcell,.table-stock-color td,.table-stock-color td .text-link {
+
+    border-color: inherit !important;
+
+}
+
+.table-stock-color td:not(.price),
+
+.table-stock-color td .text-link{
+
+    color: inherit !important;
+	background: inherit
+
+}
+
+@media screen and (max-width:648px){
+
+	.om-xs\:p-2{
+
+		padding:0.5rem !important
+
+	}
+
+	.om-xs\:mb-1{
+
+		margin-bottom: 0.25rem !important;
+
+	}
+
+	.om-xs\:max-height-120{
+
+		max-height:120px;
+
+	}
+
+}
+

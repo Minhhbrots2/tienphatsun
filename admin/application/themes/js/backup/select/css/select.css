@@ -1,0 +1,30 @@
+.js-select-text {font: 10px/1.4 Verdana, Arial, Helvetica, sans-serif !important; position: relative !important; border: 1px solid #B9AF9B; background: white; display: inline-block; *display: inline; *zoom: 1;}
+.js-select-text a {cursor: pointer !important; text-decoration: none !important; color: #876E46 !important;}
+.js-select-text a.title {display: block; height: 15px; overflow: hidden; position: relative;}
+.js-select-text a.title span {margin-left: 5px;}
+.js-select-text a.title b {background: url(fleche_select.gif); width: 15px; height: 15px; display: block; position: absolute; top: 0; right: 0;}
+.js-select-text .ul {margin: 0 !important; padding: 0 !important; list-style: none !important; border: 1px solid #B9AF9B !important; border-top: none !important; position: absolute !important; top: 16px !important; left: -1px !important; width: 100%; background: white !important; overflow: hidden; outline: none !important;}
+.js-select-text .li {margin: 0 !important; padding: 0 !important; font: 10px/1.4 Verdana, Arial, Helvetica, sans-serif !important;}
+.js-select-text .ul a {padding-left: 5px !important; display: block !important;}
+.js-select-text .ul a:hover {background: #e7e2cf; color:#291f1d;}
+.js-select-text .ul a.active {background: #876E46; color: white !important;}
+.js-select-text .ul a.active:hover {background: #876E46; color: white !important;}
+.js-select-text .select-tip {position: absolute; display: inline-block; height: 20px; left: 0; top: -23px; background: #e7e2cf; line-height: 20px; padding: 0 7px; color: #333; z-index: 99999;}
+
+.js-select-day {float: left; margin-right: 10px;}
+.js-select-day a.title {width: 40px\9 !important;}
+.js-select-day .ul {display: inline-block; width: 120px !important; width: 122px\9 !important; border-top: 1px solid #B9AF9B !important; top: 15px !important;}
+.js-select-day .li {display: inline-block; float: left !important; padding: 1px !important;}
+.js-select-day .li a {margin: 0 !important; padding: 1px !important; border: 1px solid #E7E2CF !important;}
+.js-select-day .li a:hover {background: #E7E2CF !important;}
+
+.js-select-month {float: left; margin-right: 10px;}
+.js-select-month a.title {width: 40px\9 !important;}
+.js-select-month .ul {display: inline-block; width: 80px !important; width: 82px\9 !important; border-top: 1px solid #B9AF9B !important; top: 15px !important;}
+.js-select-month .li {display: inline-block; float: left !important; padding: 1px !important;}
+.js-select-month .li a {margin: 0 !important; padding: 1px !important; border: 1px solid #E7E2CF !important;}
+.js-select-month .li a:hover {background: #E7E2CF;}
+
+.js-select-year {float: left;}
+.js-select-year a.title {width: 50px\9 !important;}
+.js-select-year .ul {width: 52px !important \9;}

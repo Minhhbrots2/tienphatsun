@@ -1,0 +1,215 @@
+.checkbox label {
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    margin-bottom: 0;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.checkbox label::before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 0;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background-color: #fff;
+    -webkit-transition: border .15s ease-in-out,color .15s ease-in-out;
+    -o-transition: border .15s ease-in-out,color .15s ease-in-out;
+    transition: border .15s ease-in-out,color .15s ease-in-out;
+}
+
+.checkbox label::after {
+    display: inline-block;
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 0;
+    top: 0;
+    padding-left: 3px;
+    padding-top: 3px;
+    font-size: 11px;
+    color: #555
+}
+
+.checkbox input[type="checkbox"],.checkbox input[type="radio"] {
+    opacity: 0;
+    z-index: 2;
+    position: absolute;
+    width: 20px;
+    height: 20px;
+}
+
+.checkbox input[type="checkbox"]:focus + label::before,.checkbox input[type="radio"]:focus + label::before {
+    outline: thin dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px
+}
+
+.checkbox input[type="checkbox"]:checked + label::after,.checkbox input[type="radio"]:checked + label::after {
+    font-family: "FontAwesome";
+    content: "\f00c"
+}
+
+.checkbox input[type="checkbox"]:disabled + label,.checkbox input[type="radio"]:disabled + label {
+    opacity: .65
+}
+
+.checkbox input[type="checkbox"]:disabled + label::before,.checkbox input[type="radio"]:disabled + label::before {
+    background-color: #eee;
+    cursor: not-allowed
+}
+
+.checkbox.checkbox-circle label::before {
+    border-radius: 50%
+}
+
+.checkbox.checkbox-inline {
+    margin-top: 0
+}
+.select2-container {
+    width: 100% !important;
+}
+.isodatepicker {
+    background: var(--bs-white) url(data:image/svg+xml;charset=utf-8,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%221%22%20y%3D%224%22%20width%3D%2218%22%20height%3D%2215%22%20rx%3D%222%22%20stroke%3D%22%23F58321%22%2F%3E%0A%3Cpath%20d%3D%22M2%209H18%22%20stroke%3D%22%23F58321%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M7%2014H13%22%20stroke%3D%22%23F58321%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M6%201L6%205%22%20stroke%3D%22%23F58321%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3Cpath%20d%3D%22M14%201L14%205%22%20stroke%3D%22%23F58321%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3C%2Fsvg%3E%0A) no-repeat calc(100% - 10px) center;
+}
+/*===================*/
+.crm-timeline__card-logo_container {
+    display: flex;
+    margin-right: 16px;
+    position: relative;
+}
+.crm-timeline__card-logo {
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 80px;
+    height: 80px;
+    border-radius: var(--ui-border-radius-lg, 12px);
+    --crm-timeline__logo-background: var(--ui-color-palette-blue-20);
+    background-color: var(--crm-timeline__logo-background);
+    overflow: hidden;
+    transition: .25s ease linear;
+}
+.crm-timeline__card-logo_content {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+.crm-timeline__calendar-icon {
+    --crm-timeline__calendar-icon_size: 50px;
+    --crm-timeline__calendar-icon_border-width: 1px;
+    --crm-timeline__calendar-icon_primary-color: var(--ui-color-primary, #2fc6f6);
+    --crm-timeline__calendar-icon_content-font: var(--ui-font-family-secondary,var(--ui-font-family-open-sans),'Open Sans',sans-serif);
+    --crm-timeline__calendar-icon_bottom-radius: var(--ui-border-radius-2xs, 4px);
+    --crm-timeline__calendar-icon_top-radius: var(--ui-border-radius-xs, 6px);
+    --crm-timeline__calendar-icon_white-rgb: 255, 255, 255;
+    width: var(--crm-timeline__calendar-icon_size);
+    height: var(--crm-timeline__calendar-icon_size);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    border-radius: var(--crm-timeline__calendar-icon_top-radius) / calc(var(--crm-timeline__calendar-icon_bottom-radius) + 1px);
+    overflow: hidden;
+    background: linear-gradient(0, rgba(var(--ui-color-background-primary-rgb, var(--crm-timeline__calendar-icon_white-rgb)), 0.5), rgba(var(--ui-color-background-primary-rgb, var(--crm-timeline__calendar-icon_white-rgb)), 0.5)), var(--crm-timeline__calendar-icon_primary-color);
+}
+.crm-timeline__calendar-icon_top {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 9px;
+    background-color: var(--crm-timeline__calendar-icon_primary-color);
+}
+.crm-timeline__calendar-icon_bullets {
+    margin-top: 1px;
+    width: 24px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.crm-timeline__calendar-icon_bullet {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: var(--ui-color-background-primary, #fff);
+    opacity: .5;
+}
+.crm-timeline__calendar-icon_top::after {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: var(--crm-timeline__calendar-icon_border-width);
+    bottom: calc(var(--crm-timeline__calendar-icon_border-width)* -1);
+    left: 0;
+    background-color: var(--crm-timeline__calendar-icon_primary-color);
+    opacity: .15;
+}
+.crm-timeline__calendar-icon_content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: calc(100% - var(--crm-timeline__calendar-icon_border-width)* 2);
+    margin-bottom: var(--crm-timeline__calendar-icon_border-width);
+    flex-grow: 1;
+    background-color: var(--ui-color-background-primary, #fff);
+    border-bottom-left-radius: var(--crm-timeline__calendar-icon_bottom-radius);
+    border-bottom-right-radius: var(--crm-timeline__calendar-icon_bottom-radius);
+    font-family: var(--crm-timeline__calendar-icon_content-font);
+    font-weight: var(--ui-font-weight-bold, bold);
+    text-transform: uppercase;
+}
+.crm-timeline__calendar-icon_day {
+    font-size: var(--ui-font-size-xl, 16px);
+    line-height: var(--ui-font-line-height-3xs, 1.2);
+    color: var(--ui-color-base-90, #525c69);
+}
+.crm-timeline__calendar-icon_month {
+    font-size: var(--ui-font-size-7xs, 7px);
+    line-height: var(--ui-font-line-height-3xs, 1.2);
+    color: var(--ui-color-base-50, #a8adb4);
+}
+.crm-timeline__calendar-icon_date {
+    white-space: pre-wrap;
+    font-size: var(--ui-font-size-7xs, 7px);
+    color: var(--crm-timeline__calendar-icon_primary-color);
+    line-height: var(--ui-font-line-height-md, 1.4);
+}
+.crm-timeline__calendar-icon_day-week {
+    margin-right: 1px;
+}
+.content_activities{
+	width: calc(100% - 96px)
+}
+.time_end{
+	background: #FFF1D6;
+    border-radius: 8px;
+}
+.activities_intro.w-100 {
+    padding: 11px 17px;
+    position: relative;
+    z-index: 1;
+    border-radius: 12px;
+    margin-right: 20px;
+}
+.checklist-item-details.js-checkitem {
+    box-shadow: 0 2px 3px rgba(0, 0, 0, .06);
+    background: var(--ui-color-background-note, #fff8cf);
+	margin: 0
+}

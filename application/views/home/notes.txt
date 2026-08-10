@@ -1,0 +1,565 @@
+<script type="text/javascript" src="{$URL_JS}/iframeResizer.min.js?v={$upd_version}"></script>
+<div class="content-wrapper">
+	<div class="container-sm flex-grow-1 container-p-y">
+		<div class="row">
+			<div class="col-lg-10 offset-md-1">
+				<div class="eznyDbxTuI mt-10">
+					<div class="duGrSSZjHd d-flex justify-content-center mb-5">
+						<img class="sWU0bvPK5E" src="{$URL_IMAGES}/logo-header.png" />
+					</div>
+					<h3 class="h5hjavlMWX">{$onePage.title}</h3>
+					<div class="meta mb-4">
+						<span class="text-muted">Cập nhật: {$clsISO->convertTimeToText($smarty.now, true)}</span>
+					</div>
+					{if !empty($list_quick_menus)}
+						{foreach name=i from=$list_quick_menus item = _oframe}
+						{assign var = uid value = $clsISO->getUniqid()}
+						<div class="iframe mt-3">
+							<iframe id="iframe_{$uid}"{if $smarty.foreach.i.first} src="{$_oframe.link}"{else} data-src="{$_oframe.link}"{/if} scrolling="no" width="100%" style="min-height:600px" frameborder="0"></iframe>
+						</div>
+						{/foreach}
+						<hr />
+					{/if}
+					<div class="tgbZRaqgdF">
+						
+						<div class="qjkYlYqD9P">
+							{$onePage.content}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{literal}
+<script type="text/javascript">
+	function lazyLoad() {
+		$('iframe').each(function() {
+			var frame = $(this),
+				frame_id = $(frame).attr('id'),
+				frame_src = $(frame).attr('data-src'),
+				distance = $(frame).offset().top - $(window).scrollTop(),
+				distTopBot = window.innerHeight - distance,
+				distBotTop = distance + $(frame).height();
+			if (distTopBot >= 0 && distBotTop >= 0) { 
+				$(frame).attr('src', frame_src);
+				$(frame).removeAttr('data-src');
+				iFrameResize({log: true },'#'+frame_id);
+			}
+		});
+	}
+	var throttled = _.throttle(lazyLoad, 100);
+	$(window).scroll(throttled);
+</script>
+{/literal}
+
+
+
+
+$field = "{$clsProperty->pkey},title,title_vn,more_information";
+$list_mwf_blocks = array(
+	'miami' => array(
+		'title' => 'Miami',
+		'buildings' => array(76,77,78)
+	),
+	'hawaii' => array(
+		'title' => 'Hawaii',
+		'buildings' => array(283,217,282)
+	),
+);
+$more_information = $clsProperty->getOneField('more_information', _BLOCK_MWF_ID);
+$more_information = $clsISO->to_array_json($more_information);
+$price_field_configs = isset($more_information['price_field_configs']) 
+	? $more_information['price_field_configs'] : array();
+$list_price_field = array();
+foreach($price_field_configs as $nkey => $nval){
+	if(isset($nval['status']) && $nval['status'] == 1){
+		$list_price_field[$nkey] = $nval['title'];
+	}
+}
+foreach($list_mwf_blocks as $okey=> $oval){
+	$list_mwf_blocks[$okey]['list_price_field'] = $list_price_field;
+	$list_buildings = $clsProperty->getAll("`property_type`='_BUILDING' and for_id='"._BLOCK_MWF_ID."' and {$clsProperty->pkey} in (".implode(',', $oval['buildings']).") order by order_no ASC", $field);
+	$total_stocks = $clsStock->countItem("`agency_id`='"._AGENCY_FH_ID."' and `status_id`='"._STOCK_STATUS_DQ_ID."' 
+	and `block_id`='"._BLOCK_MWF_ID."' and `building_id` in (".implode(",", $oval['buildings']).") and `show_website` like '%|partner.fh|%'");
+	$list_mwf_blocks[$okey]['total_stocks'] = $total_stocks;
+	if(!empty($list_buildings)){
+		foreach($list_buildings as $mkey => $mval){
+			$total_stocks = 1;
+			$building_id = $mval[$clsProperty->pkey];
+			$list_stocks = $dbconn->getAll("select `t1`.* from {$clsStock->tbl} as `t1` 
+				inner join {$clsProperty->tbl} as `t2` on `t1`.`bedroom_id`=`t2`.`property_id` 
+				where `t2`.`property_type`='_BEDROOM' and `t1`.`agency_id`='"._AGENCY_FH_ID."' and `t1`.`status_id`='"._STOCK_STATUS_DQ_ID."' 
+				and `t1`.`block_id`='"._BLOCK_MWF_ID."' and `t1`.`building_id`='{$building_id}' and `t1`.`show_website` like '%|partner.fh|%' 
+				order by `t2`.`order_no` ASC");
+			if(!empty($list_stocks)){
+				$total_stocks += count($list_stocks);
+				foreach($list_stocks as $key => $val){
+					$type_id = $val['type_id'];
+					$project_id= $val['project_id'];
+					$bedroom_id = $val['bedroom_id'];
+					$home_direction_id = $val['home_direction_id'];
+					$more_information = $val['more_information'];
+					$more_information = $clsISO->to_array_json($more_information);
+					$list_stocks[$key]['DT_TT'] = $more_information['DT_TT'];
+					$list_stocks[$key]['more_information'] = $more_information;
+					###
+					$html_image_sheets = "";
+					$price_sheets = isset($more_information['price_sheets']) && !empty($more_information['price_sheets']) 
+						? $more_information['price_sheets'] : array();
+					if(!empty($price_sheets)){
+						$price_sheets = @array_reverse($price_sheets);
+						$oneSheet = reset($price_sheets);
+						if(!empty($oneSheet)){
+							foreach($oneSheet['sheets'] as $nkey => $nval){
+								$html_image_sheets.= '<a class="text-link fs-13" target="_blank" href="'.$nval['image'].'">'.$nval['title'].'<i class=\'bx bx-link-external\'></i></a>';
+							}
+						}
+					}
+					$total_price_vat = 0;
+					if(isset($more_information['total_price_vat']) && !empty($more_information['total_price_vat'])){
+						$total_price_vat = $more_information['total_price_vat'];
+						$total_price_vat = $clsISO->processSmartNumber($total_price_vat);
+						$total_price_vat = number_format((float) $clsISO->priceFormat($total_price_vat),3,'.','');
+					}
+					$list_stocks[$key]['total_price_vat'] = $total_price_vat;
+					$list_stocks[$key]['html_image_sheets'] = $html_image_sheets;
+					#
+					$html_sales_policy = $html_price_sheets = "";
+					if(isset($more_information['csbh']) && !empty($more_information['csbh'])){
+						$csbh = $more_information['csbh'];
+					} else {
+						$regex = sprintf('%s_%s_%s', $project_id, $block_id, $building_id);
+						$onePolicy = $clsPolicy->getByCond("`ms_date`<='".time()."' and `scope_slash` like '%|{$regex}|%' 
+						order by ms_date DESC limit 0,1");
+						if(!empty($onePolicy)){
+							$csbh = date('d/m/Y', $onePolicy['ms_date']);
+							$html_sales_policy = '<a target="_blank" href="'.$onePolicy['link_ns'].'">'.$clsISO->makeIcon('bx-link-external','Mở link').'</a>';
+							$html_price_sheets = '<a target="_blank" href="'.$onePolicy['link_ms'].'">'.$clsISO->makeIcon('bx-link-external','Mở link').'</a>';
+						}
+					}
+					$list_stocks[$key]['csbh'] = $csbh;
+					$list_stocks[$key]['html_sales_policy'] = $html_sales_policy;
+					###
+					if($type_id > 0){
+						if(isset($arr_property_cached[$type_id])){
+							$list_stocks[$key]['type_name'] = $arr_property_cached[$type_id];
+						} else {
+							$arr_property_cached[$type_id] = $clsProperty->getTitle($type_id);
+							$list_stocks[$key]['type_name'] = $arr_property_cached[$type_id];
+						}
+					}
+					if($bedroom_id > 0){
+						if(isset($arr_property_cached[$bedroom_id])){
+							$list_stocks[$key]['bedroom_name'] = $arr_property_cached[$bedroom_id];
+						} else {
+							$arr_property_cached[$bedroom_id] = $clsProperty->getTitle($bedroom_id);
+							$list_stocks[$key]['bedroom_name'] = $arr_property_cached[$bedroom_id];
+						}
+					}
+					if($home_direction_id > 0){
+						if(isset($arr_property_cached[$home_direction_id])){
+							$list_stocks[$key]['home_direction_name'] = $arr_property_cached[$home_direction_id];
+						} else {
+							$arr_property_cached[$home_direction_id] = $clsProperty->getTitle($home_direction_id);
+							$list_stocks[$key]['home_direction_name'] = $arr_property_cached[$home_direction_id];
+						}
+					}
+				}
+			}
+			$list_buildings[$mkey]['total_stocks'] = $total_stocks;
+			$list_buildings[$mkey]['list_stocks'] = $list_stocks;
+		}
+	}
+	$list_mwf_blocks[$okey]['list_buildings'] = $list_buildings;
+}
+$assign_list["list_mwf_blocks"] = $list_mwf_blocks;
+// $clsISO->print_pre($list_mwf_blocks); die();
+$list_blocks = $clsProperty->getAll("`is_trash`=0 and `property_type`='_BLOCK' and `for_id`='"._PROJECT_DEF_ID."' 
+and {$clsProperty->pkey} != '"._BLOCK_MWF_ID."'", $field);
+//$clsISO->print_pre($list_blocks); die();
+if(!empty($list_blocks)){
+	$arr_property_cached = array();
+	foreach($list_blocks as $okey => $oval){
+		$block_id = $oval[$clsProperty->pkey];
+		$more_information = $oval['more_information'];
+		$more_information = $clsISO->to_array_json($more_information);
+		$price_field_configs = isset($more_information['price_field_configs']) 
+			? $more_information['price_field_configs'] : array();
+		$list_price_field = array();
+		foreach($price_field_configs as $nkey => $nval){
+			if(isset($nval['status']) && $nval['status'] == 1){
+				$list_price_field[$nkey] = $nval['title'];
+			}
+		}
+		$list_blocks[$okey]['list_price_field'] = $list_price_field;
+		// $clsISO->print_pre($list_price_field); die();
+		$list_buildings = $clsProperty->getAll("`property_type`='_BUILDING' and for_id='".$block_id."' order by order_no ASC", $field);
+		// $clsISO->print_pre($list_buildings); die();
+		$total_stocks = $clsStock->countItem("`agency_id`='"._AGENCY_FH_ID."' and `status_id`='"._STOCK_STATUS_DQ_ID."' 
+			and `block_id`='{$block_id}' and `show_website` like '%|partner.fh|%'");
+		$list_blocks[$okey]['total_stocks'] = $total_stocks;
+		if(!empty($list_buildings)){
+			foreach($list_buildings as $mkey => $mval){
+				$total_stocks = 1;
+				$building_id = $mval[$clsProperty->pkey];
+				$list_stocks = $dbconn->getAll("select `t1`.* from {$clsStock->tbl} as `t1` 
+				inner join {$clsProperty->tbl} as `t2` on `t1`.`bedroom_id`=`t2`.`property_id` 
+				where `t2`.`property_type`='_BEDROOM' and `t1`.`agency_id`='"._AGENCY_FH_ID."' and `t1`.`status_id`='"._STOCK_STATUS_DQ_ID."' 
+				and `t1`.`block_id`='{$block_id}' and `t1`.`building_id`='{$building_id}' and `t1`.`show_website` like '%|partner.fh|%' 
+				order by `t2`.`order_no` ASC");
+				if(!empty($list_stocks)){
+					$total_stocks += count($list_stocks);
+					foreach($list_stocks as $key => $val){
+						$type_id = $val['type_id'];
+						$project_id= $val['project_id'];
+						$bedroom_id = $val['bedroom_id'];
+						$home_direction_id = $val['home_direction_id'];
+						$more_information = $val['more_information'];
+						$more_information = $clsISO->to_array_json($more_information);
+						$list_stocks[$key]['DT_TT'] = $more_information['DT_TT'];
+						$list_stocks[$key]['more_information'] = $more_information;
+						###
+						$html_image_sheets = "";
+						$price_sheets = isset($more_information['price_sheets']) && !empty($more_information['price_sheets']) 
+							? $more_information['price_sheets'] : array();
+						if(!empty($price_sheets)){
+							$price_sheets = @array_reverse($price_sheets);
+							$oneSheet = reset($price_sheets);
+							if(!empty($oneSheet)){
+								foreach($oneSheet['sheets'] as $nkey => $nval){
+									$html_image_sheets.= '<a class="text-link fs-13" target="_blank" href="'.$nval['image'].'">'.$nval['title'].'<i class=\'bx bx-link-external\'></i></a>';
+								}
+							}
+						}
+						$total_price_vat = 0;
+						if(isset($more_information['total_price_vat']) && !empty($more_information['total_price_vat'])){
+							$total_price_vat = $more_information['total_price_vat'];
+							$total_price_vat = $clsISO->processSmartNumber($total_price_vat);
+							$total_price_vat = number_format((float) $clsISO->priceFormat($total_price_vat),3,'.','');
+						}
+						$list_stocks[$key]['total_price_vat'] = $total_price_vat;
+						$list_stocks[$key]['html_image_sheets'] = $html_image_sheets;
+						#
+						$html_sales_policy = $html_price_sheets = "";
+						if(isset($more_information['csbh']) && !empty($more_information['csbh'])){
+							$csbh = $more_information['csbh'];
+						} else {
+							$regex = sprintf('%s_%s_%s', $project_id, $block_id, $building_id);
+							$onePolicy = $clsPolicy->getByCond("`ms_date`<='".time()."' and `scope_slash` like '%|{$regex}|%' 
+							order by ms_date DESC limit 0,1");
+							if(!empty($onePolicy)){
+								$csbh = date('d/m/Y', $onePolicy['ms_date']);
+								$html_sales_policy = '<a target="_blank" href="'.$onePolicy['link_ns'].'">'.$clsISO->makeIcon('bx-link-external','Mở link').'</a>';
+								$html_price_sheets = '<a target="_blank" href="'.$onePolicy['link_ms'].'">'.$clsISO->makeIcon('bx-link-external','Mở link').'</a>';
+							}
+						}
+						$list_stocks[$key]['csbh'] = $csbh;
+						$list_stocks[$key]['html_sales_policy'] = $html_sales_policy;
+						###
+						if($type_id > 0){
+							if(isset($arr_property_cached[$type_id])){
+								$list_stocks[$key]['type_name'] = $arr_property_cached[$type_id];
+							} else {
+								$arr_property_cached[$type_id] = $clsProperty->getTitle($type_id);
+								$list_stocks[$key]['type_name'] = $arr_property_cached[$type_id];
+							}
+						}
+						if($bedroom_id > 0){
+							if(isset($arr_property_cached[$bedroom_id])){
+								$list_stocks[$key]['bedroom_name'] = $arr_property_cached[$bedroom_id];
+							} else {
+								$arr_property_cached[$bedroom_id] = $clsProperty->getTitle($bedroom_id);
+								$list_stocks[$key]['bedroom_name'] = $arr_property_cached[$bedroom_id];
+							}
+						}
+						if($home_direction_id > 0){
+							if(isset($arr_property_cached[$home_direction_id])){
+								$list_stocks[$key]['home_direction_name'] = $arr_property_cached[$home_direction_id];
+							} else {
+								$arr_property_cached[$home_direction_id] = $clsProperty->getTitle($home_direction_id);
+								$list_stocks[$key]['home_direction_name'] = $arr_property_cached[$home_direction_id];
+							}
+						}
+					}
+				}
+				$list_buildings[$mkey]['total_stocks'] = $total_stocks;
+				$list_buildings[$mkey]['list_stocks'] = $list_stocks;
+			}
+		}
+		$order_no = ($block_id==_BLOCK_MWF_ID) ? 1 : 0;
+		$list_blocks[$okey]['order_no'] = $order_no;
+		$list_blocks[$okey]['list_buildings'] = $list_buildings;
+		// $clsISO->print_pre($list_buildings); die();
+	}
+	$order_no_arrs = @array_column($list_blocks, 'order_no');
+	// $clsISO->print_pre($order_no_arrs); die();
+	@array_multisort($order_no_arrs, SORT_DESC, $list_blocks);
+}
+$assign_list["list_blocks"] = $list_blocks;
+
+
+{foreach from=$list_mwf_blocks item = _oG}
+			{assign var = list_buildings value = $_oG.list_buildings}
+			{assign var = list_price_field value = $_oG.list_price_field}
+			{if $_oG.total_stocks gt '0' && !empty($list_buildings)}
+			<div class="duGrSSZjHd d-flex gap-2 justify-content-center mb-4">
+				<img class="sWU0bvPK5E" src="{$URL_IMAGES}/Logo-Masterise-Homes.png" />
+				<img class="sWU0bvPK5E" src="{$URL_IMAGES}/logo-futurehomes.png" />
+			</div>
+			<div class="w-100 overflow-x-auto mb-3">
+				<table class="table mb-0 table-stock" width="100%">
+					<thead><tr>
+						<th class="pheader text-left text-upper" colspan="20">
+							<div class="d-flex align-items-center justify-content-between">
+								<strong class="fs-6">Quỹ độc quyền {$_oG.title}
+								<!-- ({$_oG.total_stocks}) --></strong>
+								<span>{$clsISO->convertTimeToText($smarty.now, true)}</span>
+							</div>
+						</th>
+					</tr>
+					<tr class="nohover">
+						<th class="pcell align-center text-center">Tòa</th>
+						<th class="pcell align-center text-left">Mã căn</th>
+						<th class="pcell align-center text-left">Phiếu TG</th>
+						<th class="pcell align-center text-center">Loại căn</th>
+						<th class="pcell align-center text-center">Hướng BC</th>
+						<th class="pcell align-center text-center">DT_TT</th>
+						<th class="pcell align-center text-center">Giá VAT</th>
+						{if !empty($list_price_field)}
+							{foreach from = $list_price_field item = _oField}
+							<th class="pcell align-center text-center">{$_oField}</th>
+							{/foreach}
+						{/if}
+						<th class="pcell align-center text-center">Loại hình</th>
+						<th class="pcell align-center text-center">Thưởng sale</th>
+						<th class="pcell align-center text-center">CSBH ngày</th>
+					</tr></thead>
+					{foreach from=$list_buildings item = _oBuilding}
+						{assign var = building_id value = $_oBuilding.property_id}
+						{assign var = list_stocks value = $_oBuilding.list_stocks}
+						{if !empty($list_stocks)}
+							<tr>
+								<td class="text-center" rowspan="{$_oBuilding.total_stocks}">
+									{if !empty($_oBuilding.title_vn)}
+										{$_oBuilding.title_vn}
+									{else}
+										{$_oBuilding.title}
+									{/if}
+								</td>
+							</tr>
+							{foreach name=i from=$list_stocks item = _oStock}
+								{assign var = stock_id value = $_oStock.stock_id}
+								{assign var = more_information value = $_oStock.more_information}
+								<tr class="text-nowrap">
+									<td class="text-left"><a href="javascript:;" class="cursor-pointer fw-bold text-link" data-url="/index.php?mod={$mod}&sub=project&act=load_stock_popover&stock_id={$stock_id}" data-toggle="webui-popover" data-placement="auto" data-trigger="click" data-width="350"><u>{$_oStock.ms_code}</u></a></td>
+									<td>{$_oStock.html_image_sheets}</td>
+									<td class="text-center">{$_oStock.bedroom_name}</td>
+									<td class="text-center">{$_oStock.home_direction_name}</td>
+									<td class="text-center">{$_oStock.DT_TT}</td>
+									<td class="text-center">{$_oStock.total_price_vat}</td>
+									{if !empty($list_price_field)}
+										{foreach from = $list_price_field key = _oField item = _oText}
+										<td class="bg-price align-center text-center">
+											{if !empty($more_information[$_oField])}
+												{$clsISO->priceFormatV2($more_information[$_oField],3)}
+											{else}
+												-
+											{/if}
+										</td>
+										{/foreach}
+									{/if}
+									<td class="text-center">{$_oStock.type_name}</td>
+									<td class="text-center">{$more_information.sale_bonus}</td>
+									<!-- <td class="text-center">{$more_information.date_deposit_sign}</td> -->
+									<td class="text-center">{$_oStock.csbh}</td>
+									<!-- <td class="text-center">{$_oStock.html_sales_policy}</td> -->
+								</tr>
+							{/foreach}
+						{/if}
+					{/foreach}
+				</table>
+			</div>
+			{/if}
+			{/foreach}
+			<div class="w-100 overflow-x-auto">
+				<table class="table mb-0 table-stock" width="100%">
+					{if !empty($list_blocks)}
+						{foreach from=$list_blocks item = _oBlock}
+							{assign var = block_id value = $_oBlock.property_id}
+							{assign var = list_buildings value = $_oBlock.list_buildings}
+							{assign var = list_price_field value = $_oBlock.list_price_field}
+							{if $_oBlock.total_stocks gt '0'}
+								<thead><tr>
+									<th class="pheader text-left text-upper" colspan="20">
+										<div class="d-flex align-items-center justify-content-between">
+											{if $deviceType eq 'phone'}
+											<strong class="fs-6">Quỹ độc quyền</strong>
+											{else}
+											<strong class="fs-6">Quỹ độc quyền {$_oBlock.title}</strong>
+											{/if}
+											<span>{$clsISO->convertTimeToText($smarty.now, true)}</span>
+										</div>
+									</th>
+								</tr>
+								<tr class="nohover">
+									<th class="pcell align-center text-center">Tòa</th>
+									{if $deviceType eq 'phone'}
+									<th class="pcell align-center text-left">Mã căn</th>
+									<th class="pcell align-center text-center">Loại căn</th>
+									<th class="pcell align-center text-center">DT_TT</th>
+									<th class="pcell align-center text-center">Giá VAT</th>
+									{else}
+									<th class="pcell align-center text-left">Mã căn</th>
+									<th class="pcell align-center text-left">Phiếu TG</th>
+									<th class="pcell align-center text-center">Loại căn</th>
+									<th class="pcell align-center text-center">Hướng BC</th>
+									<th class="pcell align-center text-center">DT_TT</th>
+									<th class="pcell align-center text-center">Giá VAT</th>
+									{if !empty($list_price_field)}
+										{foreach from = $list_price_field item = _oField}
+										<th class="pcell align-center text-center">{$_oField}</th>
+										{/foreach}
+									{/if}
+									<th class="pcell align-center text-center">Loại hình</th>
+									<th class="pcell align-center text-center">Thưởng sale</th>
+									<th class="pcell align-center text-center">CSBH ngày</th>
+									{/if}
+								</tr></thead>
+								{if !empty($list_buildings)}
+									{foreach from=$list_buildings item = _oBuilding}
+										{assign var = building_id value = $_oBuilding.property_id}
+										{assign var = list_stocks value = $_oBuilding.list_stocks}
+										{if !empty($list_stocks)}
+											{if $building_id eq '76'}
+											<tr class="nohover">
+												<th class="pcell align-center text-center">Tòa</th>
+												{if $deviceType eq 'phone'}
+												<th class="pcell align-center text-left">Mã căn</th>
+												<th class="pcell align-center text-center">Loại căn</th>
+												<th class="pcell align-center text-center">DT_TT</th>
+												<th class="pcell align-center text-center">Giá VAT</th>
+												{else}
+												<th class="pcell align-center text-left">Mã căn</th>
+												<th class="pcell align-center text-left">Phiếu TG</th>
+												<th class="pcell align-center text-center">Loại căn</th>
+												<th class="pcell align-center text-center">Hướng BC</th>
+												<th class="pcell align-center text-center">DT_TT</th>
+												<th class="pcell align-center text-center">Giá VAT</th>
+												{if !empty($list_price_field)}
+													{foreach from = $list_price_field item = _oField}
+													<th class="pcell align-center text-center">{$_oField}</th>
+													{/foreach}
+												{/if}
+												<th class="pcell align-center text-center">Loại hình</th>
+												<th class="pcell align-center text-center">Thưởng sale</th>
+												<th class="pcell align-center text-center">CSBH ngày</th>
+												{/if}
+											</tr></thead>
+											{/if}
+											<tr>
+												<td class="text-center" rowspan="{$_oBuilding.total_stocks}">
+													{if !empty($_oBuilding.title_vn)}
+														{$_oBuilding.title_vn}
+													{else}
+														{$_oBuilding.title}
+													{/if}
+												</td>
+											</tr>
+											{foreach name=i from=$list_stocks item = _oStock}
+											{assign var = stock_id value = $_oStock.stock_id}
+											{assign var = more_information value = $_oStock.more_information}
+											<tr>
+												{if $deviceType eq 'phone'}
+												<td class="text-left"><a href="javascript:;" class="cursor-pointer fw-bold text-link" data-url="/index.php?mod={$mod}&sub=project&act=load_stock_popover&stock_id={$stock_id}" data-toggle="webui-popover" data-placement="auto" data-trigger="click" data-width="350"><u>{$_oStock.ms_code}</u></a></td>
+												<td class="text-center">{$_oStock.bedroom_name}</td>
+												<td class="text-center">{$_oStock.DT_TT}</td>
+												<td class="text-center">{$_oStock.total_price_vat}</td>
+												{else}
+												<td class="text-left"><a href="javascript:;" class="cursor-pointer fw-bold text-link" data-url="/index.php?mod={$mod}&sub=project&act=load_stock_popover&stock_id={$stock_id}" data-toggle="webui-popover" data-placement="auto" data-trigger="click" data-width="350"><u>{$_oStock.ms_code}</u></a></td>
+												<td>{$_oStock.html_image_sheets}</td>
+												<td class="text-center">{$_oStock.bedroom_name}</td>
+												<td class="text-center">{$_oStock.home_direction_name}</td>
+												<td class="text-center">{$_oStock.DT_TT}</td>
+												<td class="text-center">{$_oStock.total_price_vat}</td>
+												{if !empty($list_price_field)}
+													{foreach from = $list_price_field key = _oField item = _oText}
+													<td class="bg-price align-center text-center">
+														{if !empty($more_information[$_oField])}
+															{$clsISO->priceFormatV2($more_information[$_oField],3)}
+														{else}
+															-
+														{/if}
+													</td>
+													{/foreach}
+												{/if}
+												<td class="text-center">{$_oStock.type_name}</td>
+												<td class="text-center">{$more_information.sale_bonus}</td>
+												<!-- <td class="text-center">{$more_information.date_deposit_sign}</td> -->
+												<td class="text-center">{$_oStock.csbh}</td>
+												<!-- <td class="text-center">{$_oStock.html_sales_policy}</td> -->
+												{/if}
+											</tr>
+											{/foreach}
+										{/if}
+									{/foreach}
+									<!-- End Building -->
+								{/if}
+							{/if}
+						{/foreach}
+						<!-- End Block -->
+					{/if}
+				</table>
+				<div class="fs-12 my-1 text-danger"><i class='bx bx-help-circle'></i> Click vào mã căn để xem chi tiết</div>
+			</div>
+			<div class="tgbZRaqgdF pt-3">
+				<div class="qjkYlYqD9P">
+					{$onePage.content}
+				</div>
+			</div>
+		</div>
+			
+	</div>
+</div>
+{literal}
+<style type="text/css">
+	.text-link{
+		color:rgb(255 249 204) !important	
+	}
+	.table-stock th{
+		color:#000 !important;
+		border:1px solid #7c3c10 !important;
+	}
+	.table-stock th.pheader{
+		padding: 15px;
+		background: #eaddb0;
+		color: #7c3c10 !important;
+	}
+	.table-stock tr:hover td:not([rowspan]){
+		color:#7c3c10 !important
+	}
+	.table-stock tr:hover .text-link{
+		color:#7c3c10 !important
+	}
+	.table-stock td{
+		color:#f1ecc4;
+		background: #7c3c10;
+		padding: 0.325rem 0.625rem;
+		border: 1px solid #fff0c4;
+	}
+	.table-stock th.pcell{
+		color: #9a7241 !important;
+		background: #eaddb0 !important;
+	}
+	.table-stock td.bg-price{
+		background: #7c3c10;
+	}
+	@media screen and (max-width:575px){
+		.table-stock td{
+			font-size:10px;
+			padding:0.325rem;
+		}
+	}
+</style>
+					
+{/literal}

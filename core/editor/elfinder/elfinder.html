@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>ISOCMS CKEditor 2.0</title>
+		<!-- jQuery and jQuery UI (REQUIRED) -->
+		<link rel="stylesheet" type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/smoothness/jquery-ui.css">
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+		<!-- elFinder CSS (REQUIRED) -->
+		<link rel="stylesheet" type="text/css" media="screen" href="css/elfinder.min.css">
+		<link rel="stylesheet" type="text/css" media="screen" href="css/theme.css">
+		<!-- elFinder JS (REQUIRED) -->
+		<script type="text/javascript" src="js/elfinder.min.js"></script>
+		<script type="text/javascript" src="js/i18n/elfinder.ru.js"></script>
+		<!-- elFinder initialization (REQUIRED) -->
+		<script type="text/javascript" charset="utf-8">
+			var FileBrowserDialogue = {
+                init : function () {
+                    // Here goes your code for setting your custom things onLoad.
+                },
+                mySubmit : function (URL) {
+					// pass selected file path to TinyMCE
+					parent.tinymce.activeEditor.windowManager.getParams().setUrl(URL);
+					// close popup window
+					parent.tinymce.activeEditor.windowManager.close();
+                }
+            }
+			$().ready(function() {
+				var elf = $('#elfinder').elfinder({
+					title: 'Files Mananer - ISOCMS',
+					url : 'php/connector.php',
+					getfile : {
+                        onlyURL : true,
+                        multiple : true,
+                        folders : false
+                    },
+                    getFileCallback : function(url) {
+						path = url.replace(/\\/,"/"); 
+                        FileBrowserDialogue.mySubmit(path);
+                    },
+					resizable:false,
+					height:430
+				}).elfinder('instance');
+			});
+		</script>
+	</head>
+	<body class="crx">
+		<div id="elfinder"></div>
+	</body>
+</html>

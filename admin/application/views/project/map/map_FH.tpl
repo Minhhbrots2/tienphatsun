@@ -1,0 +1,119 @@
+<form method="post" action="#" class="p-5">
+	<div class="d-flex align-items-center justify-content-between mb-3">
+		<div class="d-flex align-items-center gap-2">
+			<select class="form-control" required="true" name="project_id" toId="slb_BlockId" onChange="$Core.project.select_block(this, event)" stock_type="{$stock_type}">
+				{if !empty($list_projects)}
+					{foreach from=$list_projects item = _oProject}
+					<option{if $project_id eq $_oProject.project_id} selected{/if} 
+						value="{$_oProject.project_id}">{$_oProject.title}</option>
+					{/foreach}
+				{/if}
+			</select>
+			<select class="form-control" name="block_id" id="slb_BlockId" stock_type="{$stock_type}" 
+				onChange="$Core.project.select_building(this, event)" toId="slb_BuildingId">
+				<option value="">Lựa chọn phân khu</option>
+				{if !empty($list_blocks)}
+					{foreach from=$list_blocks item = _oBlock}
+					<option{if $block_id eq $_oBlock.property_id} selected{/if} 
+						value="{$_oBlock.property_id}">Phân khu {$_oBlock.title}</option>
+					{/foreach}
+				{/if}
+			</select>
+			{if $stock_type eq $smarty.const._BLOCK_TYPE_HIGHLEVEL_SALE}
+			<select class="form-control" name="building_id" id="slb_BuildingId" stock_type="{$stock_type}">
+				<option value="">Lựa chọn toà</option>
+				{if !empty($list_buildings)}
+					{foreach from=$list_buildings item = _oBuilding}
+					<option{if $building_id eq $_oBuilding.property_id} selected{/if} 
+						value="{$_oBuilding.property_id}">Phân khu {$_oBuilding.title}</option>
+					{/foreach}
+				{/if}
+			</select>
+			{/if}
+			<input type="hidden" name="hid" value="hid" />
+			<input type="hidden" name="stock_type" value="{$stock_type}" />
+			<button type="submit" title="Tải lại" class="btn btn-icon btn-default">
+				{$core->makeIcon('refresh')}
+			</button>
+		</div>
+		<div class="d-flex gap-2 align-items-center">
+			<button type="button" onClick="$Core.project.save_stock_code_shapes(this, event)" project_id="{$project_id}" block_id="{$block_id}" building_id="{$building_id}" title="Lưu lại" stock_type="{$stock_type}" holderG="stock_FH" class="btn btn_save_all btn-default">{$core->makeIcon('check', 'Lưu lại')}</button>
+			<button type="button" onClick="$Core.project.map_FH.addPoint(this, event)" stock_type="{$stock_type}" project_id="{$project_id}" block_id="{$block_id}" building_id="{$building_id}" toId="map" title="Lưu lại" _type="_ADD" class="btn btn-default">{$core->makeIcon('plus', 'Thêm điểm')}</button>
+		</div>
+	</div>
+	<div class="box_tooltip d-none">
+		<div class="item_tooltip rounded-3">
+			<div class="box_code">C3Z2-08-08A</div>
+			<div class="body_tooltip">
+				<div class="form-row">
+					<div class="col-6 col-xs-6">
+						<div class="d-flex flex-column box_text">
+							<span class="">Thông thủy</span>
+							<span class="text-value">45.5m<sup>2</sup></span>
+						</div>
+						<div class="d-flex flex-column box_text">
+							<span class="">Giá TTS</span>
+							<span class="text-price">2,6 tỷ</span>
+						</div>
+					</div>
+					<div class="col-6 col-xs-6">
+						<div class="d-flex flex-column box_text">
+							<span class="">Hướng</span>
+							<span class="text-value">TN</span>
+						</div>
+						<div class="d-flex flex-column box_text">
+							<span class="">Giá vay</span>
+							<span class="text-price">3,6 tỷ</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="map" class="map"  style="max-width:1000px; margin: auto;position:relative">
+		<div id="item_drag" shap_id="6825fde0a17c3348693025" class="draggable item_drag" project_id="2" block_id="9220" building_id="9223" style="top:0%;left:0%;'"></div>
+		<img src="{$image_map_src}" alt="" class="w-100 h-auto">
+	</div>
+</form>
+<script type="text/javascript">
+	var block_id = '{$block_id}',
+		project_id = '{$project_id}',
+		stock_type = '{$stock_type}',
+		building_id = '{$building_id}',
+		has_block = '{$more_information.has_block}';
+</script>
+{literal}
+<style>
+	.item_drag {
+		width: 20px;
+		height: 20px;
+		background: #5f9ea099;
+		position: absolute;
+		border: 1px solid cadetblue;
+		border-radius: 50%;
+		font-size: 9px;
+		line-height: 20px;
+		text-align: center;
+		color: #FFF;
+		cursor: pointer
+	}
+</style>
+<script>
+	$("#item_drag").draggable({
+	  // Giới hạn kéo thả bên trong container
+	  containment: "#map",
+	  drag: function(event, ui) {
+		  // Lấy kích thước container
+		  var containerWidth = $("#map").width();
+		  var containerHeight = $("#map").height();
+
+		  // Tính toán tọa độ theo phần trăm dựa trên vị trí hiện tại
+		  var percentX = (ui.position.left / containerWidth) * 100;
+		  var percentY = (ui.position.top  / containerHeight) * 100;
+			$("#item_drag").css({"left":percentX,"top":percentY});
+		  	$("#item_drag").attr({"left":percentX,"top":percentY});
+		  // Cập nhật hiển thị tọa độ với 2 chữ số thập phân
+	  }
+	});
+</script>
+{/literal}

@@ -1,0 +1,8 @@
+'masterise_homes' => 'Masterise Homes', 
+'high_rise' => 'Cao tầng Vin', 
+'low_rise' => 'Thấp tầng', 
+'leasing' => 'Cho thuê', 
+'sop' => 'Chuyển Nhượng', 
+'furniture' => 'Nội thất', 
+'leasing_ocp2' => 'Thuê OCP2', 
+'leasing_MGW' => 'Cho thuê MGW',

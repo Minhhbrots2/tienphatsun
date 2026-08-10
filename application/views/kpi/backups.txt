@@ -1,0 +1,183 @@
+<div class="modal-dialog modal-lg">
+	<form class="modal-content">
+		<div class="modal-header">
+			<h5 class="modal-title">{$titlePage}<br />
+				<span class="text-danger fs-13">
+					{$clsISO->makeIcon('bx-user-plus', 'Người tạo: ')}
+					{$clsProfile->getFullName($profile_id,$oneProfile)}
+				</span>
+			</h5>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<div class="modal-body">
+			{if $current_step eq '_first'}
+			<div class="form-group mb-3">
+				<label class="form-label">Tên KPI</label>
+				<input type="text" placeholder="Tên KPI" name="title" class="form-control required" value="{$oneKPI.title}">
+			</div>
+			<div class="form-group form-row mb-3">
+				<div class="col-12 col-md-3">
+					<label class="form-label">KPI lặp theo</label>
+					<select name="period" onChange="$Core.kpi.set_loop(this, event)" class="form-control form-select">
+						<option{if $oneKPI.period eq 'ALLMONTH'} selected{/if} value="ALLMONTH">Lặp lại hàng tháng</option>
+						<option{if $oneKPI.period eq 'MONTH'} selected{/if} value="MONTH">Lặp lại theo tháng</option>
+					</select>
+				</div>
+				<div class="col-12 col-md-2">
+					<label class="form-label">Chọn năm</label>
+					<input data-y="{$smarty.now|date_format:'%Y'}" data-m="{$current_month}" type="number" 
+					name="year_period" onChange="$Core.kpi.set_year(this, event)" class="form-control required numberonly" value="{$oneKPI.year_period}" />
+				</div>
+			</div>
+			<div class="form-group cMXqMfvNJX{if $oneKPI.period eq 'ALLMONTH'} d-none{/if} mb-3">
+				<label class="form-label">Chọn tháng</label>
+				<div class="d-flex align-items-center cMXaBZwAuJ">
+					{foreach name=i from=$list_months item = _month}
+					<label class="el-checkbox rbLnbPAdeY">
+						<input{if $clsISO->checkInArray($oneKPI.month_period, $_month)} checked{/if} class="eNXMGIDuZu" type="checkbox" name="month_period[]"{if $current_month gt $_month && $current_year eq $oneKPI.year_period} disabled{/if} value="{$_month}" />
+						<span>{$_month}</span>
+					</label>
+					{/foreach}
+				</div>
+			</div>
+			
+			<div class="form-group mb-3">
+				<label for="deposit_date" class="form-label">Chỉ tiêu</label>
+				<div class="table-wrapper">
+					<table class="table table-bordered" width="100%">
+						<thead><tr>
+							<th class="align-center bg-lighter text-left">Tên chỉ tiêu</th>
+							<th class="align-center bg-lighter text-center" width="20%">Giá trị</th>
+							<th class="align-center bg-lighter text-center" width="15%">Đơn vị</th>
+							<th class="align-center bg-lighter text-center" width="14%">T.S 100%</th>
+							<th class="align-center bg-lighter text-center" width="10%"></th>
+						</tr></thead>
+						<tbody class="holder_kpi_target_{$kpi_id}">
+							{if !empty($target_info)}
+								{foreach from=$target_info key=kpi_target_id item = _oTarget}
+								<tr class="trTarget trTarget_{$kpi_id}">
+									<td ><strong>{$_oTarget.title}</strong>
+										<div class="text-muted fs-12">{$_oTarget.intro}</div>
+									</td>
+									<td class="text-left">
+										<input type="text" class="form-control numberonly" onChange="$Core.kpi.autosave_field(this, event)" p_field="target_number" p_id="{$kpi_target_id}" kpi_id="{$kpi_id}" value="{$_oTarget.target_number}" maxlength="255" />
+									</td>
+									<td class="text-left">
+										<input type="text" class="form-control" onChange="$Core.kpi.autosave_field(this, event)" p_field="target_unit" p_id="{$kpi_target_id}" kpi_id="{$kpi_id}" value="{$_oTarget.target_unit}"  maxlength="255" />
+									</td>
+									<td class="text-left">
+										<div class="input-group input-group-merge">
+											<input type="text" class="form-control numberonly" onChange="$Core.kpi.autosave_field(this, event)" p_field="target_percent" p_id="{$kpi_target_id}" kpi_id="{$kpi_id}" value="{$_oTarget.target_percent}" maxlength="255" />
+											<span class="input-group-text">%</span>
+										</div>
+									</td>
+									<td  class="text-center">
+										<div class="btn-group">
+											<button kpi_target_id="{$kpi_target_id}" kpi_id="{$kpi_id}" onClick="$Core.kpi.open_target(this, event)" class="btn p-2 btn-default">{$core->makeIcon('pencil')}</button>
+											<button onClick="$Core.kpi.delete_target(this, event)" kpi_target_id="{$kpi_target_id}" kpi_id="{$kpi_id}" class="btn p-2 btn-default">{$core->makeIcon('trash')}</button>
+										</div>
+									</td>
+								</tr>
+								{/foreach}
+							{/if}
+						</tbody>
+						<tfoot><tr>
+							<td colspan="6">
+								<a onClick="$Core.kpi.open_target(this,event);" kpi_id="{$kpi_id}" 
+								href="javascript:void(0);" class="text-orange">Thêm chi tiêu</a>
+							</td>
+						</tr></tfoot>
+					</table>
+				</div>
+			</div>
+			{elseif $current_step eq '_second'}
+				<div class="table-wrapper" style="max-height:400px; overflow:auto;">
+					<table class="table table-bordered" width="100%" style="table-layout:fixed">
+						<thead><tr>
+							<th width="45px" class="align-center bg-lighter text-left">No.</th>
+							<th{if $oneKPI.period eq 'MONTH'} width="250px"{/if} class="align-center bg-lighter">Tên nhân viên</th>
+							{if !empty($oneKPI.month_period) && $oneKPI.period eq 'MONTH'}
+								{foreach from = $oneKPI.month_period item=_month}
+								<th class="align-center bg-lighter text-center">Tháng {$_month}</th>
+								{/foreach}
+							{else}
+							<th width="160px" class="align-center bg-lighter text-center">Giá trị</th>
+							{/if}
+							<th class="align-center bg-lighter text-center" width="100px"></th>
+						</tr></thead>
+						{if $oneKPI.type eq 'all_department'}
+							{foreach name=i from=$list_departments item = _oDep}
+							{assign var = department_id value = $_oDep.property_id}
+							<tr>
+								<td class="text-center" rowspan="{$total_targets+1}">{$smarty.foreach.i.iteration}</td>
+								{if !empty($oneKPI.month_period) && $oneKPI.period eq 'MONTH'}
+								<td class="bg-lighter" colspan="{$oneKPI.total_month+1}"><strong>{$_oDep.title}</strong></td>
+								{else}
+								<td class="bg-lighter" colspan="2"><strong>{$_oDep.title}</strong></td>
+								{/if}
+								<td class="text-center" rowspan="{$total_targets+1}">
+									<label class="switch">
+										<input type="checkbox" name="configs[{$department_id}][status]" 
+										value="1" checked="checked">
+										<span class="slider round"></span>
+									</label>
+								</td>
+							</tr>
+								{foreach from=$target_info key=kpi_target_id item = _oTarget}
+								<tr>
+									<td class="text-left">{$_oTarget.title} 
+										(TS: {$_oTarget.target_percent}% - Đơn vị:{$_oTarget.target_unit})
+									</td>
+									{if !empty($oneKPI.month_period) && $oneKPI.period eq 'MONTH'}
+										{foreach from = $oneKPI.month_period item=_month}
+										<td class="bZkTAmfvrm"><input onChange="$Core.kpi.autofill(this, event)" type="{if $_oTarget.target_field eq 'number_billing'}number{else}text{/if}" name="configs[{$department_id}][{$kpi_target_id}][{$_month}]" class="form-control nhquKiTops required numberonly form-control-sm" onclick="this.select()" value="{$clsKPI->getValue($department_id, $kpi_target_id, $_month, $configs_arrs)}" /></td>
+										{/foreach}
+									{else}
+										<td class="bZkTAmfvrm"><input type="{if $_oTarget.target_field eq 'number_billing'}number{else}text{/if}" name="configs[{$department_id}][{$kpi_target_id}]" class="form-control nhquKiTops required numberonly form-control-sm" onclick="this.select()" value="{$clsKPI->getValue($department_id, $kpi_target_id, 0, $configs_arrs)}" /></td>
+									{/if}
+								</tr>
+								{/foreach}
+							{/foreach}
+						{else}
+							{if !empty($list_staffs)}
+								{foreach name=i from=$list_staffs key=staff_id item = _htmlProfile}
+									<tr>
+										<td class="text-center" rowspan="{$total_targets+1}">{$smarty.foreach.i.iteration}</td>
+										<td class="bg-lighter" colspan="{$oneKPI.total_month+1}">{$_htmlProfile}</td>
+										<td class="text-center" rowspan="{$total_targets+1}">
+											<label class="switch">
+												<input type="checkbox" name="configs[{$staff_id}][status]" 
+												value="1" checked="checked">
+												<span class="slider round"></span>
+											</label>
+										</td>
+									</tr>
+									{foreach from=$target_info key=kpi_target_id item = _oTarget}
+									<tr>
+										<td class="text-left">{$_oTarget.title} (TS: {$_oTarget.target_percent}% - Đơn vị:{$_oTarget.target_unit})</td>
+										{if !empty($oneKPI.month_period) && $oneKPI.period eq 'MONTH'}
+											{foreach from = $oneKPI.month_period item=_month}
+											<td class="bZkTAmfvrm"><input onChange="$Core.kpi.autofill(this, event)" type="{if $_oTarget.target_field eq 'number_billing'}number{else}text{/if}" name="configs[{$staff_id}][{$kpi_target_id}][{$_month}]" class="form-control nhquKiTops required numberonly form-control-sm" onclick="this.select()" value="{$clsKPI->getValue($staff_id, $kpi_target_id, $_month, $configs_arrs)}" /></td>
+											{/foreach}
+										{else}
+											<td class="bZkTAmfvrm"><input type="{if $_oTarget.target_field eq 'number_billing'}number{else}text{/if}" name="configs[{$staff_id}][{$kpi_target_id}]" class="form-control nhquKiTops required numberonly form-control-sm" onclick="this.select()" value="{$clsKPI->getValue($staff_id, $kpi_target_id, 0, $configs_arrs)}" /></td>
+										{/if}
+									</tr>
+									{/foreach}
+								{/foreach}
+							{/if}
+						{/if}
+					</table>
+				</div>
+			{/if}
+		</div>
+		<div class="modal-footer">
+			{if !empty($prev_step)}<button type="button" onClick="$Core.kpi.open_step({$kpi_id},'{$prev_step}',this)" 
+			current_step="{$current_step}" kpi_id="{$kpi_id}" class="btn btn-outline-default">Quay lại</button>{/if}
+			<button type="button" current_step="{$current_step}" next_step="{$next_step}" kpi_id="{$kpi_id}" 
+			onClick="$Core.kpi.pop_save_kpi(this, event)" class="btn btn-primary">
+				{if $current_step eq '_first'}Tiếp tục{else}Lưu lại{/if}
+			</button>
+		</div>
+	</form>
+</div>

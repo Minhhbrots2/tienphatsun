@@ -1,0 +1,878 @@
+//add data customer
+$clsClient = new Client();
+if($more_information['customer_email'] != "" && $more_information['customer_phone'] != ""){
+	$check_exist_customer = $clsClient->getByCond("email='".$more_information['customer_email']."' or phone='".$more_information['customer_phone']."'");
+	if(!empty($check_exist_customer)){
+		$billing_ids = $clsISO->getArrayByTextSlash($check_exist_customer['billing_id']);
+		$staff_ids = $clsISO->getArrayByTextSlash($check_exist_customer['staff_id']);
+		$billing_ids[] = $billing_id;
+		$staff_ids[] = $staff_id;
+		$clsClient->updateOne($check_exist_customer['client_id'],["billing_id" => $clsISO->makeSlashListFromArrayRoot($billing_ids), "staff_id" => $clsISO->makeSlashListFromArrayRoot($staff_ids)]);
+	}else{
+		$arr_client = [
+			"client_id"		=>	$clsClient->getMaxID(),
+			"email"			=>	$more_information['customer_email'],
+			"phone"			=>	$more_information['customer_phone'],
+			"full_name"		=>	$more_information['customer_name'],
+			"slug"			=>	$clsISO->make_slug($more_information['customer_name']),
+			"billing_id"	=>	"|".$billing_id."|",
+			"staff_id"		=>	"|".$staff_id."|",
+			"contract_date"	=>	$contract_date,
+			"reg_date"		=>	time(),
+		];
+		$clsClient->insert($arr_client);
+	}
+}
+
+if($to_field=='ccid_front' || $to_field=='ccid_back'){
+	$curl = @curl_init();
+	$cFile = new \CURLFile(
+		$_FILES['upload_file']["tmp_name"],
+		$_FILES['upload_file']['type'], 
+		$_FILES['upload_file']["name"]
+	);
+	$data = array(
+		"image" => $cFile, 
+		"filename" => $_FILES['upload_file']["name"]
+	);
+	$curl = new \Curl\Curl();
+	$curl->setHeader('api-key','45g4Pj66AJDWOEjkfAkkazIzI4bcZG3g');
+	$curl->post('https://api.fpt.ai/vision/idr/vnm', $data);
+	if(!$curl->error){
+		$response = toArray($curl->response);
+		if(isset($response['errorCode']) && $response['errorCode'] == 0){
+			$tmp = $response['data'][0];
+			if($to_field == 'ccid_front'){
+				$person_info[] = $tmp['id'];
+				$person_info[] = $tmp['name'];
+				$person_info[] = $tmp['address'];
+			} else {
+				$person_info[] = $tmp['issue_date'];
+				$person_info[] = $tmp['issue_loc'];
+			}
+		}
+	}
+}
+function calculator_do_calculator_bkc(){
+	global $assign_list,$_CONFIG,$core,$dbconn,$mod,$act,$_LANG_ID,$extLang,$clsISO,$profile_id,$oneProfile;
+	$uid = Input::post('uid');
+	$price = Input::post('price', 0);
+	$ratio = (int) Input::post('ratio', 0);
+	$year = (int) Input::post('year', 1);
+	$rate = Input::post('rate', 0);
+	$introRate = Input::post('introRate', 0);
+	$paymentMethod = (int) Input::post('paymentMethod',1);
+	$method = ($paymentMethod == 1) ? 'annuity' : 'equal_principal';
+	$introMonths = Input::post('introMonths', 0);
+	$introMonthsUnit = Input::post('introMonthsUnit', '_YEAR');
+	if($introMonthsUnit == '_YEAR') $introMonths *= 12;
+	$introMonthsSuffix = ($introMonthsUnit == '_MONTH') ? 'Tháng' : 'Năm';
+	$gracePeriod = (int) Input::post('gracePeriod', 0);
+	$gracePeriodUnit = Input::post('gracePeriod', '_MONTH');
+	if($gracePeriodUnit == '_YEAR') $gracePeriod *= 12;
+	$gracePeriodSuffix = ($gracePeriodUnit == '_MONTH') ? 'Tháng' : 'Năm';
+	$interestRateSupportPeriodUnit = Input::post('interestRateSupportPeriodUnit', '_MONTH');
+	if($interestRateSupportPeriodUnit == '_YEAR') $interestRateSupportPeriod *= 12;
+	$interestRateSupportPeriod = (int) Input::post('interestRateSupportPeriod', 0);
+	
+	$interestRateSupportPeriodSuffix = ($interestRateSupportPeriodUnit == '_MONTH') ? 'Tháng' : 'Năm';
+	$early_payment_fee_rate = Input::post('early_payment_fee_rate', 0);
+	$settle_period = Input::post('settle_period', 0);
+	$settle_period_unit = Input::post('settle_period_unit', '_MONTH');
+	if($settle_period_unit == '_YEAR') $settle_period *= 12;
+	
+	$curl = new Curl\Curl();
+	$curl->get('https://fina.com.vn/api/v1/calculator', array(
+		'calculateLoanOption' => 2,
+		'propertyPrice' => $clsISO->convertToNumber($price)*1000000000,
+		'ratio' => $clsISO->convertToNumber($ratio)/100,
+		'months' => $clsISO->convertToNumber($year)*12,
+		'introRate' => $clsISO->convertToNumber($introRate)/100,
+		'introMonths' => $clsISO->convertToNumber($introMonths),
+		'rate' => $clsISO->convertToNumber($rate)/100,
+		'paymentMethod' => $paymentMethod,
+		'gracePeriod' => $gracePeriod,
+		'interestRateSupportPeriod' => $interestRateSupportPeriod,
+		'prePaymentMonths' => 0,
+		'prePaymentRate' => 0,
+		'isPrePaymentCheck' => true,
+		'isGracePeriodCheck' => true,
+		'isInterestRateSupportPeriodCheck' => true,
+		'preferentialRateOption' => 0, 
+		'propertyPriceSuffix' => 'Tỷ',
+		'monthsSuffix' => 'Năm',
+		'introMonthsSuffix' => $introMonthsSuffix,
+		'prePaymentMonthsSuffix' => 'Tháng',
+		'gracePeriodSuffix' => $gracePeriodSuffix,
+		'interestRateSupportPeriodSuffix' => $interestRateSupportPeriodSuffix
+	));
+	
+	if(!$curl->error){
+		$_results = toArray($curl->response);
+		//require_once(DIR_INCLUDES.'/json_master/autoload.php');
+		//$cachedName = sprintf('calculator_%s.json', $profile_id);
+		//$cachedFile = DIR_CACHE_JSON.'/'.$cachedName;
+		//$encoder = new Webmozart\Json\JsonEncoder();
+		//$encoder->encodeFile($_results, $cachedFile); 
+		$monthlyPayment = $_results['monthlyPayment'];
+		$totalPaymentPerMonth = $monthlyPayment[0]['totalPaymentPerMonth'];
+		$html_MonthlyPayment = "";
+		if(!empty($monthlyPayment)){
+			foreach($monthlyPayment as $key => $val){
+				$html_MonthlyPayment.= '<tr>
+					<td class="text-center">'.$val['period'].'</td>
+					<td>'.$clsISO->formatPrice($val['startingBalance']).'</td>
+					<td>'.$clsISO->formatPrice($val['principlePayment']).'</td>
+					<td>'.$clsISO->formatPrice($val['interestPayment']).'</td>
+					<td>'.$clsISO->formatPrice($val['totalPaymentPerMonth']).'</td>
+					<td>'.$clsISO->formatPrice($val['endingBalance']).'</td>
+				</tr>';
+			}
+		}
+		$_results['totalPaymentPerMonth'] = $totalPaymentPerMonth;
+		$_results['html_MonthlyPayment'] = $html_MonthlyPayment;
+		$_results['uid'] = $uid;
+		$_results['ratio'] = $ratio;
+		$_results['year'] = $year;
+		$_results['rate'] = $rate;
+	}
+	// Return
+	echo json_encode($_results, JSON_UNESCAPED_UNICODE); die();
+}
+function loan_calculate(array $opt){
+	global $clsISO;
+	// $clsISO->print_pre($opt); die();
+	// ==========================
+    // Input
+    // ==========================
+    $total_price   = $opt['total_price'];
+    $loan_rate     = $opt['loan_rate'];       // %
+    $loan_amount   = $total_price * $loan_rate / 100;
+
+    $total_months  = $opt['total_months'];
+    $promo_months  = $opt['promo_months'];
+
+    $promo_rate    = $opt['promo_interest'] / 12 / 100;
+    $after_rate    = $opt['after_interest'] / 12 / 100;
+
+    $method        = $opt['method']; // annuity | equal_principal
+
+    $grace_months  = $opt['grace_months'];
+
+    // Hỗ trợ lãi suất
+    $support_rate   = $opt['interest_support_rate'] / 100; 
+    $support_months = $opt['interest_support_months'];
+
+    // Tất toán sớm
+    $early_fee_rate = $opt['early_payment_fee_rate'] / 100; 
+    $settle_month   = $opt['settle_month']; // 0 = không tất toán
+	
+    // ==========================
+    // Chuẩn bị biến
+    // ==========================
+    $remaining = $loan_amount;
+
+    $interest_promo   = 0;
+    $principal_promo  = 0;
+
+    $interest_after   = 0;
+    $principal_after  = 0;
+
+    $monthly_promo = 0;
+    $monthly_after = 0;
+	
+	// số tiền trả trước
+	$down_payment = $total_price - $loan_amount;
+	
+	// lịch trả nợ
+    $schedule = [];
+
+    // ==========================
+    // Nếu equal_principal -> gốc đều
+    // ==========================
+    $equal_principal = $method === "equal_principal"
+        ? $loan_amount / $total_months
+        : null;
+
+    // ==========================
+    // 1. Tính kỳ thanh toán ưu đãi
+    // ==========================
+    if ($method === "annuity") {
+        // Dùng lãi suất ưu đãi nhưng áp dụng cho toàn kỳ vay
+        $monthly_promo = $loan_amount * (
+            $promo_rate * pow(1 + $promo_rate, $total_months)
+        ) / (pow(1 + $promo_rate, $total_months) - 1);
+    }
+	
+    for ($m = 1; $m <= $promo_months; $m++) {
+
+        if ($settle_month > 0 && $m > $settle_month) break;
+
+        // Lãi tháng này
+        $interest = $remaining * $promo_rate;
+
+        // Hỗ trợ lãi suất
+        if ($m <= $support_months) {
+            $interest *= (1 - $support_rate);
+        }
+
+        // Gốc
+        if ($m <= $grace_months) {
+            $principal = 0;
+        } else {
+            if ($method === "annuity") {
+                $principal = $monthly_promo - $interest;
+            } else {
+                $principal = $equal_principal;
+            }
+        }
+
+        $remaining -= $principal;
+        $interest_promo  += $interest;
+        $principal_promo += $principal;
+		
+		// Lưu lịch trả nợ
+        $schedule[] = [
+            "month"     => $m,
+            "interest"  => $interest,
+            "principal" => $principal,
+            "payment"   => $interest + $principal,
+            "remaining" => max($remaining, 0)
+        ];
+    }
+    // Nếu tất toán trong giai đoạn ưu đãi → bỏ qua bước sau
+    if ($settle_month > 0 && $settle_month <= $promo_months) {
+
+        $early_fee_value = $remaining * $early_fee_rate;
+
+        return [
+            "method"            => $method,
+
+            "total_price"       => $total_price,
+            "loan_rate"         => $loan_rate,
+            "loan_amount"       => $loan_amount,
+
+            "monthly_promo"     => $monthly_promo,
+            "monthly_after"     => 0,
+
+            "interest_promo"    => $interest_promo,
+            "principal_promo"   => $principal_promo,
+
+            "interest_after"    => 0,
+            "principal_after"   => 0,
+
+            "total_interest"    => $interest_promo,
+            "total_principal"   => $principal_promo,
+            "total_payment"     => $interest_promo + $principal_promo + $early_fee_value,
+
+            "remaining"         => max($remaining, 0),
+
+            "early_fee_value"   => $early_fee_value
+        ];
+    }
+
+    // ==========================
+    // 2. Giai đoạn sau ưu đãi
+    // ==========================
+    $after_months = $total_months - $promo_months;
+    if ($method === "annuity") {
+        $monthly_after = $remaining * (
+            $after_rate * pow(1 + $after_rate, $after_months)
+        ) / (pow(1 + $after_rate, $after_months) - 1);
+    }
+
+    for ($i = 1; $i <= $after_months; $i++) {
+
+        $current_month = $promo_months + $i;
+
+        if ($settle_month > 0 && $current_month > $settle_month) break;
+
+        $interest = $remaining * $after_rate;
+
+        if ($method === "annuity") {
+            $principal = $monthly_after - $interest;
+        } else {
+            $principal = $equal_principal;
+        }
+
+        $remaining -= $principal;
+        $interest_after  += $interest;
+        $principal_after += $principal;
+		// Lưu lịch trả nợ
+        $schedule[] = [
+            "month"     => $current_month,
+            "interest"  => $interest,
+            "principal" => $principal,
+            "payment"   => $interest + $principal,
+            "remaining" => max($remaining, 0)
+        ];
+    }
+
+    // ==========================
+    // Tính phí tất toán nếu có
+    // ==========================
+    $early_fee_value = 0;
+
+    if ($settle_month > 0) {
+        $early_fee_value = $remaining * $early_fee_rate;
+		// thêm bản ghi tất toán
+        $schedule[] = [
+            "month"     => $settle_month,
+            "interest"  => 0,
+            "principal" => $remaining,
+            "payment"   => $remaining + $early_fee_value,
+            "remaining" => 0
+        ];
+    }
+
+    // ==========================
+    // Tổng hợp trả về
+    // ==========================
+    return [
+        "method"          => $method,
+
+        "total_price"     => $total_price,
+        "loan_rate"       => $loan_rate,
+        "loan_amount"     => $loan_amount,
+		'down_payment'	  => $down_payment,
+		
+        // Giai đoạn ưu đãi
+        "monthly_promo"   => $monthly_promo,
+        "interest_promo"  => $interest_promo,
+        "principal_promo" => $principal_promo,
+
+        // Giai đoạn sau ưu đãi
+        "monthly_after"   => $monthly_after,
+        "interest_after"  => $interest_after,
+        "principal_after" => $principal_after,
+
+        // Tổng
+        "total_interest"  => $interest_promo + $interest_after,
+        "total_principal" => $principal_promo + $principal_after,
+        "total_payment"   => $interest_promo + $interest_after + $principal_promo + $principal_after + $early_fee_value,
+
+        // Dư nợ cuối
+        "remaining"       => max($remaining, 0),
+
+        // Tất toán
+        "early_fee_value" => $early_fee_value,
+        "early_fee_rate"  => $early_fee_rate,
+		'schedule' => $schedule,
+    ];
+}
+function loan_calculate_v2(array $opt){
+
+    // ==========================
+    // Input
+    // ==========================
+    $total_price   = $opt['total_price'];
+    $loan_rate     = $opt['loan_rate'];       // %
+    $loan_amount   = $total_price * $loan_rate / 100;
+    $total_months  = $opt['total_months'];
+
+    // Ưu đãi
+    $promo_months  = intval($opt['promo_months']);
+    $promo_rate    = floatval($opt['promo_interest']) / 12 / 100;
+    $after_rate    = floatval($opt['after_interest']) / 12 / 100;
+
+    if ($promo_months <= 0 || $promo_rate <= 0) {
+        $promo_months = 0;
+        $promo_rate   = 0;
+    }
+
+    $method        = $opt['method']; // annuity | equal_principal
+    $grace_months  = $opt['grace_months'];
+
+    // Hỗ trợ lãi suất
+    $support_rate   = $opt['interest_support_rate'] / 100; 
+    $support_months = $opt['interest_support_months'];
+
+    // Tất toán
+    $early_fee_rate = $opt['early_payment_fee_rate'] / 100; 
+    $settle_month   = $opt['settle_month']; 
+
+    // Chuẩn bị
+    $remaining = $loan_amount;
+    $schedule = [];
+
+    $interest_promo   = 0;
+    $principal_promo  = 0;
+    $interest_after   = 0;
+    $principal_after  = 0;
+
+    $monthly_promo = 0;
+    $monthly_after = 0;
+
+    // Trả trước
+    $down_payment = $total_price - $loan_amount;
+
+    // Gốc cố định
+    $equal_principal = ($loan_amount / $total_months);
+
+    // ==========================
+    // Tính annuity giai đoạn ưu đãi
+    // ==========================
+    if ($method === "annuity" && $promo_months > 0) {
+
+        if ($promo_rate > 0) {
+            $monthly_promo = $loan_amount * (
+                $promo_rate * pow(1 + $promo_rate, $total_months)
+            ) / (pow(1 + $promo_rate, $total_months) - 1);
+        } else {
+            $monthly_promo = $loan_amount / $total_months;
+        }
+    }
+
+    // ==========================
+    // Giai đoạn ưu đãi
+    // ==========================
+    for ($m = 1; $m <= $promo_months; $m++) {
+
+        if ($settle_month > 0 && $m > $settle_month) break;
+
+        $interest = $remaining * $promo_rate;
+
+        // Hỗ trợ LS
+        if ($m <= $support_months) {
+            $interest *= (1 - $support_rate);
+        }
+
+        // Ân hạn
+        if ($m <= $grace_months) {
+            $principal = 0;
+            $payment   = $interest;
+        } else {
+            if ($method === "equal_principal") {
+                $principal = $equal_principal;
+                $payment   = $principal + $interest;
+            } else {
+                $principal = $monthly_promo - $interest;
+                $payment   = $monthly_promo;
+            }
+        }
+
+        // opening balance = dư nợ trước khi trừ gốc
+        $opening_balance = $remaining;
+
+        $remaining -= $principal;
+
+        $interest_promo  += $interest;
+        $principal_promo += $principal;
+
+        $schedule[] = [
+            "month"           => $m,
+            "opening_balance" => $opening_balance,
+            "interest"        => $interest,
+            "principal"       => $principal,
+            "payment"         => $payment,
+            "remaining"       => max($remaining, 0)
+        ];
+    }
+
+    // ==========================
+    // Nếu tất toán trong ưu đãi
+    // ==========================
+    if ($settle_month > 0 && $settle_month <= $promo_months) {
+
+        $early_fee_value = $remaining * $early_fee_rate;
+
+        return [
+            "method"            => $method,
+            "total_price"       => $total_price,
+            "loan_rate"         => $loan_rate,
+            "loan_amount"       => $loan_amount,
+            "down_payment"      => $down_payment,
+
+            "monthly_promo"     => $monthly_promo,
+            "monthly_after"     => 0,
+
+            "interest_promo"    => $interest_promo,
+            "principal_promo"   => $principal_promo,
+
+            "interest_after"    => 0,
+            "principal_after"   => 0,
+
+            "total_interest"    => $interest_promo,
+            "total_principal"   => $principal_promo,
+            "total_payment"     => $interest_promo + $principal_promo + $early_fee_value,
+
+            "remaining"         => max($remaining, 0),
+            "early_fee_value"   => $early_fee_value,
+            "schedule"          => $schedule
+        ];
+    }
+
+    // ==========================
+    // Giai đoạn sau ưu đãi
+    // ==========================
+    $after_months = $total_months - $promo_months;
+
+    if ($method === "annuity") {
+        if ($after_rate > 0) {
+            $monthly_after = $remaining * (
+                $after_rate * pow(1 + $after_rate, $after_months)
+            ) / (pow(1 + $after_rate, $after_months) - 1);
+        } else {
+            $monthly_after = $remaining / $after_months;
+        }
+    }
+
+    for ($i = 1; $i <= $after_months; $i++) {
+
+        $current_month = $promo_months + $i;
+
+        if ($settle_month > 0 && $current_month > $settle_month) break;
+
+        $interest = $remaining * $after_rate;
+
+        if ($method === "equal_principal") {
+            $principal = $equal_principal;
+            $payment   = $principal + $interest;
+        } else {
+            $principal = $monthly_after - $interest;
+            $payment   = $monthly_after;
+        }
+
+        // opening balance = dư nợ đầu kỳ
+        $opening_balance = $remaining;
+
+        $remaining -= $principal;
+
+        $interest_after  += $interest;
+        $principal_after += $principal;
+
+        $schedule[] = [
+            "month"           => $current_month,
+            "opening_balance" => $opening_balance,
+            "interest"        => $interest,
+            "principal"       => $principal,
+            "payment"         => $payment,
+            "remaining"       => max($remaining, 0)
+        ];
+    }
+
+    // ==========================
+    // Tất toán sau ưu đãi
+    // ==========================
+    $early_fee_value = 0;
+
+    if ($settle_month > 0) {
+
+        $early_fee_value = $remaining * $early_fee_rate;
+
+        $schedule[] = [
+            "month"           => $settle_month,
+            "opening_balance" => $remaining,
+            "interest"        => 0,
+            "principal"       => $remaining,
+            "payment"         => $remaining + $early_fee_value,
+            "remaining"       => 0
+        ];
+    }
+
+    // ==========================
+    // Tổng hợp
+    // ==========================
+    return [
+        "method"          => $method,
+        "total_price"     => $total_price,
+        "loan_rate"       => $loan_rate,
+        "loan_amount"     => $loan_amount,
+        "down_payment"    => $down_payment,
+
+        "monthly_promo"   => $monthly_promo,
+        "interest_promo"  => $interest_promo,
+        "principal_promo" => $principal_promo,
+
+        "monthly_after"   => $monthly_after,
+        "interest_after"  => $interest_after,
+        "principal_after" => $principal_after,
+
+        "total_interest"  => $interest_promo + $interest_after,
+        "total_principal" => $principal_promo + $principal_after,
+        "total_payment"   => $interest_promo + $interest_after + $principal_promo + $principal_after + $early_fee_value,
+
+        "remaining"       => max($remaining, 0),
+        "early_fee_value" => $early_fee_value,
+        "early_fee_rate"  => $early_fee_rate,
+
+        "schedule"        => $schedule,
+    ];
+}
+function loan_calculate_v3(array $opt){
+
+    // ==========================
+    // Input
+    // ==========================
+    $total_price   = $opt['total_price'];
+    $loan_rate     = $opt['loan_rate']; 
+    $loan_amount   = $total_price * $loan_rate / 100;
+    $total_months  = $opt['total_months'];
+
+    // Ưu đãi
+    $promo_months  = intval($opt['promo_months']);
+    $promo_rate    = floatval($opt['promo_interest']) / 12 / 100;
+    $after_rate    = floatval($opt['after_interest']) / 12 / 100;
+
+    if ($promo_months <= 0 || $promo_rate <= 0) {
+        $promo_months = 0;
+        $promo_rate   = 0;
+    }
+
+    $method        = $opt['method']; 
+    $grace_months  = $opt['grace_months'];
+
+    // Hỗ trợ lãi suất
+    $support_rate   = $opt['interest_support_rate'] / 100; 
+    $support_months = $opt['interest_support_months'];
+
+    // Tất toán sớm
+    $early_fee_rate = $opt['early_payment_fee_rate'] / 100; 
+    $settle_month   = $opt['settle_month']; 
+
+    // ==========================
+    // Khởi tạo
+    // ==========================
+    $remaining = $loan_amount;
+    $first_payment = 0;
+
+    $interest_promo   = 0;
+    $principal_promo  = 0;
+
+    $interest_after   = 0;
+    $principal_after  = 0;
+
+    $monthly_promo = 0;
+    $monthly_after = 0;
+
+    $down_payment = $total_price - $loan_amount;
+
+    $schedule = [];
+
+    // ==========================
+    // Gốc cố định
+    // ==========================
+    $equal_principal = $loan_amount / $total_months;
+
+    // ==========================
+    // Tính tiền annuity ưu đãi
+    // ==========================
+    if ($method === "annuity" && $promo_months > 0) {
+        if ($promo_rate > 0) {
+            $monthly_promo = $loan_amount *
+                ( $promo_rate * pow(1 + $promo_rate, $total_months) ) /
+                ( pow(1 + $promo_rate, $total_months) - 1 );
+        } else {
+            $monthly_promo = $loan_amount / $total_months;
+        }
+    }
+
+    // ==========================
+    // Vòng ưu đãi
+    // ==========================
+    for ($m = 1; $m <= $promo_months; $m++) {
+
+        if ($settle_month > 0 && $m > $settle_month) break;
+
+        $begin_balance = $remaining;
+
+        $interest = $remaining * $promo_rate;
+
+        if ($m <= $support_months) {
+            $interest *= (1 - $support_rate);
+        }
+
+        if ($m <= $grace_months) {
+            $principal = 0;
+            $payment   = $interest;
+        } else {
+            if ($method === "equal_principal") {
+                $principal = $equal_principal;
+                $payment   = $principal + $interest;
+            } else {
+                $principal = $monthly_promo - $interest;
+                $payment   = $monthly_promo;
+            }
+        }
+
+        $remaining -= $principal;
+
+        if ($m == 1) $first_payment = $payment;
+
+        $interest_promo  += $interest;
+        $principal_promo += $principal;
+
+        $schedule[] = [
+            "month"          => $m,
+            "begin_balance"  => $begin_balance,
+            "interest"       => $interest,
+            "principal"      => $principal,
+            "payment"        => $payment,
+            "remaining"      => max($remaining, 0)
+        ];
+    }
+
+    // Nếu tất toán trong giai đoạn ưu đãi
+    if ($settle_month > 0 && $settle_month <= $promo_months) {
+
+        $early_fee_value = $remaining * $early_fee_rate;
+
+        return [
+            "method"         => $method,
+            "loan_amount"    => $loan_amount,
+            "down_payment"   => $down_payment,
+
+            "first_payment"  => $first_payment,
+
+            "monthly_promo"  => $monthly_promo,
+            "monthly_after"  => 0,
+
+            "interest_promo"  => $interest_promo,
+            "principal_promo" => $principal_promo,
+
+            "total_interest"  => $interest_promo,
+            "total_principal" => $principal_promo,
+            "total_payment"   => $interest_promo + $principal_promo + $early_fee_value,
+
+            "remaining"        => max($remaining, 0),
+            "early_fee_value"  => $early_fee_value,
+
+            "schedule"         => $schedule
+        ];
+    }
+
+    // ==========================
+    // Giai đoạn sau ưu đãi
+    // ==========================
+    $after_months = $total_months - $promo_months;
+
+    if ($method === "annuity") {
+        if ($after_rate > 0) {
+            $monthly_after = $remaining *
+                ( $after_rate * pow(1 + $after_rate, $after_months) ) /
+                ( pow(1 + $after_rate, $after_months) - 1 );
+        } else {
+            $monthly_after = $remaining / $after_months;
+        }
+    }
+
+    for ($i = 1; $i <= $after_months; $i++) {
+
+        $current_month = $promo_months + $i;
+
+        if ($settle_month > 0 && $current_month > $settle_month) break;
+
+        $begin_balance = $remaining;
+
+        $interest = $remaining * $after_rate;
+
+        if ($method === "equal_principal") {
+            $principal = $equal_principal;
+            $payment   = $principal + $interest;
+        } else {
+            $principal = $monthly_after - $interest;
+            $payment   = $monthly_after;
+        }
+
+        $remaining -= $principal;
+
+        if ($current_month == 1) $first_payment = $payment;
+
+        $interest_after  += $interest;
+        $principal_after += $principal;
+
+        $schedule[] = [
+            "month"          => $current_month,
+            "begin_balance"  => $begin_balance,
+            "interest"       => $interest,
+            "principal"      => $principal,
+            "payment"        => $payment,
+            "remaining"      => max($remaining, 0)
+        ];
+    }
+
+    // ==========================
+    // Tất toán sau ưu đãi
+    // ==========================
+    $early_fee_value = 0;
+
+    if ($settle_month > 0) {
+
+        $early_fee_value = $remaining * $early_fee_rate;
+
+        $schedule[] = [
+            "month"          => $settle_month,
+            "begin_balance"  => $remaining,
+            "interest"       => 0,
+            "principal"      => $remaining,
+            "payment"        => $remaining + $early_fee_value,
+            "remaining"      => 0
+        ];
+    }
+
+    // ==========================
+    // Output
+    // ==========================
+    return [
+        "method"           => $method,
+        "loan_amount"      => $loan_amount,
+        "down_payment"     => $down_payment,
+
+        "first_payment"    => $first_payment,
+
+        "monthly_promo"    => $monthly_promo,
+        "monthly_after"    => $monthly_after,
+
+        "interest_promo"   => $interest_promo,
+        "principal_promo"  => $principal_promo,
+        "interest_after"   => $interest_after,
+        "principal_after"  => $principal_after,
+
+        "total_interest"   => $interest_promo + $interest_after,
+        "total_principal"  => $principal_promo + $principal_after,
+        "total_payment"    => $interest_promo + $interest_after + $principal_promo + $principal_after + $early_fee_value,
+
+        "remaining"        => max($remaining, 0),
+        "early_fee_value"  => $early_fee_value,
+
+        "schedule"         => $schedule
+    ];
+}
+
+$list_billings = $clsBilling->getAll("`is_trash`=0 and `is_cancel`='0' and `billing_type`='448' AND `billing_source_id`='1105' AND FROM_UNIXTIME(deposit_date,'%Y')='2025' GROUP BY `staff_id` ORDER BY `total_grands` DESC", "staff_id,SUM(totalgrand) AS total_grands, COUNT(1) AS 
+`total_billings`");
+if(!empty($list_billings)){
+	$row = 2;
+	$arr_profile_cached = $clsProfile->getProfileCached();
+	foreach($list_billings as $key => $val){
+		$staff_id = $val['staff_id'];
+		$oneStaff = $arr_profile_cached[$staff_id];
+		$more_information = $oneStaff['more_information'];
+		$objPHPExcel->getActiveSheet()->setCellValue('A'.$row, $clsProfile->getFullName($staff_id, $oneStaff));
+		$objPHPExcel->getActiveSheet()->setCellValue('B'.$row, $more_information['department_name']);
+		$objPHPExcel->getActiveSheet()->setCellValue('C'.$row, $clsISO->shortNumber($val['total_grands'],2));
+		$objPHPExcel->getActiveSheet()->setCellValue('D'.$row, $val['total_billings']);
+		++$row;
+	}
+}
+// $clsISO->print_pre($list_staffs); die();
+$nameFile = 'TransactionMas_'.date('dmYHis');
+// Set active sheet index to the first sheet, so Excel opens this as the first sheet
+$objPHPExcel->setActiveSheetIndex(0);
+// Redirect output to a client's web browser (Excel5)
+header('Content-Type: application/vnd.ms-excel');
+header('Content-Disposition: attachment;filename="'.($nameFile).'.xls');
+header('Cache-Control: max-age=0');
+// If you're serving to IE 9, then the following may be needed
+header('Cache-Control: max-age=1');
+// If you're serving to IE over SSL, then the following may be needed
+header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+header('Pragma: public'); // HTTP/1.0
+$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+ob_end_clean();
+$objWriter->save('php://output');
+exit;
+
+$clsISO->print_pre($list_billings); die();

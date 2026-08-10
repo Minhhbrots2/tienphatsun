@@ -1,0 +1,10 @@
+.btn_view.active {
+    background: #08f;!i;!;
+    color: #FFF;
+}
+
+.btn_view {
+    font-size: 18px;
+    line-height: 1;
+    background: #ccc;
+}

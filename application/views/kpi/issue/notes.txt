@@ -1,0 +1,39 @@
+<div class="p-3 mb-3 bg-lighter rounded-2">
+						{assign var = gid value = $clsISO->getUniqid()}
+						{assign var = upload_id value = $clsISO->getUniqid()}
+						<form class="d-none" action="" method="POST" enctype="multipart/form-data">
+							<input id="issue_upload_file_{$upload_id}" uid="{$upload_id}" type="file" class="issue_upload_file" 
+							name="attachments[]" multiple="multiple" />
+						</form>
+						<form method="POST" enctype="multipart/form-data">
+							<div class="textarea">
+								<textarea id="{$clsISO->getUniqid()}" name="content" data-height="50" rows="4" cols="255" 
+								class="hasIsoRedactor" data-placeholder="Nhập nội dung bình luận..."></textarea>
+							</div>
+							<div class="d-flex align-items-center justify-content-between mt-2">
+								<div class="toolbar d-flex align-items-center">
+									<div class="mr-2">
+										<a data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-offset="0,4" data-bs-placement="top" data-bs-trigger="hover" uid="{$upload_id}" onClick="issue_notes_upload(this, event)" issue_id="{$issue_id}" issue_note_id="0" title="Đính kèm file" href="javascript:void(0)"><img src="{$smarty.const.ICON_ATTACHMENT}" /></a>
+									</div>
+									<div class="mr-2">
+										<a href="javascript:void(0)" data-bs-trigger="hover" data-bs-toggle="tooltip" gid="{$gid}" data-bs-trigger="hover" onClick="set_mention_list(this,event)" data-bs-offset="0,4" data-bs-placement="top" title="Gắn thẻ"><img src="{$smarty.const.ICON_MENTION}" /></a>
+									</div>
+								</div>
+								<div class="button">
+									<input type="hidden" name="hid" value="add_note" />
+									<button type="button" issue_id="{$issue_id}" onClick="add_issue_note(this, event)" 
+									upload_id="{$upload_id}" class="btn btn-outline-primary">Gửi</button>
+								</div>
+							</div>
+							<div id="{$gid}" class="form-group d-none pt-2">
+								<select multiple="true" class="iso-selectizeNotSearch" data-url="{$PCMS_URL}/index.php?mod=home&act=list_staff&holderG=permiss" name="mention_list[]" data-placeholder="Người giao" data-field="user_id" data-allow-clear="true" data-optgroup="false">
+									{if !empty($mention_list_arrs)}
+										{foreach from=$mention_list_arrs item = user_id}
+										<option value="{$user_id}" selected>{$clsProfile->getIndentity($user_id, false)}</option>
+										{/foreach}
+									{/if}
+								</select>		
+							</div>
+							<div id="issue_attachments_file_{$upload_id}" class="pt-2 MultiFile-preview"></div>
+						</form>
+					</div>

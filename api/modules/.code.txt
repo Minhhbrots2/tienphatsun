@@ -1,0 +1,636 @@
+$app->post('v1/stock/get_price_sheet', function ($request, $response, $args) use ($app) {
+	global $dbconn, $clsISO;
+	$clsHelper = new Helper();
+	$clsStock = new Stock();
+	$clsProject = new Project();
+	$clsProperty =  new Property();
+	$clsProjectMeta = new ProjectMeta();
+	
+	$apiresults = array('error' => 1, 'result' => 'error', 'message' => "Error");
+	$inputs = $request->getParsedBody();
+	$stock_code = isset($inputs['stock_code']) ? $inputs['stock_code'] : "";
+	// $clsISO->print_pre($stock_code); die();
+	if(!empty($stock_code)){
+		$field = "more_information,ms_code,building_id,status_id,agency_id,stock_type,code,project_id";
+		// $dbconn->debug = true;
+		$stock_code = trim($stock_code);
+		$stock_code = strtoupper($stock_code);
+		$stock_code = preg_replace('/\s+/','',$stock_code);
+		$ms_code = str_replace('.', '', $stock_code);
+		$ms_code = str_replace('-', '', $ms_code);
+		$arr_block_notin = array(_PROJECT_BLOCK_MWF_ID);
+		$tmp = $clsStock->getByCond("`is_trash`=0 AND `block_id` not in (".implode(',',$arr_block_notin).") AND `status_id`>0 AND `status_id`<>'"._STOCK_STATUS_NON_ID."' AND (`ms_code`='{$stock_code}' OR REPLACE(REPLACE(`ms_code`,'-',''),'.','')='{$ms_code}')", $field);
+		// var_dump($tmp); die();
+		if(!empty($tmp)){
+			$project_id = (int) $tmp['project_id'];
+			$agency_id = (int) $tmp['agency_id'];
+			$status_id = (int) $tmp['status_id'];
+			$building_id = (int) $tmp['building_id'];
+			$stock_type = (int) $tmp['stock_type'];
+			$more_information = $tmp['more_information'];
+			$more_information = $clsISO->to_array_json($more_information);
+			$stock_poster = isset($more_information['stock_poster']) 
+				? $more_information['stock_poster'] : array();
+			$is_exclusive = ($agency_id == _AGENCY_FH_ID) ? 1 : 0;
+			if($status_id == _STOCK_STATUS_SOLD_ID){
+				$apiresults = array(
+					'error' => 0, 
+					'result' => 'sold'
+				);
+			} else {
+				if($stock_type == _BLOCK_TYPE_HIGHLEVEL_SALE){
+					$price_sheets = isset($more_information['price_sheets']) 
+						? $more_information['price_sheets'] : array();
+					if(!empty($price_sheets)){
+						$price_sheets = @array_reverse($price_sheets);
+						$oneSheet = @reset($price_sheets);
+						$html_price_sheets = $html_poster = "";
+						foreach($oneSheet['sheets'] as $val){
+							$html_price_sheets.= sprintf(' %s %s', $val['title'], $val['image']);
+						}
+						if(!empty($stock_poster)){
+							$stock_poster = @array_reverse($stock_poster);
+							$onePoster = @reset($stock_poster);
+							$html_poster = sprintf('%s %s', $onePoster['title'], $onePoster['image']);
+						} else {
+							$code = $tmp['code'];
+							$more_information = $clsProperty->getOneField('more_information', $building_id);
+							$more_information = $clsISO->to_array_json($more_information);
+							$template_arrs = isset($more_information['template']) 
+								? $more_information['template'] : array();
+							if(!empty($template_arrs)){
+								foreach($template_arrs as $key => $val){
+									if($val['code'] == $code){
+										$html_poster = $val['layout'];
+										break;
+									}
+								}
+							}
+						}
+						$apiresults = array(
+							'error' => 0, 
+							'result' => 'success', 
+							'is_exclusive' => $is_exclusive,
+							'html_poster' => $html_poster,
+							'html_price_sheets' => $html_price_sheets
+						);
+					} else {
+						$apiresults = array(
+							'error' => 1, 
+							'result' => 'error', 
+							'message' => 'Empty'
+						);
+					}
+				} else {
+					$price_temporary_ns = isset($more_information['price_temporary_ns']) 
+						? $more_information['price_temporary_ns'] : "";
+					$html_poster = "";
+					if(!empty($stock_poster)){
+						$stock_poster = @array_reverse($stock_poster);
+						$onePoster = @reset($stock_poster);
+						$html_poster = sprintf('%s %s', $onePoster['title'], $onePoster['image']);
+					}
+					if(!empty($price_temporary_ns))	{
+						$html_price_sheets = sprintf('%s %s', 'PTG TẠM TÍNH', $price_temporary_ns);
+						$apiresults = array(
+							'error' => 0, 
+							'result' => 'success', 
+							'is_exclusive' => $is_exclusive,
+							'html_poster' => $html_poster,
+							'html_price_sheets' => $html_price_sheets
+						);
+					} else {
+						$apiresults = array(
+							'error' => 1, 
+							'result' => 'error', 
+							'message' => 'Empty'
+						);
+					}
+				}
+			}
+		} else {
+			$apiresults = array(
+				'error' => 1, 
+				'result' => 'error', 
+				'message' => 'Empty'
+			);
+		}
+	} else {
+		$apiresults = array(
+			'error' => 1, 
+			'result' => 'error', 
+			'message' => 'Không đúng mã căn'
+		);
+	}
+	// Return
+	echo echoResponse('200', $apiresults);
+});
+
+
+<?php if (!defined('ABSPATH')) exit('No direct script access allowed');
+/*======================================================================*\
+|| #################################################################### ||
+|| # The Classes configurations of the MaxxCMS                        # ||
+|| # MaxxCMS 6.0.0 code by Bui Van Thiem (vanthiembui.it@gmail.com)   # ||
+|| # ---------------------------------------------------------------- # ||
+|| # All PHP code in this file is ©2007-2014 MaxCMS.                  # ||
+|| # This file may not be redistributed in whole or significant part. # ||
+|| # ---------------- MaxxCMS IS NOT FREE SOFTWARE ----------------   # ||
+|| #################################################################### ||
+\*======================================================================*/
+$app->post('/customer/add', function ($request, $response, $args) use ($app) {
+	global $dbconn, $core, $clsISO,$profile_id;
+	$clsISO = new ISO();
+	$helper = new Helper();
+	$clsNotify = new Notify();
+	$clsFcmToken = new FcmToken();
+	$clsProperty = new Property();
+	$clsCustomer = new Customer();
+	$clsProfile = new Profile();
+	$clsFollowUp = new FollowUp();
+	$clsCampaign = new Campaign();
+	$status_code = 2;
+	$apiresults = array(
+		'error' => 1, 
+		'result' => 'error', 
+		'message' => "Error"
+	);
+	###
+	die("xxx");
+	$inputs = $request->getParsedBody();
+	$full_name = trim($helper->getFieldValue("full_name", $inputs));
+	$type = $helper->getFieldValue("type", $inputs);
+	$phone = $helper->getFieldValue("phone", $inputs);
+	$phone = $clsCustomer->formatPhone($phone);
+	$reg_date = $helper->getFieldValue("reg_date", $inputs);
+	$reg_date = !empty($reg_date) ? strtotime(str_replace("/","-",$reg_date)) : time();
+	$upd_date = $helper->getFieldValue("upd_date", $inputs);
+	$upd_date = !empty($upd_date) ? strtotime(str_replace("/","-",$upd_date)) : "";
+	$begin_need = $helper->getFieldValue("begin_need", $inputs);
+	$status = trim($helper->getFieldValue("status", $inputs));
+	$last_status = trim($helper->getFieldValue("last_status", $inputs));
+	$staff_names = $helper->getFieldValue("staff_name", $inputs);
+	$notes = $helper->getFieldValue("notes", $inputs);
+	$campaign = $helper->getFieldValue("campaign", $inputs);
+	$is_special_share = (int) $helper->getFieldValue("is_special_share", $inputs, 0);
+	if($is_special_share == 0){
+		$user_name = trim($helper->getFieldValue("user_name", $inputs));
+		$department = trim($helper->getFieldValue("department", $inputs));
+	}
+	$user_id = _PROFILE_ROOT_ID; //Default
+	###
+	$error_no = 0; $errors = array();
+	if(empty($full_name)){
+		$error_no += 1;
+		$errors[] = "Họ và tên không được trống";
+	}
+	if(empty($phone)){
+		$error_no += 1;
+		$errors[] = "Số điện thoại không được trống";
+	}
+	### nguoi theo doi, phu trach
+	if($is_special_share == 0){
+		$list_share_id = [$user_id];
+		$list_share_id = _PROFILE_SUPPER_ID;
+	} else {
+		$list_share_id = array_merge(_PROFILE_SUPPER_ID, array(_PROFILE_TAT_ID));
+	}
+	$list_campaign_arrs = [];
+	if(!empty($campaign)){
+		$tmp = $clsCampaign->getByCond("`is_trash`=0 AND `campaign_type`='_campaign' AND `use_globe`=1 
+			AND `slug`='{$clsISO->replaceSpace($campaign)}'", $clsCampaign->pkey);
+		if(!empty($tmp)){
+			$list_campaign_arrs[] = $tmp[$clsCampaign->pkey];
+		} else {
+			$campaign_id = $clsCampaign->getMaxId();
+			$clsCampaign->insert(array(
+				$clsCampaign->pkey => $campaign_id,
+				'campaign_type' => '_campaign',
+				'use_globe' => 1,
+				'title' => $campaign,
+				'slug' => $clsISO->replaceSpace($campaign),
+				'user_id' => _PROFILE_ROOT_ID,
+				'user_id_update' => _PROFILE_ROOT_ID,
+				'reg_date' => time(),
+				'upd_date' => time()
+			));
+			$list_campaign_arrs[] = $campaign_id;
+		}
+	}
+	$arr_admin = $arr_notes = $more_share = [];
+	if(!empty($department)) {
+		$one_department = $clsProperty->getByCond("`property_code`='{$department}'","{$clsProperty->pkey},`more_information`");
+		if(!empty($one_department)) {
+			$more_information = $one_department['more_information'];
+			$more_information = $clsISO->to_array_json($more_information);
+			$head_of_dep_id = $helper->getFieldValue("head_of_dep_id", $more_information);
+			$list_share_id[] = $head_of_dep_id;
+			if(!empty($staff_names)) {
+				$check_empty_staff = 0;
+				foreach ($staff_names as $key => $staff_name) {
+					if(!empty(trim($staff_name))) {
+						$staff_name_slug = $clsISO->replaceSpace(trim($staff_name));
+						$staff = $clsProfile->getByCond("`department_id`='{$one_department[$clsProperty->pkey]}' AND `full_name_slug`='{$staff_name_slug}'","{$clsProfile->pkey}");
+						if(!empty($staff)) {
+							$arr_admin[] = $staff[$clsProfile->pkey];	
+							$arr_notes[] = !empty(trim($notes[$key])) ? trim($notes[$key]) : "";
+						}
+					} else {
+						if(!empty(trim($notes[$key]))) {
+							$arr_admin[] = $head_of_dep_id;
+							$arr_notes[] = trim($notes[$key]);
+						}else{
+							++$check_empty_staff;
+						}
+					}				
+				}
+				if($check_empty_staff == count($staff_names)) {
+					$arr_admin[] = $head_of_dep_id;
+					$arr_notes[] = "";
+				}
+			}else{
+				$arr_admin[] = $head_of_dep_id;
+				$arr_notes[] = "";
+			}
+		}else{
+			$list_share_id[] = _PROFILE_LTD_ID;
+			$arr_admin[] = $user_id;
+			$arr_notes[] = "";
+		}
+	}else{
+		if($is_special_share == 0){
+			if(!empty($staff_names)) {
+				$check_empty_staff = 0;
+				foreach($staff_names as $key => $staff_name){
+					if(!empty(trim($staff_name))) {
+						$staff_name_slug = $clsISO->replaceSpace(trim($staff_name));
+						$staff = $clsProfile->getByCond("`full_name_slug`='{$staff_name_slug}'","{$clsProfile->pkey}");
+						if(!empty($staff)) {
+							$arr_admin[] = $staff[$clsProfile->pkey];	
+							$arr_notes[] = !empty(trim($notes[$key])) ? trim($notes[$key]) : "";
+						}
+					}else {
+						if(!empty(trim($notes[$key]))) {
+							$arr_admin[] = $user_id;
+							$arr_notes[] = trim($notes[$key]);
+						}else{
+							++$check_empty_staff;
+						}
+					}
+				}
+				if($check_empty_staff == count($staff_names)) {
+					$arr_admin[] = $user_id;
+					$arr_notes[] = "";
+				}
+			}else{
+				$arr_admin[] = $user_id;
+				$arr_notes[] = "";
+			}
+		} else {
+			$arr_admin[] = $user_id;
+			if(!empty($staff_names)) {
+				foreach($staff_names as $key => $staff_name){
+					if(!empty(trim($staff_name))) {
+						$staff_name_slug = $clsISO->replaceSpace(trim($staff_name));
+						$staff = $clsProfile->getByCond("`full_name_slug`='{$staff_name_slug}'","{$clsProfile->pkey}");
+						if(!empty($staff)) {
+							$more_share[] = $staff[$clsProfile->pkey];	
+							$arr_notes[] = !empty(trim($notes[$key])) ? trim($notes[$key]) : "";
+						}
+					}else {
+						if(!empty(trim($notes[$key]))) {
+							$more_share[] = $user_id;
+							$arr_notes[] = trim($notes[$key]);
+						}else{
+							++$check_empty_staff;
+						}
+					}
+				}
+			}
+		}
+	}
+	$list_share_id = $clsISO->makeSlashListFromArrayRoot(array_merge($more_share, $list_share_id));
+	$list_campaign_id = $clsISO->makeSlashListFromArrayRoot($list_campaign_arrs);
+	# tinh trang
+	$arr_status = $clsProperty->getArraySearchByKey("CUSTOMER_STATUS");
+	if(!empty($status) || !empty($last_status)) {
+		$status_slug = !empty($status) ? $clsISO->replaceSpace($status) : "";
+		$last_status_slug = !empty($last_status) ? $clsISO->replaceSpace($last_status) : "";
+		foreach($arr_status as $key => $val){
+			if(!empty($status) && $val["slug"] == $status_slug) {
+				$status_id = $val[$clsProperty->pkey];
+				if(empty($last_status) || !empty($last_status_id)) {
+					break;
+				}				
+			}
+			if(!empty($last_status_slug) && $val["slug"] == $last_status_slug) {
+				$last_status_id = $val[$clsProperty->pkey];
+				if(empty($status) || !empty($status_id)) {
+					break;
+				}				
+			}
+		}
+	}
+	$status_id = !empty($status_id) ? $status_id : _CRM_STATUS_LEAD_ID;
+	$last_status_id = !empty($last_status_id) ? $status_id : $status_id;
+	$arr_cache_profile = [];
+	if($error_no == 0){		
+		foreach($arr_admin as $key => $admin_id) {
+			$data_follow = [
+				'type_id' 			=> _FOLLOWUP_CALL_ID,
+				'status_id' 		=> $last_status_id,
+				'_result' 			=> "",
+				'date_id' 			=> $upd_date,
+				'is_reminder' 		=> 0,
+				'reminder_before' 	=> 0,
+				'reminder_time' 	=> time(),
+				'admin_id' 			=> $admin_id,
+				'user_id' 			=> $user_id,
+				'user_id_update' 	=> $user_id,
+				'reg_date' 			=> $upd_date,
+				'upd_date' 			=> $upd_date
+			];	
+//			$oneCustomer = $clsCustomer->getByCond("`admin_id`='{$admin_id}' and `phone`='{$phone}'");
+			$oneCustomer = $clsCustomer->getByCond("`user_id`='"._PROFILE_ROOT_ID."' and `phone`='{$phone}'");
+			if(!empty($oneCustomer)) {	
+				$customer_id = $oneCustomer[$clsCustomer->pkey];
+				$list_share_id_old = $oneCustomer['list_share_id'];
+				$more_information = $oneCustomer['more_information'];
+				$more_information = $clsISO->to_array_json($more_information);
+				#log chuyen doi
+				$list_logs = $core->get_field($more_information, "logs", []);	
+				$action_logs = $core->get_field($more_information, "action_logs", []);	
+				if($status_id != $last_status_id) {
+					$list_logs[$clsISO->getUniqid()] = array(
+						'from_id' => $admin_id,
+						'_type' => 'upd_status',
+						'from_status_id' => $status_id,
+						'status_id' => $last_status_id,
+						'reg_date' => !empty($upd_date) ? $upd_date : time()
+					);
+					#
+					if(!isset($arr_cache_profile[$admin_id])) {
+						$arr_cache_profile[$admin_id] = $clsProfile->getFullName($admin_id);
+					}
+					$full_name = $arr_cache_profile[$admin_id];
+					$status_name = !empty($arr_status[$last_status_id]) ? $arr_status[$last_status_id]["title"] : $clsProperty->getTitle($last_status_id);
+					$content = sprintf('<strong>%s</strong> đã cập nhật tình trạng khách hàng thành %s', 
+						$full_name, $status_name);
+					$action_logs[$clsISO->getUniqid()] = array(
+						'content' => $content,
+						'user_id' => _PROFILE_ROOT_ID,
+						'reg_date' => !empty($upd_date) ? $upd_date : time()
+					);
+				}
+				#
+				if($oneCustomer["admin_id"] != $admin_id) {
+					if(!isset($arr_cache_profile[$oneCustomer["admin_id"]])) {
+						$arr_cache_profile[$oneCustomer["admin_id"]] = $clsProfile->getFullName($oneCustomer["admin_id"]);
+					}
+					$full_name_old = $arr_cache_profile[$oneCustomer["admin_id"]];
+					if(!isset($arr_cache_profile[$admin_id])) {
+						$arr_cache_profile[$admin_id] = $clsProfile->getFullName($admin_id);
+					}
+					$full_name_new = $arr_cache_profile[$admin_id];
+					$content = sprintf('<strong>Hệ thống</strong> đã chuyển quyền quản lý từ <strong>%s</strong> thành <strong>%s</strong>',  
+						$full_name_old, 
+						$full_name_new
+					);
+					$action_logs[$clsISO->getUniqid()] = array(
+						'content' => $content,
+						'user_id' => _PROFILE_ROOT_ID,
+						'reg_date' => time()
+					);
+				}
+				$list_logs = $more_information['logs'];
+				$more_information['logs'] = $list_logs;
+				$more_information['action_logs'] = $action_logs;
+				echo "=====Update======";
+				var_dump($more_information["action_logs"]);die;
+				#followups
+				$note = "";
+				$arr_followup = $core->get_field($more_information, "arr_followup", []);
+				if(!empty($arr_notes[$key])) {
+					$note = $arr_notes[$key];
+					$data_follow["intro"] = $note;
+					$data_follow["customer_id"] = $customer_id;	
+					$followup_id = !empty($arr_followup["note_".$key]) ? $arr_followup["note_".$key] : 0;	
+					$followup_id_new = $clsCustomer->addFollowups($followup_id,$data_follow);
+					if(!empty($followup_id_new)) {
+						$arr_followup["note_".$key] = $followup_id_new;
+					}
+				}
+				$more_information["arr_followup"] = $arr_followup;
+				if($clsCustomer->updateOne($customer_id,array(
+					'name' => addslashes($full_name),
+					'name_slug' => $clsISO->replaceSpace($full_name),
+					'status_id' => $last_status_id,
+					'admin_id' => $admin_id,
+					'begin_need' => $begin_need,
+					'notes' => $note,
+					'list_share_id' => $list_share_id,
+					'user_id' => $user_id,
+					'user_id_update' => $user_id,
+					'use_globe' => 1,
+					'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE),
+					'upd_date' => time()
+				))){
+					++$number_upd;
+					$status_code = 200;
+					$apiresults = array(
+						'error' => 0, 
+						'result' => 'success', 
+						'message' => "Cập nhật khách hàng thành công !"
+					);
+				}
+			}else{
+				$more_information = $list_logs = $action_logs = array();
+				#log chuyen doi
+				if($status_id != $last_status_id) {
+					$list_logs[$clsISO->getUniqid()] = array(
+						'from_id' => $admin_id,
+						'_type' => 'upd_status',
+						'from_status_id' => $status_id,
+						'status_id' => $last_status_id,
+						'reg_date' => !empty($upd_date) ? $upd_date : time()
+					);
+					#
+					if(!isset($arr_cache_profile[$admin_id])) {
+						$arr_cache_profile[$admin_id] = $clsProfile->getFullName($admin_id);
+					}
+					$full_name = $arr_cache_profile[$admin_id];
+					$status_name = !empty($arr_status[$last_status_id]) ? $arr_status[$last_status_id]["title"] : $clsProperty->getTitle($last_status_id);
+					$content = sprintf('<strong>%s</strong> đã cập nhật tình trạng khách hàng thành %s', 
+						$full_name, $status_name);
+					$action_logs[$clsISO->getUniqid()] = array(
+						'content' => $content,
+						'user_id' => _PROFILE_ROOT_ID,
+						'reg_date' => !empty($upd_date) ? $upd_date : time()
+					);
+				}
+				$more_information['logs'] = $list_logs;
+				$more_information['action_logs'] = $action_logs;
+				
+				echo "=====Update======";
+				var_dump($more_information);die;
+				$customer_id = $clsCustomer->getMaxId();
+				if($clsCustomer->insert(array(
+					$clsCustomer->pkey => $customer_id,
+					'name' => addslashes($full_name),
+					'name_slug' => $clsISO->replaceSpace($full_name),
+					'phone' =>	$phone,
+					'status_id' => $status_id,
+					'resource_id' => _CRM_RESOURCE_ADS_ID,
+					'admin_id' => $admin_id,
+					'begin_need' => $begin_need,
+					'notes' => $inputs['notes'],
+					'use_globe' => 1,
+					'list_share_id' => $list_share_id,
+					'list_campaign_id' => $list_campaign_id,
+					'user_id' => $user_id,
+					'user_id_update' => $user_id,
+					'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE),
+					'reg_date' => $reg_date,
+					'upd_date' => time()
+				))){				
+					#followups
+					$note = "";
+					$arr_followup = [];
+					if(!empty($arr_notes[$key])) {
+						$note = $arr_notes[$key];
+						$data_follow["intro"] = $note;
+						$data_follow["customer_id"] = $customer_id;		
+						$followup_id_new = $clsCustomer->addFollowups(0,$data_follow);
+						if(!empty($followup_id_new)) {
+							$arr_followup["note_".$key] = $followup_id_new;
+						}
+					}	
+					$more_information["arr_followup"] = $arr_followup;
+					$clsCustomer->updateOne($customer_id, array(
+						'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE)
+					));
+	//				$titleNoty = sprintf('Bạn đã nhận được thông tin khách hàng <strong>%s</strong> từ Marketing', $full_name);
+	//				$clsNotify->setDebug(true);
+	//				$clsNotify->insertNotify("Customer", $clsCustomer->pkey, $customer_id, $titleNoty, time(), 
+	//					sprintf('|%s|', $admin_id), _PROFILE_LTD_ID);
+	//				/** Gửi thông báo */
+	//				$subscribers = array();
+	//				$tmp = $clsFcmToken->getAll("`push_type`='_pushalert' 
+	//					and `user_id`='{$admin_id}' and `token`<>''", "token");		
+	//				if(!empty($tmp)){
+	//					foreach($tmp as $key => $val){
+	//						if(!in_array($val['token'], $subscribers)){
+	//							$subscribers[] = $val['token'];
+	//						}
+	//					}
+	//					$clsNotify->send_subscriber_notification(array(
+	//						'title' => "[MKT] Khách hàng mới",
+	//						'message' => strip_tags($titleNoty),
+	//						'url' =>  PCMS_URL . '/crm/#/activity/'.$customer_id
+	//					), $subscribers);
+	//				}
+					++$number_upd;
+					$status_code = 200;
+					$apiresults = array(
+						'error' => 0, 
+						'result' => 'success', 
+						'message' => "Thêm mới khách hàng thành công !"
+					);
+				}
+			}
+		}
+	} else {
+		$status_code = 200;
+		$apiresults = array(
+			'error' => 0, 
+			'result' => 'success', 
+			'message' => implode(',', $errors)
+		);
+	}
+	if($number_upd > 0) {
+		$status_code = 200;
+		$apiresults = array(
+			'error' => 0, 
+			'result' => 'success', 
+			'message' => "Cập nhật thành công ".$number_upd." bản ghi"
+		);
+	}
+	// Return
+	echo echoResponse($status_code, $apiresults);
+})
+?>
+
+
+else {
+	$check_date = strtotime('-6 hours');
+	$tmp = $clsStockSearch->getByCond("`stock_code`='{$ms_code}' AND `check_date`>'{$check_date}' AND `agency_id`='{$agency_id}'");
+	// $clsISO->print_pre($tmp); die();
+	if(!empty($tmp)){
+		// Đã gửi
+	} else {
+		$ag_information = $clsProperty->getOneField('more_information', $agency_id);
+		$ag_information = $clsISO->to_array_json($ag_information);
+		$zalo_field = ($stock_type == _BLOCK_TYPE_HIGHLEVEL_SALE) ? 'group_zalo' : 'group_zalo_lowrise';
+		$zalo_id_field = ($stock_type == _BLOCK_TYPE_HIGHLEVEL_SALE) ? 'group_zalo_id' : 'group_zalo_id_lowrise';
+		$group_zalo = $core->get_field($ag_information, $zalo_field, "");
+		$group_zalo_id = $core->get_field($ag_information, $zalo_id_field, "");
+		if(empty($group_zalo_id) && !empty($group_zalo)){
+			$curl = new \Curl\Curl();
+			$curl->setHeaders(array(
+				'Content-Type' => 'application/json',
+				'Authorization' => sprintf('Bearer %s', ZALO_GROUP_INFO_BY_LINK_API_KEY)
+			));
+			$curl->post('https://public-api.bizflow.vn/functions/6871c12ec25a787f544467b1', array(
+				'group_link' => $group_zalo
+			));
+			if(!$curl->error){
+				$response = toArray($curl->response);
+				if(isset($response['status']) && (int) $response['status'] == 200){
+					$group_zalo_id = $response['data']['data']['groupId'];
+					$ag_information[$zalo_id_field] = $group_zalo_id;
+					$clsProperty->updateOne($agency_id, array(
+						'more_information' => json_encode($ag_information, JSON_UNESCAPED_UNICODE) 
+					));
+				}
+			}
+		}
+		if(!empty($group_zalo_id) && !in_array($agency_id, _AGENT_NOCHECK_ZALO_ID)){
+			$curl = new \Curl\Curl();
+			$curl->setHeaders(array(
+				'Content-Type' => 'application/json',
+				'Authorization' => sprintf('Bearer %s', ZALO_GROUP_SEND_MESSAGE_API_KEY)
+			));
+			if(in_array($block_id, _PROJECT_BLOCK_MWF_ARRAY)){
+				$_project_name = $clsProperty->getTitle($block_id);
+			} else {
+				$_project_name = $clsProject->getCode($project_id);
+			}
+			$arr_templates = array(
+				sprintf('%s còn không ạ? Em xin với?', $ms_code),
+				sprintf('Căn %s còn không ạ?', $ms_code),
+				sprintf('Căn %s còn không ạ cả nhà?', $ms_code),
+				sprintf('Anh/Chị cho Em hỏi căn %s, Dự án %s còn không ạ', $ms_code, $_project_name),
+				sprintf('%s, dự án %s nhà mình còn không ạ? Em xin PTG nhé.', $ms_code, $_project_name),
+				sprintf('Anh/Chị, căn %s, Dự án %s còn không ạ? Nếu còn cho Em xin PTG nhé', $ms_code, $_project_name),
+				sprintf('Nhà mình cho Em hỏi căn %s, Dự án %s còn không ạ? Nếu còn Em xin PTG nhé.', $ms_code, $_project_name)
+			);
+			$template = $arr_templates[array_rand($arr_templates)];
+			$curl->post('https://public-api.bizflow.vn/functions/68011b1db49c8ee7d3eac010', array(
+				'message' => $template,
+				'group_id' => (string) $group_zalo_id
+			));
+			$is_send_zalo = 0;
+			if(!$curl->error){
+				$response = toArray($curl->response);
+				if(isset($response['status']) && (int) $response['status'] == 200){
+					$is_send_zalo = 1;
+					$clsStockSearch->insert(array(
+						'agency_id' => $agency_id,
+						'stock_code' => $ms_code,
+						'check_date' => time()
+					));
+				}
+			}
+		}
+	}
+	}

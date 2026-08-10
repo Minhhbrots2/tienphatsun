@@ -1,0 +1,347 @@
+<?php 
+function default_aj_check_potential_exists(){
+	global $core, $smarty, $dbconn, $clsISO, $clsConfiguration, $adminid;
+	$clsPotential = new Potential();
+	$smarty->assign('clsPotential', $clsPotential);
+	
+	$fieldtype = Input::post('fieldtype');
+	$fieldvalue = Input::post('fieldvalue');
+	$smarty->assign('fieldtype', $fieldtype);
+	$smarty->assign('titlePage', __('ErrorDuplicate'));
+	
+	$html = '_valid';
+	$field = "{$clsPotential->pkey},name,admin_id,phone,email,reg_date";
+	$lstPotential = $clsPotential->getAll("{$fieldtype}='{$fieldvalue}'", $field);
+	if(!empty($lstPotential)){
+		$smarty->assign('lstPotential', $lstPotential);
+		$html = '_error|||'.$core->build('open.valid.tpl');
+	}
+	// Return
+	echo $html; die();
+}
+function default_aj_get_name_client(){
+	global $core, $smarty, $dbconn, $clsISO, $clsConfiguration, $adminid;
+	$clsVS_Client = new VS_Client();
+	$clsPotential = new Potential();
+	$client_id = (int) Input::post('client_id',0);
+	/** Check exists */
+	$lstcheck = $clsPotential->getRow("is_trash=0 and client_id='{$client_id}' limit 0,1");
+	if(!empty($lstcheck)){
+		echo '_success|||Khách hàng này đã tồn tại: <a href="javascript:void(0);" class="ajOpenPotential link goLink" potential_id="'.$lstcheck['potential_id'].'">'.$lstcheck['name'].' >></a>';
+	} else {
+		if($clsVS_Client->countItem("id='{$client_id}'")==0){
+			echo '_notexists';
+		} else{
+			$name = $clsVS_Client->getName($client_id);
+			echo '_success|||'.$name;
+		}
+	}
+	die();
+}
+function default_aj_open_followups(){
+	global $core, $smarty, $dbconn, $clsISO, $clsConfiguration, $adminid;
+	$clsCrmFollowUp = new CrmFollowUp();
+	$smarty->assign('clsCrmFollowUp', $clsCrmFollowUp);
+	$clsVS_ServiceStatus = new VS_ServiceStatus();
+	$smarty->assign('clsVS_ServiceStatus', $clsVS_ServiceStatus);
+	/** Variable */
+	$tp = Input::post('tp');
+	$pval_id = (int) Input::post('pval_id',0);
+	$is_upsale = (int) Input::post('is_upsale',0);
+	$is_transfer = (int) Input::post('is_transfer',0);
+	//$resource_id = (int) Input::post('pval_id',0); //resource_id
+	$resource_id = (int) Input::post('resource_id',0); //resource_id
+	$project_id = (int) Input::post('project_id',0);
+	$mod_page = (string) Input::post('mod_page', "crm");
+	$act_page = (string) Input::post('act_page', "crm");
+	$crm_followup_id = (int) Input::post('crm_followup_id',0);
+	$info_service = Input::post('info_service');	
+	$smarty->assign('info_service', $info_service);
+	$info_domain = Input::post('info_domain');		
+	$smarty->assign('info_domain', $info_domain);
+	$info_identity = Input::post('info_identity');	
+	$smarty->assign('info_identity', $info_identity);
+	
+	$smarty->assign('tp', $tp);
+	$smarty->assign('pval_id', $pval_id);
+	$smarty->assign('is_upsale', $is_upsale);
+	$smarty->assign('is_transfer', $is_transfer);
+	$smarty->assign('resource_id', $resource_id);
+	$smarty->assign('mod_page', $mod_page);
+	$smarty->assign('act_page', $act_page);
+	$smarty->assign('project_id', $project_id);
+	$smarty->assign('crm_followup_id', $crm_followup_id);
+	
+	$holderG = 'add';
+	$smarty->assign('holderG', $holderG);
+	$titlePage = __('New FollowUps');
+	$smarty->assign('titlePage', $titlePage);
+	$htmlFormSelectAdmin = CRM::getSelectUserOptionsInCRM($adminid);
+	$smarty->assign('htmlFormSelectAdmin', $htmlFormSelectAdmin);
+	/* Return */ 
+	$html = $core->build('manage.followups.tpl');
+	echo $html; die();
+} 
+function default_aj_open_notes(){
+	global $core, $smarty, $dbconn, $clsISO, $clsConfiguration, $adminid;
+	$titlePage = __('New Notes');
+	$smarty->assign('titlePage', $titlePage);
+	$smarty->assign('_ICON_GENERAL', _ICON_GENERAL);
+	
+	$tp = Input::post('tp','potential');
+	$pval_id = (int) Input::post('pval_id',0);
+	$mod_page = Input::post('mod_page', 'crm');
+	$act_page = Input::post('act_page', 'crm');
+	$crm_note_id = (int) Input::post('crm_note_id',0);
+	$smarty->assign('tp', $tp);
+	$smarty->assign('pval_id', $pval_id);
+	$smarty->assign('crm_note_id', $crm_note_id);
+	
+	$form_notes = form_notes($pval_id, '_tablist', $tp, $mod_page, $act_page);
+	$smarty->assign('form_notes', $form_notes);
+	
+	// Return
+	$html = $core->build('manage.notes.tpl');
+	echo $html; die();
+}
+function default_aj_open_manage_followups(){
+	global $core, $smarty, $dbconn, $clsISO, $clsConfiguration, $adminid;
+	$titlePage = __('FollowUps');
+	$subTitlePage = __('FollowUps');
+	$smarty->assign('titlePage', $titlePage);
+	$smarty->assign('subTitlePage', $subTitlePage);
+	$smarty->assign('_ICON_GENERAL', _ICON_GENERAL);
+	
+	$holderG = 'manage';
+	$smarty->assign('holderG', $holderG);
+	
+	$tp = Input::post('tp','potential');
+	$pval_id = (int) Input::post('pval_id',0);
+	$resource_id = (int) Input::post('resource_id',0);
+	$project_id = (int) Input::post('project_id',0);
+	$mod_page = Input::post('mod_page','crm');
+	$act_page = Input::post('act_page','crm');
+	$name = Input::post('name');
+	$company = Input::post('company');
+	
+	$smarty->assign('tp', $tp);
+	$smarty->assign('pval_id', $pval_id);
+	$smarty->assign('resource_id', $resource_id);
+	$smarty->assign('project_id', $project_id);
+	$smarty->assign('mod_page', $mod_page);
+	$smarty->assign('act_page', $act_page);
+	$smarty->assign('name', $name);
+	$smarty->assign('company', $company);
+	// Return
+	$html = $core->build('manage.followups.tpl');
+	echo $html; die();
+}
+function default_ajLoadListFollowUpCRM(){
+	global $smarty,$core,$adminid,$clsISO,$clsUser,$clsConfiguration,$dbconn;
+	$clsVS_Admin = new VS_Admin();
+	$clsPotential = new Potential();
+	$clsCrmFollowUp = new CrmFollowUp();
+	$smarty->assign('clsUser', $clsUser);
+	$smarty->assign('clsCrmFollowUp', $clsCrmFollowUp);
+	
+	$holderG = Input::post("holderG",'potential');
+	//$_post_holderG = Input::post("holderG",'');
+	$resource_id = (int) Input::post('resource_id',0);
+	$service_id = (int) Input::post('service_id',0);
+	$project_id = (int) Input::post('project_id',0);
+	$sortby = Input::post('sortby','date_id');
+	$sorttype = Input::post('sorttype','desc');
+	$smarty->assign('props', $clsISO->make_attrs_builder(array(
+		'holderG' => $holderG,
+		'resource_id' => $resource_id
+	)));
+	/** Permission */
+	$permiss = $clsISO->checkPermission('full_permissions_crm') ? 1 : 0;
+	if($holderG=='potential' || 1){
+		$onePotential = $clsPotential->getOne($resource_id,'user_id,admin_id');
+		if(!$permiss) $permiss = (in_array($adminid,array($onePotential['user_id'],$onePotential['admin_id']))) ? 1 : 0;
+	}
+	/** End Permission */
+	$cond = "is_trash=0 and holderG='{$holderG}'";
+	if(!empty($resource_id))
+		$cond .= " and resource_id='{$resource_id}'";
+	elseif(!empty($service_id))
+		$cond .= " and service_id='{$service_id}'";
+	elseif(!empty($project_id))
+		$cond .= " and project_id='{$project_id}'";
+	/*if(!empty($_post_holderG)){
+		$cond .= " and holderG='{$_post_holderG}'";
+	}*/
+	$order_by = " order by {$sortby} {$sorttype}";
+	if(!$permiss){
+		if($core->_USER['user_group_id']==USER_GROUP_CARE){
+			if(1){//trưởng phòng:$core->_USER['admin_permiss_manage']
+				$lstCare = $dbconn->getCol("select {$clsVS_Admin->pkey} from {$clsVS_Admin->tbl} where is_trash=0 and is_active='1' and user_group_id=".USER_GROUP_CARE);
+				$cond .= " and (admin_id in (".implode(',',$lstCare).") or user_id in (".implode(',',$lstCare)."))";
+			}/*else{
+				$cond .= " and (t2.admin_id='{$adminid}' or t2.user_id='{$adminid}')";
+			}*/
+		}elseif($core->_USER['user_group_id']==USER_GROUP_SALE){
+			if($core->_USER['admin_permiss_manage']){//trưởng phòng:
+				$lstSale = $dbconn->getCol("select {$clsVS_Admin->pkey} from {$clsVS_Admin->tbl} where is_trash=0 and is_active='1' and user_group_id=".USER_GROUP_SALE);
+				$cond .= " and (admin_id in (".implode(',',$lstSale).") or user_id in (".implode(',',$lstSale)."))";
+			}else{
+				$cond .= " and (t2.admin_id='{$adminid}' or t2.user_id='{$adminid}')";
+			}
+		}else{
+			$cond .= " and admin_id='{$adminid}'";
+		}
+	}
+	if($holderG=='addon' || $holderG=='hosting'){
+		$order_by = " order by is_done asc,{$sortby} {$sorttype}";
+	}
+	//echo $cond;die;
+	$lstFollowUp = $clsCrmFollowUp->GetAll("{$cond}".$order_by);
+	$smarty->assign('holderG', 'list');
+	$smarty->assign('openFrom', $holderG);
+	$smarty->assign('resource_id', $resource_id);
+	$smarty->assign('lstFollowUp', $lstFollowUp); unset($lstFollowUp);
+	// output
+	$html = $core->build('manage.followups.tpl');
+	echo $html; die();
+}
+function default_aj_open_history_V1(){
+	global $core, $smarty, $dbconn, $clsISO, $clsConfiguration, $adminid;
+	$smarty->assign('clsVS_Invoice', new VS_Invoice());
+	$smarty->assign('clsVS_Client', new VS_Client());
+	$pval_id = (int) Input::post('pval_id',0);
+	$client_id = (int) Input::post('client_id',0);
+	$openFrom = Input::post('openFrom', '_tacrm');
+	$smarty->assign('pval_id', $pval_id);
+	$smarty->assign('client_id', $client_id);
+	$smarty->assign('openFrom', $openFrom);
+	$smarty->assign('_ICON_GENERAL', _ICON_GENERAL);
+	
+	$config = array(
+		'action'	=> 'GetInvoices',
+		'username'	=> _WHMCS_API_KEY,
+		'password'	=> _WHMCS_API_SECRET,
+		'userid'	=> $client_id,
+		'order'		=> 'desc',
+		'orderby'	=> 'date',
+		'responsetype'	=> 'json'
+	);
+	$totalresults = 0;
+	$results = array();
+	$curl = new Curl();
+	$curl->post(_WHMCS_API_URL, $config);
+	if(!$curl->error){
+		$response = toArray($curl->response);
+		if(isset($response['result']) && $response['result']=='success'){
+			$totalresults = $response['totalresults'];
+			if((int) $response['totalresults'] > 0){
+				$results = $response['invoices']['invoice'];
+			}
+		}
+	}
+	$smarty->assign('lstInvoice', $results);
+	// Return
+	$html = $core->build('open.historyV1.tpl');
+	echo $html; die();
+}
+function default_aj_open_history(){
+	global $core, $smarty, $dbconn, $clsISO, $clsConfiguration, $adminid;
+	//ini_set('display_errors',1);
+	$clsVS_Money = new VS_Money();
+	$clsVS_Client = new VS_Client();
+	$smarty->assign('clsVS_Money',$clsVS_Money);
+	$smarty->assign('clsVS_Client',$clsVS_Client);
+	#
+	$client_id = (int) Input::post('client_id',0);
+	$smarty->assign('client_id', $client_id);
+	#
+	$cond = "`is_trash`=0 and `gr`='THUCTHU' and `is_done`=1 and `client_id`={$client_id}";
+	$list_payments = $clsVS_Money->getAll($cond." order by reg_date DESC");
+	$smarty->assign('list_payments', $list_payments);
+	/* $smarty->assign('props', $clsISO->make_attrs_builder(array(
+		'client_id' => $client_id
+	))); */
+	// Return
+	$html = $core->build('open.history.tpl');
+	echo $html; die();
+}
+function default_js_service_status(){
+	global $core, $smarty, $dbconn, $clsISO, $clsConfiguration, $adminid;
+	$clsVS_ServiceStatus = new VS_ServiceStatus();
+	
+	$msg = '_error';
+	$tp = Input::post('tp');
+	$pval_id = (int) Input::post('pval_id',0);
+	$crm_followup_id = Input::post('crm_followup_id',0);
+	$status = Input::post('status');
+	
+	$lstcheck = $clsVS_ServiceStatus->getAll("tp='{$tp}' and pval_id='{$pval_id}' and status='{$status}'");
+	if(!empty($lstcheck)){
+		if($clsVS_ServiceStatus->deleteOne($lstcheck[0][$clsVS_ServiceStatus->pkey])){
+			$msg = '_success|||';
+		}
+	} else{
+		if($clsVS_ServiceStatus->insert(array(
+			'id'	=> $clsVS_ServiceStatus->getMaxId(),
+			'tp'	=> $tp,
+			'pval_id' => $pval_id,
+			'status' => $status,
+			'crm_followup_id' => $crm_followup_id,
+			'user_id' => $adminid,
+			'reg_date'	=> time()
+		))){
+			$anchorText = ($status=='upsale'?__('Upsales'):__('TransferAccountant'));
+			$htmlLink = '<a href="javascript:void(0);" class="aj_open-followup text-red" holderg="'.$tp.'" resource_id="'.$pval_id.'" crm_followup_id="'.$crm_followup_id.'">'.$anchorText.'</a>';
+			$msg = '_success|||'.$htmlLink;
+		}
+	}
+	// Return
+	echo $msg; die();
+}
+function default_aj_get_service_detail(){
+	global $core, $dbconn, $whmcs_db, $smarty, $dbconn;
+	$clsVS_Addon = new VS_Addon();
+	$clsVS_Client = new VS_Client();
+	$clsVS_ServiceStatus = new VS_ServiceStatus();
+	$smarty->assign('clsVS_Addon', $clsVS_Addon);
+	$smarty->assign('clsVS_Client', $clsVS_Client);
+	$smarty->assign('clsVS_Invoice', new VS_Invoice());
+	$smarty->assign('clsVS_Product', new VS_Product());
+	$smarty->assign('clsVS_ProductGroup', new VS_ProductGroup());
+	$smarty->assign('clsVS_ServiceStatus', $clsVS_ServiceStatus);
+	
+	$tp = Input::post('tp');
+	$id = (int) Input::post('id',0);
+	$orderid = (int) Input::post('orderid',0);
+	$clientid = (int) Input::post('clientid',0);
+	$potential_id = (int) Input::post('potential_id',0);
+	
+	$form_notes = form_notes($id, '_tablist', $tp);
+	$smarty->assign('form_notes', $form_notes);
+	
+	if($tp=='addon'){
+		$field = "t1.`id`,t1.`addonid`,t1.`regdate`,t1.`nextduedate`,t1.`status`,t1.`setupfee`,t1.`recurring`
+		,t1.`billingcycle`,t2.`userid`,t2.orderid,t2.`domain`,t1.`paymentmethod`";
+		$sql = "select {$field} from tblhostingaddons as t1 
+		inner join tblhosting as t2 on t2.`id`=t1.`hostingid` 
+		where t1.`id`='{$id}'";
+	} else if($tp=='hosting'){
+		$field = "t2.`id`,t2.`regdate`,t2.`nextduedate`,t2.`domainstatus` as `status`,t2.`firstpaymentamount`";
+		$field.= ",t2.`amount`,t2.`billingcycle`,t2.`userid`,t2.`orderid`,t2.`domain`,t1.`paymentmethod`,t2.`packageid`";
+		$sql = "select {$field} from tblhosting as t2 
+		inner join tblorders as t1 on t1.id=t2.orderid 
+		where t2.`id`='{$id}'";
+	}
+	$oneItem = $whmcs_db->getRow($sql);
+	$smarty->assign('tp', $tp);
+	$smarty->assign('id', $id);
+	$smarty->assign('orderid', $orderid);
+	$smarty->assign('clientid', $clientid);
+	$smarty->assign('potential_id', $potential_id);
+	$smarty->assign('oneItem', $oneItem);
+	$smarty->assign('_ICON_GENERAL', _ICON_GENERAL);
+	// Return
+	$html = $core->build('detail.service.tpl');
+	echo $html; die();
+}
+?>

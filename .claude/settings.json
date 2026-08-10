@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"g:\\\\Projects\\\\ca.futurehomes.vn\\\\application\\\\views\\\\crm\\\\\" -Recurse -File | Select-Object FullName | Format-Table -AutoSize)",
+      "Bash(Get-ChildItem -Path \"g:\\\\Projects\\\\ca.futurehomes.vn\\\\application\\\\models\\\\\" -Recurse -Filter \"*.php\" | Select-Object -ExpandProperty FullName)"
+    ]
+  }
+}

@@ -1,0 +1,191 @@
+$list_docs = $clsClassTable->getAll("is_sync='1'");
+	if(!empty($list_docs)){
+		/** Load API */
+		require DIR_INCLUDES . '/googleapiclient/vendor/autoload.php';
+		/** Init Client */
+		$client = new Google_Client();
+		$client->setClientId(GOOGLE_CLIENT_ID);
+		$client->setClientSecret(GOOGLE_CLIENT_SECRET);
+		$client->refreshToken(GOOGLE_DRIVE_REFRESH_TOKEN);
+		$client->setScopes(Google_Service_Drive::DRIVE);
+		$service = new Google_Service_Drive($client);
+		###
+		foreach($list_docs as $val){
+			$content = $val['content'];
+			$more_information = $val['more_information'];
+			$more_information = !empty($more_information) 
+				? json_decode(html_entity_decode($more_information), true) : array();
+			if(!empty($content)){
+				if($clsISO->checkContainer($content,"drive.google.com","")){
+					if(@preg_match('/folders/', $content)){
+						@preg_match('/.*[^-\w]([-\w]{25,})[^-\w]?.*/', $content, $matches);
+						$folder_id = $matches[1];
+						$list_files = @get_files($service, $folder_id);
+						if(!empty($list_files)){
+							$gg_id = "";
+							foreach($list_files as $okey => $oval){
+								$gg_id = $okey;
+								break;
+							}
+							if($gg_id){
+								$file = sprintf('https://drive.google.com/file/d/%s/view', $gg_id);
+								$more_information['gg_id'] = $gg_id;
+								$more_information['type'] = 'google.file';
+								$more_information['image'] = $file;
+							}
+						}
+					} else if(preg_match('/file/', $content)){
+						preg_match('~/d/\K[^/]+(?=/)~', $content, $matches);
+						$gg_id = $matches[0];
+						$more_information['gg_id'] = $gg_id;
+						$more_information['type'] = 'google.file';
+						$more_information['image'] = $content;
+					}
+				} else if(preg_match('/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+$/', $content)){
+					preg_match("/^(?:http(?:s)?:\/\/)?(?:www\.)?(?:m\.)?(?:youtu\.be\/|youtube\.com\/(?:(?:watch)?\?(?:.*&)?v(?:i)?=|(?:embed|v|vi|user)\/))([^\?&\"'>]+)/", $content, $matches);
+					$youtu_id = $matches[1];
+					$more_information['youtu_id'] = $youtu_id;
+					$more_information['type'] = 'youtu.be';
+					$more_information['image'] = sprintf('https://i.ytimg.com/vi_webp/%s/maxresdefault.webp', $youtu_id);
+				} else if($clsISO->checkContainer($content,"docs.google.com","")){
+					preg_match('~/d/\K[^/]+(?=/)~', $content, $matches);
+					$docs_id = $matches[0];
+					$more_information['docs_id'] = $docs_id;
+					$more_information['type'] = 'docs.google.com';
+					$more_information['image'] = sprintf('https://drive.fife.usercontent.google.com/u/1/d/%s=w320-h250-p-k-rw-v1-nu-iv125', $docs_id);
+				} else {
+					$more_information['type'] = 'user.fh';
+					$more_information['image'] = $content;
+				}
+				// $clsISO->print_pre($more_information); die();
+				$clsClassTable->updateOne($val[$clsClassTable->pkey], array(
+					'is_sync' => 0,
+					'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE)
+				));
+			}
+		}
+	}
+	$clsISO->print_pre($list_docs); die();
+	
+	
+	
+	
+	
+	$error = 0;
+	$success = 0;
+	$data_log = [];		
+	if(!empty($list_stocks)){
+		$arr_cache_project = $arr_cache = array();
+		foreach($list_stocks as $key => $val){
+			$more_information = $clsISO->to_array_json($val['more_information']);
+			if(!isset($arr_cache[$val['block_id']])) {
+				$arr_cache[$val['block_id']] = $clsProperty->getTitle($val['block_id']);
+			}
+			if(!isset($arr_cache[$val['building_id']])) {
+				$arr_cache[$val['building_id']] = $clsProperty->getTitle($val['building_id']);
+			}
+			
+			$building_name = $arr_cache[$val['building_id']];
+			$block_name = $arr_cache[$val['block_id']];
+			if(!isset($arr_cache_project[$val['project_id']])) {
+				$arr_cache_project[$val['project_id']] = $clsProject->getTitle($val['project_id']);
+			}
+			$project_name = $arr_cache_project[$val['project_id']];
+			$title = "Bán căn hộ ".$val['ms_code']." tòa ".$building_name.", ".$block_name.", ".$project_name;
+			if($val['project_id'] == _PROJECT_DEF_ID) {
+				$address = " Tòa ".$building_name.", ".$block_name.", ".$project_name.", Gia Lâm, Hà Nội";
+				$city = "Hà Nội";
+				$district = "Gia Lâm";
+				$ward = (!empty($lstBlock[$val['block_id']]["ward"])) ? $lstBlock[$val['block_id']]["ward"] : "Đa Tốn";
+				$street = (!empty($lstBlock[$val['block_id']]["street"])) ? $lstBlock[$val['block_id']]["street"] : "Đa Tốn";
+			}else if($val['project_id'] == _PROJECT_VHOP2_ID) {
+				$address = " Tòa ".$building_name.", ".$block_name.", ".$project_name.", Văn Giang, Hưng Yên";
+				$city = "Hưng Yên";
+				$district = "Văn Giang";
+				$ward = (!empty($lstBlock[$val['block_id']]["ward"])) ? $lstBlock[$val['block_id']]["ward"] : "Nghĩa Trụ";
+				$street = (!empty($lstBlock[$val['block_id']]["street"])) ? $lstBlock[$val['block_id']]["street"] : "Nghĩa Trụ";
+			}else if($val['project_id'] == _PROJECT_VHGG_ID) {
+				$address = " Tòa ".$building_name.", ".$block_name.", ".$project_name.", Đông Anh, Hà Nội";
+				$city = "Hà Nội";
+				$district = "Đông Anh";
+				$ward = (!empty($lstBlock[$val['block_id']]["ward"])) ? $lstBlock[$val['block_id']]["ward"] : "Đông Hội";
+				$street = (!empty($lstBlock[$val['block_id']]["street"])) ? $lstBlock[$val['block_id']]["street"] : "Đông Hội";
+			}
+			
+			$information_bedroom = (isset($lstBedroom[$val["bedroom_id"]])) ? $lstBedroom[$val["bedroom_id"]]["more_information"] : array();
+			$stock_posters = !empty($more_information['stock_poster']) ? $more_information['stock_poster'] : array();
+			$arr_image = array();
+			if(!empty($stock_posters)){
+				foreach($stock_posters as $nkey => $nval){
+					$arr_image[] = $clsISO->getGoogleUrl($nval['image']);
+				}
+			}
+			$data = array(
+				"phoneNumber"			=>	"0382222286",
+				"agentName"				=>	"Future Homes",
+				"status"				=>	"Listed",
+				"listPrice"				=>	$val["total_price_vat"],
+				"title"					=>	$title,
+				"description"			=>	"",
+				"bedroomCount"			=>	!empty($arr_bedroom[$val["bedroom_id"]]) ? $arr_bedroom[$val["bedroom_id"]] : "",
+				"bathroomCount"			=>	!empty($information_bedroom['bathroom'])? $information_bedroom['bathroom'] : "N/A",
+				"balconyDirection"		=>	isset($arr_direction[$val['home_direction_id']]) ? $arr_direction[$val['home_direction_id']] : "N/A",
+				"furnishedStatus"		=>	"N/A",
+				"handoverStatus"		=>	!empty($more_information["TCBG"]) ? $more_information["TCBG"] : "N/A",
+				"paperWorkStatus"		=>	"N/A",
+				"images"				=>	implode(",",$arr_image),
+				"projectName"			=>	$project_name,
+				"unitType"				=>	"Căn hộ",
+				"mainEntranceDirection"	=>	"N/A",
+				"usableArea"			=>	(float)(str_replace(",",".",$more_information["DT_TT"])),
+				"unitCode"				=>	$val["ms_code"],
+				"floor"					=>	$val["floor"],
+				"publishedDate"			=>	date("Y-m-d\TH:i:s.v\Z"),
+				"address"				=>	$address,
+				"city"					=>	$city,
+				"district"				=>	$district,
+				"ward"					=>	$ward,
+				"street"				=>	$street,
+				"tower"					=>	$building_name,
+				"projectStreetName"		=>	"",
+				"extraInfo"				=>	"",
+			);				
+			
+//		$clsISO->print_pre($data);die;
+			// Return
+	//		$curl->post('https://data.housenow.com.vn/api/listings',$data);
+			$curl->post('https://data-staging.housenow.com.vn/api/listings',$data);
+//				$clsISO->print_pre($curl);die;
+			if(!$curl->error){
+				$data_log_success[] = $data;	
+				++$success;
+			}else{
+				$data_log_error[] = $data; 
+				++$error;
+			}
+			unset($title,$building_name,$block_name,$project_name,$more_information);
+		}
+		
+		
+		if($clsAPILog->insert(array(
+			"id" => $clsAPILog->getMaxID(),
+			"user_id" => $user_id,
+			"more_information" => json_encode(array(
+				"success"	=>	$data_log_success,
+				"error"	=>	$data_log_error,
+			)),
+			"to_api" => "HouseNow",
+			"reg_date" => time(),
+		))) {
+			$response = [
+				"result"	=>	true,
+				"success"	=>	$success,
+				"error"	=>	$error,
+				"msg"		=>	"Đồng bộ thành công: ".$success.". Không thành công: ".$error
+			];
+		}
+
+	}
+
+	
+	echo json_encode($response,JSON_UNESCAPED_UNICODE);die;

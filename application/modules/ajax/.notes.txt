@@ -1,0 +1,128 @@
+$stock_id 	 = $oneStock['stock_id'];
+$project_id  = (int) $oneStock['project_id'];
+$block_id 	 = (int) $oneStock['block_id'];
+$building_id = (int) $oneStock['building_id'];
+$status_id 	 = (int) $oneStock['status_id'];
+$more_information = $oneStock['more_information'];
+$more_information = !empty($more_information) 
+	? json_decode(html_entity_decode($more_information), true) 
+	: array();
+$price_sheets = isset($more_information['price_sheets']) && !empty($more_information['price_sheets']) 
+	? $more_information['price_sheets'] : array();
+$html_image_price_sheets = "";
+if(!empty($price_sheets)){
+	$price_sheets = array_reverse($price_sheets);
+	$oneSheet = reset($price_sheets);
+	$html_image_price_sheets = '<tr>
+		<td>P.Tính giá <span class="label bg-success">IMG</span></td>
+		<td><ul class="pl-3 mb-0">';
+		foreach($oneSheet['sheets'] as $val){
+			$html_image_price_sheets.= '<li><a href="'.$val['image'].'" download>'.$val['title'].'</a></li>';
+		}
+		$html_image_price_sheets .= '</ul></td>
+	</tr>';
+} 
+#--- CSBH
+$html_price_sheets = "";
+if($clsProperty->getOneField('parent_id', $block_id) == _BLOCK_TYPE_LOWFLOOR_SALE){
+	$regex = sprintf('%s_%s', $project_id, $block_id);
+} else {
+	$regex = sprintf('%s_%s_%s', $project_id, $block_id, $building_id);
+}
+$onePolicy = $clsPolicy->getByCond("`ms_date`<='".time()."' and `scope_slash` like '%|{$regex}|%' 
+order by ms_date DESC limit 0,1");
+if(!empty($onePolicy)){
+	$html_price_sheets = '<tr>
+		<th>CS Bán Hàng</th>
+		<td><a target="_blank" href="'.$onePolicy['link_ns'].'">'.$clsISO->makeIcon('bx-link-external','Mở link').'</a></td>
+	</tr>
+	<tr>
+		<th>P.Tính giá</th>
+		<td><a target="_blank" href="'.$onePolicy['link_ms'].'">'.$clsISO->makeIcon('bx-link-external','Mở link').'</a></td>
+	</tr>';
+}
+$agency_name = "";
+if($oneStock['agency_id'] > 0){
+	if($clsISO->checkSupper()){
+		$oneProperty = $clsProperty->getOne($oneStock['agency_id'], "property_code,title");
+		$agency_name = sprintf(' - %s', $oneProperty['title']);
+	}
+}
+#- Status
+$oneStatus = array('bgcolor'=>'#FFF', 'textcolor' => '#566a7f');
+if($status_id > 0){
+	$oneStatus= $clsProperty->getOne($status_id,"title,bgcolor,textcolor");
+	$status_name= $clsProperty->getTitle($status_id, $oneStatus);
+} else{
+	$status_name = "Đã bán";
+	$oneStatus= $clsProperty->getOne(_STOCK_STATUS_SOLD_ID,"bgcolor,textcolor");
+}
+$html_last_updated = "";
+if($oneStock['upd_date'] > 0){
+	$html_last_updated .= "<tr>
+		<th>Cập nhật L.cuối</th>
+		<td class=\"text-primary fs-13\">".$clsISO->convertTimeToText($oneStock['upd_date'], true)."</td>
+	</tr>";
+}
+$liked = $clsProfile->checkInWishlist($stock_id);
+$html = '<div class="modal-dialog modal-ipad-xl">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h5 class="modal-title" id="modalTopTitle">
+				Thông tin '.$ms_code.'
+			</h5>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<div class="modal-body">
+			<div class="table-wrapper">
+				<table class="table table-tooltip table-bordered">
+					<tr>
+						<th width="35%" class="bg-lighter">Mã căn</th>
+						<td>'.$oneStock['ms_code'].' <a onClick="$Core.helper.toggle_wishlist(this,event)" stock_id="'.$stock_id.'" class="btn btn-sm'.($liked?' saved':'').' btn-default p-1">'.$clsISO->makeIcon('bx-heart fs-11').'</a></td>
+					</tr>
+					<tr>
+						<th class="bg-lighter">DT_TIM(m2)</th>
+						<td>'.$more_information['DT_Tim'].'</td>
+					</tr>
+					<tr>
+						<th class="bg-lighter">DT_TT(m2)</th>
+						<td>'.$more_information['DT_TT'].'</td>
+					</tr>
+					<tr>
+						<th class="bg-lighter">Loại căn</th>
+						<td>'.$clsProperty->getTitle($oneStock['bedroom_id']).'</td>
+					</tr>
+					<tr>
+						<th class="bg-lighter fs-12">Loại hình</th>
+						<td>'.$clsProperty->getLoaiHinh($oneStock['type_id']).'</td>
+					</tr>
+					<tr>
+						<th class="bg-lighter">Hướng BC</th>
+						<td>'.$clsProperty->getTitle($oneStock['home_direction_id']).'</td>
+					</tr>
+					<!-- <tr>
+						<th class="bg-lighter">View</th>
+						<td>'.$clsProperty->getTitle($oneStock['view_id']).'</td>
+					</tr> -->
+					<tr>
+						<th class="bg-lighter">Giá FULL VAT</th>
+						<td>'.$clsISO->priceFormat($clsISO->processSmartNumber($more_information['total_price_vat'])).'đ</td>
+					</tr>
+					<tr>
+						<th class="bg-lighter">Tình trạng</th>
+						<td class="fs-13" style="background:'.$oneStatus['bgcolor'].'; color:'.$oneStatus['textcolor'].'">'.$status_name.$agency_name.'</td>
+					</tr>
+					'.$html_image_price_sheets.'
+					'.$html_price_sheets.'
+					'.$html_last_updated.'
+				</table>
+			</div>
+		</div>
+		'.($clsISO->checkPermissStock()?'<div class="modal-footer">
+			<button stock_id="'.$stock_id.'" tp="sheet_price" onClick="$Core.helper.open_quick_stock(this,event)" 
+			class="btn btn-outline-default" type="button">'.$core->makeIcon('plus', 'Thêm PTG').'</button>
+			<button stock_id="'.$stock_id.'" tp="update_status" class="btn btn-outline-primary" onClick="$Core.helper.open_quick_stock(this,event)"  type="button">'.$core->makeIcon('check', 'Cập nhật tình trạng').'</button>
+		</div>':'').'
+	</div>
+</div>';
+}

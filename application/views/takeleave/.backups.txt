@@ -1,0 +1,13 @@
+$_document.on('change','input[name=number_day_paid_leave_this_year],input[name=number_day_paid_leave_last_year]',function(e){
+					e.stopImmediatePropagation();
+					var $_closest = $(this).closest('.modal'),
+						number_day_paid_leave_this_year = $('input[name=number_day_paid_leave_this_year][takeleave_id='+takeleave_id+']').val(),
+						number_day_paid_leave_last_year = $('input[name=number_day_paid_leave_last_year][takeleave_id='+takeleave_id+']').val();
+						
+					var total_paid_leave = Number(number_day_paid_leave_this_year) + Number(number_day_paid_leave_last_year);
+					if(total_paid_leave<2){
+						$_closest.find('.alert_total_paid_leave[takeleave_id='+takeleave_id+']').addClass('hide');
+					}else{
+						$_closest.find('.alert_total_paid_leave[takeleave_id='+takeleave_id+']').removeClass('hide');
+					}
+				});

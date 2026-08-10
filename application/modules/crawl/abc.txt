@@ -1,0 +1,46 @@
+$lstLog = $clsLogCrawl->getAll("`stock_type`='"._BLOCK_TYPE_LOWFLOOR_SALE."'");
+	foreach ($lstLog as $key => $val) {
+		$description = $clsISO->to_array_json($val['description']);
+		$logs = !empty($description['logs'][2]) ? $description['logs'][2] : array();
+		if(!empty($logs)) {
+			foreach ($logs as $k => $log) {
+				if($log["user_id"] == 289) {
+					unset($logs[$k]);
+				}
+			}
+			$description["logs"][2] = $logs;
+			
+		}
+		$clsLogCrawl->setDeBug(1);
+		$clsLogCrawl->updateOne($val[$clsLogCrawl->pkey],["description" => json_encode($description)]);
+		echo $val["agency_id"];
+		
+	}
+	
+	$lstLog = $clsLogCrawl->getAll("`stock_type`='"._BLOCK_TYPE_HIGHLEVEL_SALE."' AND `agency_id` > 0");
+	foreach ($lstLog as $key => $val) {
+		$description = $clsISO->to_array_json($val['description']);
+		$lstLogs = $description["logs"];
+		foreach ($lstLogs as $k => $v) {
+			$logs = !empty($v) ? $v : array();
+			if(!empty($logs)) {
+				foreach ($logs as $k_log => $log) {
+					if($log["user_id"] == "289" || $log["user_id"] == "0") {
+						unset($logs[$k_log]);
+					}
+				}
+			}
+			if(!empty($logs)) {
+				$lstLogs[$k] = $logs;	
+			}else{
+				unset($lstLogs[$k]);
+			}
+		}
+		$description["logs"] = $lstLogs;
+		
+		
+		$clsLogCrawl->setDeBug(1);
+		$clsLogCrawl->updateOne($val[$clsLogCrawl->pkey],["description" => json_encode($description)]);
+//		echo $val["agency_id"];die;
+		
+	}die;

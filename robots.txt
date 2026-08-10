@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /isocms/
+Disallow: /admin/
+Disallow: /cache/
+Disallow: /tmp/
+Disallow: /logs/
+Disallow: /cgi-bin/
+Sitemap: http://www.ezcoffee.vn/sitemap.xml

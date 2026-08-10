@@ -1,0 +1,22 @@
+{
+  "magic": 1111,
+  "conn_errno": 0,
+  "results": [
+    {
+      "errno": 0,
+      "affected_rows": 1,
+      "insert_id": 0,
+      "num_fields": 1,
+      "num_rows": 1,
+      "columns": [
+        "more_information"
+      ],
+      "rows": [
+        [
+          "{\"tiktok\":\"\",\"facebook\":\"\",\"agent_id\":0,\"action_logs\":{\"6a2f613e84c16406277969\":{\"user_id\":\"1157\",\"reg_date\":1781489982,\"content\":\"<strong>Nguyễn Thị Thanh  Hiền <\\/strong> đã tạo mới khách hàng\"}},\"logs\":{\"6a2fa2ad8b715161054918\":{\"_type\":\"assign\",\"to_id\":1299,\"from_id\":\"1157\",\"status_id\":\"291\",\"reg_date\":1781506733}}}"
+        ]
+      ],
+      "_sep": 0
+    }
+  ]
+}

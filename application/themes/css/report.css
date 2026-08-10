@@ -1,0 +1,202 @@
+ul.list>li {
+	float: left;
+	display: inline-block;
+	padding: 0px 2px
+}
+ul.list>li>a {
+	color: #333;
+	display: block;
+	padding: 5px 8px;
+	background: #EEE;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px
+}
+ul.list>li>a.active {
+	color:rgb(255,255,255);
+	background: rgb(159,34,58);
+}
+.table-kanban{
+	overflow: hidden;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	background: rgb(159,34,58);
+}
+.table-kanban .stage-lbl {
+	color: #fff;
+	line-height: 40px;
+	background-color: rgb(159,34,58)
+}
+.table-kanban .pipeline-arrow {
+	width: 0;
+	height: 0;
+	border-top: 20px solid transparent;
+	border-bottom: 20px solid transparent;
+	border-left: 20px solid #fff;
+	float: left
+}
+.table-kanban .arrow-inner {
+	width: 0;
+	height: 0;
+	border-top: 19px solid transparent;
+	border-bottom: 19px solid transparent;
+	border-left: 19px solid rgb(159,34,58);
+	margin-top: -19px;
+	margin-left: -24px
+}
+.table-kanban .stage-off {
+	background-color: #aaa;
+	color: #fff
+}
+.table-kanban>thead>tr>th {
+	padding: 0
+}
+.table-kanban>tbody>tr>td {
+	background:#FFF;
+	padding: 10px
+}
+.table-kanban td.bordered {
+	border: 1px solid #DDD;
+	min-height: 30px
+}
+.table-kanban td.bordered-left {
+	border-left: 1px solid #DDD;
+	min-height: 30px
+}
+.table-kanban td.bordered-right {
+	border-right: 1px solid #DDD;
+	min-height: 30px
+}
+.pentagon {
+	display: inline-block;
+	padding: 6px;
+	background: #75d000;
+	position: relative;
+	font-size: 16px;
+	color: #FFF;
+	z-index: 999;
+	position: absolute;
+	top: 2px; right: -5%
+}
+.pentagon:before {
+	position: absolute;
+	content: "";
+	top: 0; right: -18px;
+	border-left: 18px solid #75d000;
+	border-top: 18px solid transparent;
+	border-bottom: 18px solid transparent
+}
+.chartContainer {
+	border: 1px dotted #DDD;
+	padding: 0px;
+	width: 100%
+}
+/**/
+.box_item_statistic {
+    color: #FFF;
+    padding: 10px;
+    min-height: 80px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    position: relative;
+}
+.title_statistic {
+    font-size: 20px;
+}
+.number_total {
+    font-size: 30px;
+}
+/**/
+.tab_package>li>label {
+    color: #333;
+    display: block;
+    padding: 5px 8px;
+    background: #EEE;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+}
+.tab_package>li>input:checked ~ label {
+    color: rgb(255, 255, 255);
+    background: rgb(159, 34, 58);
+}
+.tab_package>li{
+    position:relative
+}
+.tab_package>li>input{
+    position:absolute;
+    opacity:0
+}
+.pagination_ajax ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+	margin: 0;
+	flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+}
+.no-shadow{
+	box-shadow:0 0 0
+}
+.simple-calendar .badge {
+    background-color: #f3565d;
+    float: left;
+    min-width: 18px;
+}
+.progress_quantity {
+    background: #c9f3fc;
+}
+.progress_amount {
+    background: #fff3d9;
+}
+
+/* ============================================================
+   Tổng quan Check-in (act=report_checkin) — Modal "Timeline Check-in"
+   (hành trình 1 nhân sự). Scope dưới .pj-modal, không ảnh hưởng page report khác.
+   ============================================================ */
+.pj-modal{border-radius:16px;overflow:hidden}
+.pj-modal .pj-top{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--sky-primary);color:#fff}
+.pj-modal .pj-back{width:34px;height:34px;border:0;border-radius:9px;background:rgba(255,255,255,.18);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;font-size:22px;line-height:1}
+.pj-modal .pj-back:hover{background:rgba(255,255,255,.32)}
+.pj-modal .pj-top-tt{flex:1 1 auto;min-width:0}
+.pj-modal .pj-top-t{font-size:16px;font-weight:700;line-height:1.2}
+.pj-modal .pj-top-s{font-size:12.5px;color:rgba(255,255,255,.85)}
+.pj-modal .pj-scroll{max-height:calc(100vh - 170px);overflow-y:auto;background:#fff}
+.pj-modal .pj-profile{display:flex;align-items:center;gap:12px;padding:14px 16px 10px}
+.pj-modal .pj-av{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:0 0 auto;background:#f1f3f6}
+.pj-modal .pj-nm{font-size:16px;font-weight:700;color:#0f172a}
+.pj-modal .pj-role{font-size:13px;color:#64748b}
+.pj-modal .pj-dept{font-size:12px;color:#94a3b8}
+.pj-modal .pj-datebar{display:flex;align-items:center;gap:8px;padding:0 16px 12px}
+.pj-modal .pj-nav{width:32px;height:32px;border:1px solid #e6eaf0;background:#fff;border-radius:8px;color:#0f172a;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;font-size:18px}
+.pj-modal .pj-nav:disabled{opacity:.4;cursor:default}
+.pj-modal .pj-date{flex:1 1 auto;text-align:center;font-size:13px;font-weight:700;color:#9f223a;background:#fdecec;border-radius:8px;padding:8px}
+.pj-modal .pj-ov{margin:0 16px 14px;padding:14px;background:#f7f8fa;border-radius:14px}
+.pj-modal .pj-ovh{font-size:13px;font-weight:700;color:#0f172a;margin-bottom:10px}
+.pj-modal .pj-stats{display:flex;gap:8px}
+.pj-modal .pj-stat{flex:1 1 0;min-width:0;background:#fff;border:1px solid #eef1f5;border-radius:10px;padding:12px 6px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px}
+.pj-modal .pj-sic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.pj-modal .pj-stat b{font-size:20px;font-weight:800;color:#0f172a;line-height:1}
+.pj-modal .pj-statl{font-size:11px;color:#64748b}
+.pj-modal .pj-tlh{font-size:15px;font-weight:800;color:#0f172a;padding:0 16px 10px}
+.pj-modal .pj-timeline{padding:0 16px 4px}
+.pj-modal .pj-item{display:flex;gap:10px;position:relative;padding-bottom:16px}
+.pj-modal .pj-item::before{content:"";position:absolute;left:47px;top:20px;bottom:-2px;width:2px;background:#e6eaf0}
+.pj-modal .pj-item:last-child::before{display:none}
+.pj-modal .pj-side{width:52px;flex:0 0 auto;text-align:right;position:relative;padding-top:1px;padding-right:14px}
+.pj-modal .pj-time{font-size:12px;font-weight:700;color:#0f172a}
+.pj-modal .pj-dot{position:absolute;right:-6px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1.5px #e6eaf0}
+.pj-modal .pj-card{flex:1 1 auto;min-width:0;background:#fff;border:1px solid #eef1f5;border-radius:12px;padding:10px;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+.pj-modal .pj-cardtop{display:flex;align-items:flex-start;gap:8px}
+.pj-modal .pj-cardmain{flex:1 1 auto;min-width:0}
+.pj-modal .pj-place{font-size:13.5px;font-weight:700;color:#0f172a;word-break:break-word}
+.pj-modal .pj-tags{margin-top:5px;display:flex;flex-wrap:wrap;gap:4px}
+.pj-modal .pj-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+.pj-modal .pj-photo{flex:0 0 auto;width:80px;height:90px;border-radius:8px;object-fit:cover;cursor:pointer;background:#f1f3f6}
+.pj-modal .pj-note{font-size:12.5px;color:#0f172a;margin-top:8px;line-height:1.45}
+.pj-modal .pj-addr{font-size:11.5px;color:#94a3b8;margin-top:6px}
+.pj-modal .pj-foot{display:flex;align-items:center;gap:6px;justify-content:center;font-size:11.5px;color:#d97706;background:#fff5e8;margin:6px 16px 16px;padding:9px;border-radius:8px}

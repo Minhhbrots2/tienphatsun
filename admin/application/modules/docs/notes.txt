@@ -1,0 +1,160 @@
+$list_docs = $clsClassTable->getAll("is_sync='1'");
+if(!empty($list_docs)){
+	/** Load API */
+	require DIR_INCLUDES . '/googleapiclient/vendor/autoload.php';
+	/** Init Client */
+	$client = new Google_Client();
+	$client->setClientId(GOOGLE_CLIENT_ID);
+	$client->setClientSecret(GOOGLE_CLIENT_SECRET);
+	$client->refreshToken(GOOGLE_DRIVE_REFRESH_TOKEN);
+	$client->setScopes(Google_Service_Drive::DRIVE);
+	$service = new Google_Service_Drive($client);
+	###
+	foreach($list_docs as $val){
+		$content = $val['content'];
+		$more_information = $val['more_information'];
+		$more_information = !empty($more_information) 
+			? json_decode(html_entity_decode($more_information), true) : array();
+		if(!empty($content)){
+			if($clsISO->checkContainer($content,"drive.google.com","")){
+				if(@preg_match('/folders/', $content)){
+					@preg_match('/.*[^-\w]([-\w]{25,})[^-\w]?.*/', $content, $matches);
+					$folder_id = $matches[1];
+					$list_files = @get_files($service, $folder_id);
+					if(!empty($list_files)){
+						$gg_id = "";
+						foreach($list_files as $okey => $oval){
+							$gg_id = $okey;
+							break;
+						}
+						if($gg_id){
+							$file = sprintf('https://drive.google.com/file/d/%s/view', $gg_id);
+							$more_information['gg_id'] = $gg_id;
+							$more_information['type'] = 'google.file';
+							$more_information['image'] = $file;
+						}
+					}
+				} else if(preg_match('/file/', $content)){
+					preg_match('~/d/\K[^/]+(?=/)~', $content, $matches);
+					$gg_id = $matches[0];
+					$more_information['gg_id'] = $gg_id;
+					$more_information['type'] = 'google.file';
+					$more_information['image'] = $content;
+				}
+			} else if(preg_match('/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+$/', $content)){
+				preg_match("/^(?:http(?:s)?:\/\/)?(?:www\.)?(?:m\.)?(?:youtu\.be\/|youtube\.com\/(?:(?:watch)?\?(?:.*&)?v(?:i)?=|(?:embed|v|vi|user)\/))([^\?&\"'>]+)/", $content, $matches);
+				$youtu_id = $matches[1];
+				$more_information['youtu_id'] = $youtu_id;
+				$more_information['type'] = 'youtu.be';
+				$more_information['image'] = sprintf('https://i.ytimg.com/vi_webp/%s/maxresdefault.webp', $youtu_id);
+			} else if($clsISO->checkContainer($content,"docs.google.com","")){
+				preg_match('~/d/\K[^/]+(?=/)~', $content, $matches);
+				$docs_id = $matches[0];
+				$more_information['docs_id'] = $docs_id;
+				$more_information['type'] = 'docs.google.com';
+				$more_information['image'] = sprintf('https://drive.fife.usercontent.google.com/u/1/d/%s=w320-h250-p-k-rw-v1-nu-iv125', $docs_id);
+			} else {
+				$more_information['type'] = 'user.fh';
+				$more_information['image'] = $content;
+			}
+			// $clsISO->print_pre($more_information); die();
+			$clsClassTable->updateOne($val[$clsClassTable->pkey], array(
+				'is_sync' => 0,
+				'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE)
+			));
+		}
+	}
+}
+$clsISO->print_pre($list_docs); die();
+
+$field = "{$clsClassTable->pkey},for_id,type,title,content,more_information";
+$list_docs = $clsClassTable->getAll("`is_updated`='0' LIMIT 0,10", $field);
+if(!empty($list_docs)){
+	/** Load API */
+	require DIR_INCLUDES . '/googleapiclient/vendor/autoload.php';
+	/** Init Client */
+	$client = new Google_Client();
+	$client->setClientId(GOOGLE_CLIENT_ID);
+	$client->setClientSecret(GOOGLE_CLIENT_SECRET);
+	$client->refreshToken(GOOGLE_DRIVE_REFRESH_TOKEN);
+	$client->setScopes(Google_Service_Drive::DRIVE);
+	$service = new Google_Service_Drive($client);
+	foreach($list_docs as $val){
+		$type = $val['type'];
+		$for_id = $val['for_id'];
+		$title_search = $val['title'];
+		
+		$content = $val['content'];
+		$more_information = $val['more_information'];
+		$more_information = $clsISO->to_array_json($more_information);
+		if($type=='block'){
+			$oBlock = $clsProperty->getOne($for_id, "for_id,title");
+			$title_search.= " " . $oBlock['title'];
+			$title_search.= ", " . $clsProject->getTitle($oBlock['for_id']);
+		} else if($val['type']=='building'){
+			$oBuilding = $clsProperty->getOne($for_id, "for_id,title");
+			$oBlock = $clsProperty->getOne($oBuilding['for_id'],"title,for_id");
+			$title_search.= ", Toà ". $oBuilding['title'];
+			$title_search.= ", Phân khu ". $oBlock['title'];
+			$title_search.= ", " . $clsProject->getTitle($oBlock['for_id']);
+		} else if($val['type']=='project'){
+			$title_search.= " " . $clsProject->getTitle($for_id);
+		}
+		if(!empty($content)){
+			if($clsISO->checkContainer($content,"drive.google.com","")){
+				if(@preg_match('/folders/', $content)){
+					@preg_match('/.*[^-\w]([-\w]{25,})[^-\w]?.*/', $content, $matches);
+					$folder_id = $matches[1];
+					$list_files = @get_files($service, $folder_id);
+					if(!empty($list_files)){
+						$gg_id = "";
+						foreach($list_files as $okey => $oval){
+							$gg_id = $okey;
+							break;
+						}
+						if($gg_id){
+							$file = sprintf('https://drive.google.com/file/d/%s/view', $gg_id);
+							$more_information['gg_id'] = $gg_id;
+							$more_information['type'] = 'google.file';
+							$more_information['image'] = $file;
+						}
+					}
+				} else if(preg_match('/file/', $content)){
+					preg_match('~/d/\K[^/]+(?=/)~', $content, $matches);
+					$gg_id = $matches[0];
+					$more_information['gg_id'] = $gg_id;
+					$more_information['type'] = 'google.file';
+					$more_information['image'] = $content;
+				}
+			} else if(preg_match('/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+$/', $content)){
+				preg_match("/^(?:http(?:s)?:\/\/)?(?:www\.)?(?:m\.)?(?:youtu\.be\/|youtube\.com\/(?:(?:watch)?\?(?:.*&)?v(?:i)?=|(?:embed|v|vi|user)\/))([^\?&\"'>]+)/", $content, $matches);
+				$youtu_id = $matches[1];
+				$more_information['youtu_id'] = $youtu_id;
+				$more_information['type'] = 'youtu.be';
+				$more_information['image'] = sprintf('https://i.ytimg.com/vi_webp/%s/maxresdefault.webp', $youtu_id);
+			} else if($clsISO->checkContainer($content,"docs.google.com","")){
+				preg_match('~/d/\K[^/]+(?=/)~', $content, $matches);
+				$docs_id = $matches[0];
+				$more_information['docs_id'] = $docs_id;
+				$more_information['type'] = 'docs.google.com';
+				$more_information['image'] = sprintf('https://drive.fife.usercontent.google.com/u/1/d/%s=w320-h250-p-k-rw-v1-nu-iv125', $docs_id);
+			} else {
+				$more_information['type'] = 'user.fh';
+				$more_information['image'] = $content;
+			}
+			$clsClassTable->updateOne($val[$clsClassTable->pkey], array(
+				'is_updated' => 1,
+				'slug' => $slug_search,
+				'title_search' => $title_search,
+				'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE)
+			));
+		} else {
+			$slug_search = $core->replaceSpace($title_search);
+			$clsClassTable->updateOne($val[$clsClassTable->pkey], array(
+				'is_updated' => 1,
+				'slug' => $slug_search,
+				'title_search' => $title_search
+			));
+		}
+	}
+}

@@ -1,0 +1,134 @@
+function default_update_field(){
+	global $smarty,$mod,$act,$profile_id,$core,$clsISO,$clsUser,$clsProperty;
+	global $profile_id,$oneProfile,$dbconn;
+	$clsTag = new Tag();
+	$clsNotify = new Notify();
+	$clsProfile = new Profile();
+	$clsProperty = new Property();
+    $clsCustomer = new Customer();
+	$clsCustomerSales = new CustomerSales();
+	$clsCustomerHistory = new CustomerHistory();
+	###	$msg = "_error";
+	$uid = Input::post('uid');
+	$p_id = Input::post('p_id');
+	$p_field = Input::post('p_field');
+	$p_value = Input::post($p_field);
+	if($p_field=='tags'){
+		if(!empty($p_value)){
+			$parts = @explode(',', $p_value);
+			if(!empty($parts)){
+				$list_tags_id = array();
+				foreach($parts as $tag){
+					$tmp = $clsTag->getByCond("`user_id`='{
+$profile_id
+}
+' and `slug`='".$core->replaceSpace($tag)."'");
+					if(!empty($tmp)){
+						$list_tags_id[] = $tmp[$clsTag->pkey];
+					
+}
+ else {
+						$tag_id = $clsTag->getMaxId();
+						$clsTag->insert(array(							$clsTag->pkey => $tag_id,							'tag_type' => '_crm',							'user_id' => $profile_id,							'title' => $tag,							'slug' => $core->replaceSpace($tag)						));
+						$list_tags_id[] = $tag_id;
+					
+}
+				
+}
+				$clsCustomerMeta = new CustomerMeta();
+				$clsCustomerMeta->syncByCustomerType($p_id, 'tag', $list_tags_id, $profile_id);
+				$msg = "_success|||".$clsCustomer->getHTMLTags($p_id, [], '_activity');
+			
+}
+		
+}
+ else {
+			$clsCustomerMeta = new CustomerMeta();
+			$clsCustomerMeta->syncByCustomerType($p_id, 'tag', array(), $profile_id);
+			$msg = "_success|||";
+		
+}
+	
+}
+ else if($p_field == 'admin_id'){
+		$oCustomer = $clsCustomer->getOne($p_id, "`name`,`admin_id`,`more_information`");
+		if(!(($clsCustomer->isFullPermiss() || $clsISO->checkPermission('admin_assign_client')) || (int)$oCustomer['admin_id']==$profile_id)){
+ echo '_error';
+ die();
+ 
+}
+		$admin_id = (int) $oCustomer['admin_id'];
+		$more_information = $oCustomer['more_information'];
+		$more_information = $clsISO->to_array_json($more_information);
+		if((int) $p_value > 0 && $admin_id != $p_value){
+			$action_logs = $core->get_field($more_information, "action_logs", []);
+			$list_share_arrs = $clsCustomer->getShareIds($p_id, $oCustomer);
+			$arr_profile = $adminProfile = $adminProfile_Old = array();
+			if($profile_id == $admin_id){
+ // Mình chuyển KH của mình				$adminProfile_Old = $oneProfile;
+			
+}
+ else {
+ // Mình chuyển KH của người khác				$arr_profile[] = $admin_id;
+			
+}
+			$arr_profile[] = $p_value;
+			$tmp = $clsProfile->getAll("{
+$clsProfile->pkey
+}
+ in (".implode(',', $arr_profile).")", "{
+$clsProfile->pkey
+}
+,`full_name`,`first_name`,`last_name`");
+			if(!empty($tmp)){
+				foreach($tmp as $key => $val){
+					if($val[$clsProfile->pkey] == (int) $p_value){
+						$adminProfile = $val;
+					
+}
+ else if($val[$clsProfile->pkey] == $admin_id){
+						$adminProfile_Old = $val;
+					
+}
+				
+}
+				unset($tmp);
+			
+}
+			$content = sprintf('<strong>%s</strong> đã chuyển quyền quản lý từ <strong>%s</strong> thành <strong>%s</strong>', 				$clsProfile->getFullName($profile_id, $oneProfile), 				$clsProfile->getFullName($admin_id, $adminProfile_Old), 				$clsProfile->getFullName($p_value, $adminProfile)			);
+			$action_logs[$clsISO->getUniqid()] = array(				'content' => $content,				'user_id' => $profile_id,				'reg_date' => time()			);
+			$more_information['action_logs'] = $action_logs;
+			if(!empty($list_share_arrs) && !in_array($admin_id, $list_share_arrs)){
+				$list_share_arrs = array_unique($list_share_arrs);
+				$list_share_arrs[] = $admin_id;
+			
+}
+			$list_share_arrs = $clsCustomer->normalizeIdArray($list_share_arrs);
+			if( $clsCustomer->updateOne($p_id, array(				'upd_date' => time(),				$p_field => $p_value,				'use_globe' => 1,				'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE)			))){
+				$clsCustomer->syncShareIds($p_id, $list_share_arrs, $profile_id, false);
+				/** Gửi notify */				$msg = "_success|||<a class=\"autoclick_".$p_id."\" customer_id=\"".$p_id."\" 					onclick=\"$Core.crm.view_activity(this, event);
+\"></a>";
+				$titleNoty = sprintf(					'<strong>%s</strong> đã giao bạn phụ trách khách hàng <strong>%s</strong>', 					$clsProfile->getFullName($profile_id, $oneProfile), 					$clsCustomer->getName($p_id, $oCustomer)				);
+				$clsNotify->insertNotify('Customer',$clsCustomer->pkey,$p_id,$titleNoty,time(),"|".$p_value."|");
+				#thong bao app				$clsNotification = new Notification();
+				$params = [					'title' => "CRM - Khách hàng mới",					'body' => strip_tags($titleNotify),					'link' => PCMS_URL . sprintf('/crm/#/customer/%s/overview/', $p_id)				];
+				$clsNotification->doPushMessagingUser($params,[$p_value]);
+				/** Gửi thông báo qua Zalo */				if($clsCustomer->isRootProfile()){
+					/** Lưu lại giao cho ai */					$clsCustomerSales->insert(array(						$clsCustomerSales->pkey => $clsCustomerSales->getMaxId(),						'customer_id' => $p_id,						'admin_id' => $p_value,						'assign_date' => time(),						'user_id' => $profile_id					));
+					$zaloId = $clsProfile->getZaloId($p_value, $_swProfile);
+					if(!empty($zaloId)){
+						$clsZalo = new Zalo();
+						$message = sprintf("Xin chào %s", $clsProfile->getFullName($p_value, $_swProfile));
+						$message.= "\r";
+						$message.= sprintf("[%s %s] đã giao cho bạn phụ trách khách hàng [%s]", 							$oneProfile['role_name'], $clsProfile->getFullName($profile_id, $oneProfile),							$clsCustomer->getName($p_id, $oCustomer));
+						$message.= "\r";
+						$message.= "Hãy truy cập CRM/Quản lý khách hàng (https://ca.futurehomes.vn/crm/) để bắt đầu chăm sóc khách hàng!";
+						$message.= "\r";
+						$message.= "\r";
+						$message.= "⚙️ 1. Quy tắc chăm khách";
+						$message.= "\r";
+						$message.= "1️⃣ Phản hồi khách trong vòng 15 phút kể từ khi được cấp data.";
+						$message.= "\r";
+						$message.= "👉 Nếu quá 15 phút không có tương tác (call / note / update) → hệ thống auto chuyển khách sang sales khác.";
+						$message.= "\r";
+						$message.= "2️⃣ Tương tác ít nhất 3 lần trong 3 ngày đầu (gọi đi

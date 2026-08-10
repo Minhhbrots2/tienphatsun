@@ -1,0 +1,53 @@
+/* ============================================================
+   crm-extend.css — CSS bổ sung cho CRM (KHÔNG tự nạp:
+   index.tpl thêm <link> thủ công, sau {$mod}.css → override được).
+   Mỗi feature scope dưới 1 wrapper class riêng.
+   ============================================================ */
+
+/* ===== GĐ2 — Màn "Sale thị trường → CRM" (.crm-mktpool) ===== */
+.crm-mktpool .mktpool-filter {
+	align-items: center;
+}
+
+.crm-mktpool .table thead th {
+	font-weight: 600;
+	font-size: 12px;
+	vertical-align: middle;
+}
+
+.crm-mktpool .table tbody td {
+	font-size: 13px;
+	vertical-align: middle;
+}
+
+.crm-mktpool .mktpool-check {
+	cursor: pointer;
+	width: 16px;
+	height: 16px;
+}
+
+.crm-mktpool .mktpool-check:disabled {
+	cursor: not-allowed;
+	opacity: .4;
+}
+
+/* thanh bulk nổi giữa-dưới (ẩn bằng .d-none từ JS, không inline-style) */
+.crm-mktpool .mktpool-bulk {
+	position: fixed;
+	left: 50%;
+	bottom: 24px;
+	transform: translateX(-50%);
+	z-index: 1050;
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 10px 18px;
+	background: #ffffff;
+	border: 1px solid #e3e3e8;
+	border-radius: 40px;
+}
+
+.crm-mktpool .mktpool-bulk strong {
+	color: #696cff;
+}
+

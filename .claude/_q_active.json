@@ -1,0 +1,22 @@
+{
+  "magic": 1111,
+  "conn_errno": 0,
+  "results": [
+    {
+      "errno": 0,
+      "affected_rows": 1,
+      "insert_id": 0,
+      "num_fields": 1,
+      "num_rows": 1,
+      "columns": [
+        "value"
+      ],
+      "rows": [
+        [
+          "|slide||cruise||country||docs||page||guide||feedback||booking_tour||meta||testimonial||hotel||news||booking_tailor||ads||booking_hotel||continent||email_template||tour||faqs||subscription||ajax||tags||booking||request||menu||contact||partner||post||teacher_method||scatter||slidechild||brand||product_st||product_cate||category||product||product_bk||customer||order||supplier||discount||report||billing||gallery||comment||project||service||promotion||popup||story||sop||member||stock||course||policy||permiss||shop||service||furniture||furniture1||profile||leasing||download||interior||company||order||training||api_log||price_sheets||faqs_MGP||event|crawl||developer|"
+        ]
+      ],
+      "_sep": 0
+    }
+  ]
+}

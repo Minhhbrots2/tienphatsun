@@ -1,0 +1,10 @@
+# Code Reviewer Memory — ca.futurehomes.vn
+
+- [Member Permiss Architecture](member_permiss_architecture.md) — 3 storage paths: default_member_source (MemberSource, diff-vs-package) vs member_moc→default_member.permiss_mod vs stale MemberMeta.php→nonexistent default_member_meta; DbBasic updateOne/insert/getByCond verified semantics
+- [CRM Dispatch Conventions](crm_dispatch_conventions.md) — full-page vs AJAX handler shapes in crm/mod_default.php; manager gate + rep-resolve + IDOR + int-cast SQL safety pattern; confirmed helper signatures
+- [permiss_mod Trust Boundary](permiss_mod_trust_boundary.md) — _header.php merges own+role permiss_mod (own wins, no key allow-list); checkPermission gate; no MKT role tier exists, marketing_control/team_board gate on isFullPermiss/isTeamManager only
+- [CRM Customer List Render](crm_customer_list_render.md) — default_load_customers() loop: shared caches + bulk-IN maps (no N+1), phone card block ~2954-3033, $more_info vs $more_information, $oneStatus unguarded-index gotcha at ~2948
+- [CRM Phone Masking Boundary](crm_phone_masking_boundary.md) — phone mask gates only the visible text; zalo:/tel: hrefs use RAW phone, leak to non-owners on both desktop + mobile card (pre-existing, not a desktop regression)
+- [Analytics Dashboard Conventions](analytics_dashboard_conventions.md) — BOD dashboard module: sub_default.php $assign_list bars/cards pattern, crm-ld-* tpl, stacked-column flex-direction order gotcha (preview vs CSS diverge)
+- [Chat Module Boundaries](chat_module_boundaries.md) — internal chat (modules/chat) channel gate chat_access; reply quote-snippet chat_reply_snippet fetches parent by pkey ONLY (no channel constraint) → cross-channel content/sender leak; stale replyTo across switchTab/openChannel; Node JSON round-trip safe
+- [AngularJS Global Load Gotcha](angular_global_load_gotcha.md) — angular.min.js loaded per-module (only worldcup/default.tpl); index.tpl:125 global load COMMENTED OUT → chat.ng.js bails (typeof angular undefined) on every non-worldcup page; render order/CHAT_BOOT itself fine, missing script is the blocker

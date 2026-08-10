@@ -1,0 +1,24 @@
+{
+  "magic": 1111,
+  "conn_errno": 0,
+  "results": [
+    {
+      "errno": 0,
+      "affected_rows": 1,
+      "insert_id": 0,
+      "num_fields": 2,
+      "num_rows": 1,
+      "columns": [
+        "customer_id",
+        "more_information"
+      ],
+      "rows": [
+        [
+          "18170",
+          "{\"agent_id\":0,\"gender_id\":0,\"tiktok\":\"\",\"facebook\":\"\",\"action_logs\":{\"69ca64942dc13593174788\":{\"reg_date\":1774871700,\"user_id\":\"7\",\"content\":\"<strong>Lương Tiến Dũng<\\/strong> đã thêm mới khách hàng với Tên khách hàng: Tien Note3,Nguồn gốc: SaleMOC\"},\"69cb305763e9d186987519\":{\"content\":\"<strong>Lương Tiến Dũng<\\/strong> đã chuyển quyền quản lý từ <strong>Lương Tiến Dũng<\\/strong> thành <strong>Phạm Thị Hương<\\/strong>\",\"user_id\":\"7\",\"reg_date\":1774923863}}}"
+        ]
+      ],
+      "_sep": 0
+    }
+  ]
+}

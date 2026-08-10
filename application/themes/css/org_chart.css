@@ -1,0 +1,116 @@
+#tree-level-container {
+	position: relative;
+	min-height: 500px;
+	background: #fff;
+	width: 100%;
+	height: 1500px;
+	margin: auto
+}
+
+/* Mỗi dòng đại diện cho 1 cấp (sử dụng flexbox để căn giữa các node) */
+.tree-level {
+	display: flex;
+	justify-content: center;
+	gap: 20px;
+	margin: 40px 0;
+}
+#open_org{
+	z-index: 1000 !important
+}
+
+/* Style cho các node */
+.node {
+	background: #fff;
+	border-radius: 5px;
+	text-align: center;
+	position: absolute;
+	cursor: pointer;
+	z-index: 2
+}
+.node .box_content {
+	padding: 20px 5px 5px;
+/*	transform: translate(0, -15px);*/
+	background: #d4c1b1;
+	color: #000;
+	font-size: 12px;
+	width: 140px;	
+	min-width: max-content !important;
+	height: 60px;
+	border-radius: 12px;
+	margin-top: -15px;
+}
+
+.node .box_content .txt_name {
+	font-weight: 700;
+	font-size: 12px;
+	margin-bottom: 3px;
+}
+
+.node .box_content .txt_role {
+	text-transform: uppercase;
+}
+
+.img_node {position: relative;z-index: 1;width: fit-content;margin: auto;}
+
+.img_node .avatar {
+	border: 3px solid #FFF;
+	width: 55px;
+    height: 55px;
+}
+
+/* Khi node được chọn */
+.node.selected .box_content {
+	background: #d1eaff;
+	border-color: #7bbcff;
+}
+
+/* Context menu */
+#context-menu {
+	position: absolute;
+	display: none;
+	background: #fff;
+	border: 1px solid #ccc;
+	z-index: 1000;
+	width: 150px;
+}
+
+#context-menu ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+#context-menu li {
+	padding: 8px 10px;
+	cursor: pointer;
+}
+
+#context-menu li:hover {
+	background: #eee;
+}
+
+/* SVG overlay dùng để vẽ các đường nối */
+#tree-connectors {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+	z-index: 1;
+}
+.control-handle {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: red;
+    border-radius: 50%;
+    cursor: move;
+    z-index: 1;
+	opacity: 0
+}
+@media screen and (max-width:767px) {
+	.tree-level{
+		margin: 0
+	}
+}

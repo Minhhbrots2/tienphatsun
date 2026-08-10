@@ -1,0 +1,713 @@
+/* =========================================================================
+   Future Funnel — Foundations
+   Colors, typography, spacing, radii, shadows, motion.
+
+   Import this file at the top of any artifact:
+     <link rel="stylesheet" href="colors_and_type.css">
+
+   The fonts ship from Google Fonts (Instrument Serif, Geist, JetBrains Mono).
+   For production, swap the @import for self-hosted woff2 files in /fonts.
+   ========================================================================= */
+ 
+:root {
+  /* ----- Brand ----------------------------------------------------------- */
+  --brand-50:  #fdf2f4;
+  --brand-100: #fbe4e8;
+  --brand-200: #f5bfc9;
+  --brand-300: #ec8d9e;
+  --brand-400: #de5972;
+  --brand-500: #c33052;
+  --brand-600: #a4153a;   /* lighter, for hover/links on cream */
+  --brand-700: #950b25;   /* PRIMARY — the spec color */
+  --brand-800: #780a1e;
+  --brand-900: #5a0817;
+  --brand-950: #380410;
+  --brand: var(--brand-700);
+  --brand-hover: var(--brand-800);
+  --brand-press: var(--brand-900);
+  --brand-tint:  var(--brand-50);     /* faint wash backgrounds */
+  --brand-soft:  var(--brand-100);    /* badges, callouts */
+
+  /* ----- Warm neutrals (the "paper" system) ----------------------------- */
+  /* All neutrals lean warm — cream / parchment / espresso, never cool gray. */
+  --paper:    #faf7f2;   /* primary surface (page bg) */
+  --paper-2:  #f3ede2;   /* sunk surface / sidebars */
+  --paper-3:  #ebe3d5;   /* deeper recess */
+  --canvas:   #ffffff;   /* cards / elevated surfaces */
+  --line:     #e6dcc8;   /* default border */
+  --line-strong: #cdc0a8;
+  --line-soft:   #f0e9da;
+
+  --ink-1:    #1a1410;   /* primary text — warm near-black */
+  --ink-2:    #3d342b;   /* body */
+  --ink-3:    #6b5f51;   /* secondary / labels */
+  --ink-4:    #968878;   /* tertiary / placeholder */
+  --ink-5:    #b8ab98;   /* disabled / decorative */
+
+  /* ----- Semantic ------------------------------------------------------- */
+  --success:       #2d6a4f;
+  --success-soft:  #dcecd9;
+  --success-ink:   #1b4a35;
+
+  --warning:       #b8730e;
+  --warning-soft:  #fbecd0;
+  --warning-ink:   #7a4906;
+
+  --danger:        #b3261e;   /* distinct from brand burgundy */
+  --danger-soft:   #fadcd9;
+  --danger-ink:    #7a1812;
+
+  --info:          #1e4d6b;
+  --info-soft:     #d6e6ef;
+  --info-ink:      #143447;
+
+  /* ----- Data viz (warm, editorial — no neon) --------------------------- */
+  --viz-1: #950b25;   /* burgundy */
+  --viz-2: #d4831f;   /* amber */
+  --viz-3: #2d6a4f;   /* forest */
+  --viz-4: #1e4d6b;   /* slate blue */
+  --viz-5: #6b4423;   /* espresso */
+  --viz-6: #c4a47c;   /* sand */
+  --viz-7: #4a2c5a;   /* plum */
+
+  /* ----- Typography ----------------------------------------------------- */
+  /* Inter does double duty: display (heavy weights + tight tracking) AND
+     body (regular weights + relaxed line-height). JetBrains Mono for code. */
+  --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-sans:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+
+  /* Type scale — major-second + display jumps */
+  --fs-xs:    12px;
+  --fs-sm:    13px;
+  --fs-base:  14px;   /* dashboard body */
+  --fs-md:    15px;
+  --fs-lg:    16px;
+  --fs-xl:    18px;
+  --fs-2xl:   22px;
+  --fs-3xl:   28px;
+  --fs-4xl:   36px;
+  --fs-5xl:   48px;
+  --fs-6xl:   64px;
+  --fs-7xl:   84px;
+  --fs-display: 120px;
+
+  --lh-tight:  1.1;
+  --lh-snug:   1.25;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.65;
+
+  --tracking-tightest: -0.04em;
+  --tracking-tight:    -0.02em;
+  --tracking-normal:    0;
+  --tracking-wide:      0.02em;
+  --tracking-widest:    0.14em;   /* for ALL-CAPS eyebrows */
+
+  /* ----- Spacing (4px base) -------------------------------------------- */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-7:  32px;
+  --space-8:  40px;
+  --space-9:  48px;
+  --space-10: 64px;
+  --space-11: 80px;
+  --space-12: 96px;
+  --space-13: 128px;
+
+  /* ----- Radii ---------------------------------------------------------- */
+  --r-xs: 3px;
+  --r-sm: 5px;
+  --r-md: 8px;     /* default for buttons, inputs */
+  --r-lg: 12px;    /* cards */
+  --r-xl: 18px;
+  --r-2xl: 24px;
+  --r-pill: 999px;
+
+  /* ----- Shadows — soft, warm-tinted (never pure black) ---------------- */
+  --shadow-xs: 0 1px 0 rgba(58, 38, 22, 0.05);
+  --shadow-sm: 0 1px 2px rgba(58, 38, 22, 0.06), 0 1px 1px rgba(58, 38, 22, 0.04);
+  --shadow-md: 0 4px 12px -2px rgba(58, 38, 22, 0.08), 0 2px 4px -1px rgba(58, 38, 22, 0.05);
+  --shadow-lg: 0 12px 28px -8px rgba(58, 38, 22, 0.14), 0 4px 8px -2px rgba(58, 38, 22, 0.06);
+  --shadow-xl: 0 24px 48px -12px rgba(58, 38, 22, 0.18), 0 8px 16px -4px rgba(58, 38, 22, 0.08);
+
+  --shadow-focus: 0 0 0 3px rgba(149, 11, 37, 0.18);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(58, 38, 22, 0.04);
+
+  /* ----- Motion --------------------------------------------------------- */
+  --ease-out:    cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --dur-fast:   120ms;
+  --dur-base:   180ms;
+  --dur-slow:   320ms;
+
+  /* ----- Layout --------------------------------------------------------- */
+  --container-sm: 640px;
+  --container-md: 880px;
+  --container-lg: 1180px;
+  --container-xl: 1440px;
+}
+
+/* =========================================================================
+   Base — semantic element styles. Drop in and elements look right.
+   ========================================================================= */
+
+::selection { background: var(--brand-200); color: var(--brand-900); }
+
+/* --- Display & headings -------------------------------------------------- */
+.display, .h-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-display);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  color: var(--ink-1);
+}
+
+h1, .h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-6xl);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.035em;
+  margin: 0 0 var(--space-5);
+  color: var(--ink-1);
+}
+
+.worldcup_page h2, .worldcup_page .h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--fs-4xl);
+  line-height: var(--lh-snug);
+  letter-spacing: -0.03em;
+  margin: 0 0 var(--space-4);
+  color: var(--ink-1);
+}
+
+.worldcup_page h3, .worldcup_page .h3 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--fs-2xl);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-tight);
+  margin: 0 0 var(--space-3);
+  color: var(--ink-1);
+}
+
+.worldcup_page h4, .worldcup_page .h4 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--fs-lg);
+  line-height: var(--lh-snug);
+  margin: 0 0 var(--space-2);
+  color: var(--ink-1);
+}
+
+.worldcup_page h5, .worldcup_page .h5, .worldcup_page .eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--fs-xs);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 var(--space-3);
+}
+
+/* --- Body / prose -------------------------------------------------------- */
+.worldcup_page p{
+  font-size: var(--fs-md);
+  line-height: var(--lh-relaxed);
+  color: var(--ink-2);
+  margin: 0 0 var(--space-4);
+  text-wrap: pretty;
+}
+
+.worldcup_page .lead {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-style: italic;
+  font-size: var(--fs-2xl);
+  line-height: var(--lh-snug);
+  color: var(--ink-2);
+  letter-spacing: -0.015em;
+}
+
+.worldcup_page small, .worldcup_page .small { font-size: var(--fs-sm); color: var(--ink-3); }
+.worldcup_page .tiny { font-size: var(--fs-xs); color: var(--ink-3); }
+
+.worldcup_page a {
+  color: var(--brand-600);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.worldcup_page a:hover { color: var(--brand-800); }
+
+.worldcup_page code, .worldcup_page .code, .worldcup_page kbd {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  background: var(--paper-2);
+  border: 1px solid var(--line-soft);
+  padding: 1px 6px;
+  border-radius: var(--r-xs);
+  color: var(--ink-2);
+}
+
+.worldcup_page hr {
+  border: none;
+  height: 1px;
+  background: var(--line);
+  margin: var(--space-7) 0;
+}
+
+/* --- Number / metric helpers (dashboard) -------------------------------- */
+.worldcup_page .metric {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--fs-5xl);
+  line-height: 1;
+  letter-spacing: -0.035em;
+  color: var(--ink-1);
+  font-variant-numeric: tabular-nums;
+}
+
+.worldcup_page .tabular { font-variant-numeric: tabular-nums; }
+
+/* =========================================================================
+   styles.css — visual layer for the AngularJS build.
+   Mirrors the React prototype's look using design-system tokens.
+   ========================================================================= */
+[ng-cloak] { display: none !important; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 99px; border: 2px solid var(--paper); }
+
+.worldcup_page .app { min-height: 100vh; padding-bottom: 90px; }
+.worldcup_page .wrap { max-width: 1280px; margin: 0 auto;padding: 15px; }
+.worldcup_page .main {max-width: 1280px;margin: 0 auto;padding: 26px 0px 40px;}
+.worldcup_page .col { display: flex; flex-direction: column; }
+.worldcup_page .gap-22 { gap: 22px; } .gap-18 { gap: 18px; } .gap-14 { gap: 14px; }
+.worldcup_page .center { display: flex; justify-content: center; }
+.worldcup_page .tabular { font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
+
+/* ---- eyebrow / headings ---- */
+.worldcup_page .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+.worldcup_page .eyebrow.brand { color: var(--brand-700); }
+.worldcup_page .h2 { margin: 6px 0 0; font-size: 26px; font-weight: 700; letter-spacing: -.02em; color: var(--ink-1); }
+.worldcup_page .sec-head { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+/* ---- pills ---- */
+.worldcup_page .pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: var(--r-pill);
+  font-size: 12px; font-weight: 600; white-space: nowrap; border: 1px solid transparent; background: var(--paper-2); color: var(--ink-2); }
+.worldcup_page .pill.brand { background: var(--brand-50); color: var(--brand-700); border-color: var(--brand-100); }
+.worldcup_page .pill.ok { background: var(--success-soft); color: var(--success-ink); }
+.worldcup_page .pill.bad { background: var(--danger-soft); color: var(--danger-ink); }
+.worldcup_page .pill.warn { background: var(--warning-soft); color: var(--warning-ink); }
+.worldcup_page .pill.muted { background: var(--paper-3); color: var(--ink-3); }
+.worldcup_page .pill.ghost { background: var(--paper-2); color: var(--ink-4); }
+.worldcup_page .pill .ic { width: 13px; height: 13px; }
+
+/* ---- buttons ---- */
+.worldcup_page .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-weight: 600;
+  letter-spacing: -.01em; border-radius: var(--r-md); cursor: pointer; border: 1px solid var(--line);
+  background: var(--canvas); color: var(--ink-1); padding: 9px 16px; font-size: 14px;
+  transition: all 140ms var(--ease-out); }
+.worldcup_page .btn:hover { background: var(--paper-2); }
+.worldcup_page .btn:active { transform: scale(.98); }
+.worldcup_page .btn.sm { padding: 6px 12px; font-size: 13px;white-space: nowrap}
+.worldcup_page .btn.lg { padding: 13px 22px; font-size: 15px; }
+.worldcup_page .btn.primary { background: var(--brand-700); color: #fff; border-color: transparent; }
+.worldcup_page .btn.primary:hover { background: var(--brand-800); }
+.worldcup_page .btn.ghost { background: transparent; border-color: transparent; color: var(--ink-2); }
+.worldcup_page .btn.ghost:hover { background: var(--paper-2); }
+.worldcup_page .btn[disabled] { opacity: .5; cursor: not-allowed; }
+.worldcup_page .btn .ic { width: 16px; height: 16px; }
+
+/* ---- flag ---- */
+.worldcup_page .flag {
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-block;
+  flex: 0 0 auto;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.7), var(--shadow-sm);
+  /* background: var(--paper-3); */
+  border: 3px double #b5ac9e;
+  /* padding: 3px; */
+  }
+.worldcup_page .flag img {width: 150%;height: 100%;object-fit: cover;display: block;margin-left: -25%;}
+
+/* ---- segmented control ---- */
+.worldcup_page .seg { display: inline-flex; background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 3px; }
+.worldcup_page .seg button { border: none; cursor: pointer; padding: 6px 14px; border-radius: var(--r-pill); font-size: 13px;
+  font-weight: 600; background: transparent; color: var(--ink-3); transition: all 140ms var(--ease-out); }
+.worldcup_page .seg button.on { background: var(--canvas); color: var(--brand-700); box-shadow: var(--shadow-sm); }
+
+/* =========================== NAV ===================================== */
+.worldcup_page .topbar {position: sticky;top: 64px;z-index: 3;background: #FFF;backdrop-filter: blur(10px);border-bottom: 1px solid var(--line);}
+.worldcup_page .topbar .row_wc { height: 60px; display: flex; align-items: center; gap: 18px; }
+.worldcup_page .brandmark { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 16px; letter-spacing: -.02em;white-space: nowrap}
+.worldcup_page .brandmark .hl { color: var(--brand-700); }
+.worldcup_page .topnav { display: flex; gap: 2px; margin-left: 8px; }
+.worldcup_page .topnav button { display: inline-flex; align-items: center; gap: 7px; border: none; background: transparent; cursor: pointer;
+  padding: 8px 13px; border-radius: var(--r-md); font-size: 14px; font-weight: 600; color: var(--ink-3); transition: all 140ms var(--ease-out);white-space: nowrap}
+.worldcup_page .topnav button.on { background: var(--brand-50); color: var(--brand-700); }
+.worldcup_page .topnav .ic, .worldcup_page .bottomnav .ic { width: 15px; height: 15px; }
+.worldcup_page .spacer { margin-left: auto; }
+.worldcup_page .ptschip { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: var(--ink-2);
+  background: var(--paper-2); border: 1px solid var(--line); padding: 6px 12px; border-radius: var(--r-pill); white-space: nowrap}
+.worldcup_page .ptschip .ic { width: 14px; height: 14px; }
+.worldcup_page .right { display: flex; align-items: center; gap: 12px; }
+
+.worldcup_page .bottomnav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 40; background: rgba(250,247,242,.95);
+  backdrop-filter: blur(10px); border-top: 1px solid var(--line); display: none; justify-content: space-around; padding: 6px 4px 8px; }
+.worldcup_page .bottomnav button { flex: 1; border: none; background: none; cursor: pointer; display: flex; flex-direction: column;
+  align-items: center; gap: 3px; padding: 4px 0; color: var(--ink-4); }
+.worldcup_page .bottomnav button .ic { width: 20px; height: 20px; }
+.worldcup_page .bottomnav button.on { color: var(--brand-700); }
+.worldcup_page .bottomnav button span { font-size: 10.5px; font-weight: 600; }
+
+@media (max-width: 991px) {	
+	.worldcup_page .topbar .row_wc {
+		height: auto;
+		flex-wrap: wrap;
+	}
+	.worldcup_page .topnav {
+		overflow-x: auto;
+		margin-left: 0;
+	}
+}
+@media (max-width: 780px) {	
+	.worldcup_page .right {
+		order: 1;
+	}
+	.worldcup_page .topnav {
+		order: 2;
+	}
+}
+@media (max-width: 720px) {
+  .worldcup_page .topnav, .ptschip { display: none !important; }
+  .worldcup_page .bottomnav { display: flex !important; }
+  .worldcup_page .adminlbl { display: none; }
+}
+
+/* =========================== HERO ===================================== */
+.worldcup_page .hero { position: relative; overflow: hidden; border-radius: var(--r-xl); color: #fff;
+  background: radial-gradient(120% 140% at 80% 0%, #b3142f 0%, #7c0a1f 42%, #3a0510 100%);
+  border: 1px solid rgba(0,0,0,.3); box-shadow: var(--shadow-lg); }
+.worldcup_page .hero .lines { position: absolute; inset: 0; opacity: .10; pointer-events: none;
+  background: repeating-linear-gradient(90deg, transparent 0 56px, rgba(255,255,255,.6) 56px 57px); }
+.worldcup_page .hero .glow { position: absolute; right: -40px; top: -30px; width: 260px; height: 260px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(231,201,122,.35), transparent 62%); pointer-events: none; }
+.worldcup_page .hero .inner { position: relative; display: flex; flex-wrap: wrap; gap: 24px; align-items: center; justify-content: space-between; padding: 28px 30px; }
+.worldcup_page .hero h1 { margin: 12px 0 4px; font-size: 40px; font-weight: 800; letter-spacing: -.03em; line-height: 1.02; color: #fff; }
+.worldcup_page .hero h1 .gold { color: #e7c97a; }
+.worldcup_page .hero .tag { display: inline-block; white-space: nowrap; background: #caa14a; color: #1a1206; font-size: 11px; font-weight: 800; letter-spacing: .worldcup_page .14em; padding: 4px 10px; border-radius: var(--r-sm); }
+.worldcup_page .hero .sub { font-size: 14px; font-weight: 500; color: rgba(255,255,255,.78); font-style: italic; }
+.worldcup_page .hero .feats { display: flex; gap: 14px; margin-top: 18px; flex-wrap: wrap; }
+.worldcup_page .hero .feats span { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,.9); }
+.worldcup_page .hero .feats .ic { width: 15px; height: 15px; }
+.worldcup_page .hero .cdlabel { font-size: 11px; font-weight: 700; letter-spacing: .14em; color: #e7c97a; margin-bottom: 10px; text-align: center; }
+.worldcup_page .hero .mechip { margin-top: 16px; display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.18); border-radius: var(--r-pill); padding: 7px 14px; font-size: 13px; font-weight: 600; }
+.worldcup_page .hero .mechip b { color: #e7c97a; }
+.worldcup_page .hero .mechip .div { width: 1px; height: 14px; background: rgba(255,255,255,.2); }
+.worldcup_page .hero .mechip .ic { width: 15px; height: 15px; }
+
+.worldcup_page .countdown { display: flex; align-items: flex-start; gap: 6px; justify-content: center; }
+.worldcup_page .cd-cell { text-align: center; }
+.worldcup_page .cd-cell .v { min-width: 52px; padding: 10px 8px 8px; background: linear-gradient(180deg,#a8122e,#7c0a1f);
+  border: 1px solid rgba(255,255,255,.14); border-radius: var(--r-md); color: #fff; font-family: var(--font-mono);
+  font-weight: 600; font-size: 26px; line-height: 1; font-variant-numeric: tabular-nums; box-shadow: var(--shadow-sm); }
+.worldcup_page .cd-cell .l { margin-top: 6px; font-size: 9.5px; font-weight: 700; letter-spacing: .14em; color: rgba(255,255,255,.65); }
+.worldcup_page .cd-colon { color: #e7c97a; font-size: 22px; font-weight: 700; padding-top: 8px; }
+
+.worldcup_page .lock-note { display: flex; align-items: center; gap: 10px; background: var(--brand-50); border: 1px solid var(--brand-100);
+  border-radius: var(--r-md); padding: 10px 14px; font-size: 13px; color: var(--brand-800); }
+.worldcup_page .lock-note .ic { width: 16px; height: 16px; flex: 0 0 auto; }
+.worldcup_page .lock-note b { margin: 0 4px; }
+
+/* =========================== MATCH CARD ============================== */
+.worldcup_page .cards {display: grid;grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));gap: 14px;}
+.worldcup_page .card { background: var(--canvas); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px 18px; box-shadow: var(--shadow-sm); }
+.worldcup_page .card.win { border-color: var(--success); }
+.worldcup_page .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.worldcup_page .card-head .eyebrow { font-size: 10.5px; }
+.worldcup_page .teams { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.worldcup_page .teams.stacked { display: grid; grid-template-columns: 1fr auto 1fr; }
+.worldcup_page .team {display: flex;align-items: center;gap: 11px;min-width: 0;flex: 1;justify-content: center;}
+.worldcup_page .team.right {flex-direction: row-reverse;}
+.worldcup_page .teams.stacked .team { flex-direction: column; gap: 8px; text-align: center; justify-content: center; }
+.worldcup_page .team .nm { font-size: 15px; font-weight: 700; color: var(--ink-1); letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.worldcup_page .team .sh { font-size: 11px; font-weight: 600; color: var(--ink-4); letter-spacing: .06em; }
+.worldcup_page .team.right .nm, .worldcup_page .team.right .sh { text-align: right; }
+.worldcup_page .teams.stacked .team .nm { font-size: 16px; }
+.worldcup_page .vs { text-align: center; flex: 0 0 auto; }
+.worldcup_page .vs .lab { font-size: 13px; font-weight: 800; color: var(--ink-4); letter-spacing: .08em; }
+.worldcup_page .vs .ko { margin-top: 4px; font-size: 11px; font-weight: 600; color: var(--ink-3); font-family: var(--font-mono); }
+.worldcup_page .vs .score { font-family: var(--font-mono); font-weight: 600; font-size: 24px; color: var(--ink-1); font-variant-numeric: tabular-nums; line-height: 1; }
+.worldcup_page .vs .fin { margin-top: 4px; font-size: 10px; font-weight: 700; letter-spacing: .12em; color: var(--ink-4); }
+
+.worldcup_page .votes { display: flex; gap: 8px; }
+/*=============== [Worldcup - Luân lưu (knockout) ô nhập] - START ===============*/
+.worldcup_page .pen-line { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; margin-top: 6px; font-size: 11.5px; font-weight: 600; color: var(--warning-ink); }
+.worldcup_page .pen-line .ic { width: 13px; height: 13px; flex: 0 0 auto; }
+.worldcup_page .imp-row .inp.pen { width: 42px; padding: 5px 4px; text-align: center; }
+/*=============== [Worldcup - Luân lưu] - END ===============*/
+.worldcup_page .vote { position: relative; flex: 1; min-width: 0; overflow: hidden; text-align: center; padding: 12px 10px 11px;
+  border-radius: var(--r-md); background: var(--canvas); border: 1px solid var(--line); color: var(--ink-1);
+  cursor: pointer; transition: all 140ms var(--ease-out); }
+.worldcup_page .vote:hover:not(.locked):not(.on) { background: var(--paper-2); border-color: var(--line-strong); }
+.worldcup_page .vote.on { background: var(--brand-700); border-color: var(--brand-800); color: #fff; }
+.worldcup_page .vote.locked { cursor: default; opacity: .62; }
+.worldcup_page .vote.locked.on, .worldcup_page .vote.res { opacity: 1; }
+.worldcup_page .vote.res.correct { background: var(--success-soft); border-color: var(--success); color: var(--success-ink); }
+.worldcup_page .vote.res.wrongsel { background: var(--danger-soft); border-color: var(--danger); color: var(--danger-ink); }
+.worldcup_page .vote .bar { position: absolute; left: 0; bottom: 0; height: 3px; background: var(--brand-100); transition: width 300ms var(--ease-out); }
+.worldcup_page .vote.on .bar { background: rgba(255,255,255,.28); }
+.worldcup_page .vote.res.correct .bar { background: rgba(45,106,79,.18); }
+.worldcup_page .vote .top { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.worldcup_page .vote .lab { font-size: 14px; font-weight: 700; letter-spacing: -.01em; }
+.worldcup_page .vote .sub { margin-top: 3px; font-size: 11px; font-weight: 600; opacity: .72; font-variant-numeric: tabular-nums; }
+.worldcup_page .vote .ic { width: 14px; height: 14px; }
+.worldcup_page .card-foot { margin-top: 11px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--ink-3); }
+.worldcup_page .card-foot .l { display: inline-flex; align-items: center; gap: 5px; }
+.worldcup_page .card-foot .ic { width: 13px; height: 13px; }
+.worldcup_page .card-foot .good { color: var(--success); font-weight: 700; }
+.worldcup_page .card-foot .bad { color: var(--danger); font-weight: 700; }
+.worldcup_page .card-foot .picked { color: var(--brand-700); font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
+
+/* =========================== DEMO BAR =============================== */
+.worldcup_page .demobar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.worldcup_page .demobar .lbl { font-size: 12px; font-weight: 600; color: var(--ink-4); display: inline-flex; align-items: center; gap: 6px; }
+.worldcup_page .demobar .ic { width: 13px; height: 13px; }
+
+/* =========================== LEADERBOARD =========================== */
+.worldcup_page .podium { background: radial-gradient(120% 130% at 50% 0%, #7c0a1f, #3a0510); border-radius: var(--r-xl); padding: 26px 20px 0; color: #fff; overflow: hidden; }
+.worldcup_page .podium .stand { display: flex; align-items: flex-end; justify-content: center; gap: 14px; }
+.worldcup_page .podium .slot { flex: 0 1 150px; text-align: center; }
+.worldcup_page .podium .av { width: 54px; height: 54px; margin: 0 auto 8px; border-radius: 50%; background: rgba(255,255,255,.12);
+  display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #fff; border: 2px solid; }
+.worldcup_page .podium .nm { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.worldcup_page .podium .pts { font-size: 12px; color: #e7c97a; font-weight: 700; font-family: var(--font-mono); }
+.worldcup_page .podium .bar { margin-top: 10px; border-radius: 8px 8px 0 0; display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 8px; font-size: 26px; font-weight: 800; color: #1a1206; }
+
+/* Bảng xếp hạng — dạng <table> */
+.worldcup_page table.lb { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--canvas); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+.worldcup_page table.lb th, .worldcup_page table.lb td { padding: 12px 16px; vertical-align: middle; text-align: left; }
+.worldcup_page table.lb thead .lb-head th { background: var(--paper-2); padding: 10px 16px; font-size: 11px; font-weight: 700; letter-spacing: .1em; color: var(--ink-3); text-transform: uppercase; }
+.worldcup_page table.lb tbody tr.lb-row td { border-top: 1px solid var(--line-soft); }
+.worldcup_page table.lb tbody tr.me { background: var(--brand-50); }
+.worldcup_page table.lb .rk { width: 56px; font-family: var(--font-mono); font-weight: 600; color: var(--ink-3); }
+.worldcup_page table.lb td.who .ava { display: inline-flex; align-items: center; justify-content: center; vertical-align: middle; margin-right: 10px; width: 30px; height: 30px; border-radius: 50%; overflow: hidden; background: var(--paper-3); color: var(--ink-2); font-size: 13px; font-weight: 700; }
+.worldcup_page table.lb tbody tr.me .ava { background: var(--brand-700); color: #fff; }
+.worldcup_page table.lb td.who .name { vertical-align: middle; font-weight: 600; color: var(--ink-1);white-space: nowrap}
+.worldcup_page table.lb tbody tr.me .name { font-weight: 700; color: var(--brand-800); }
+.worldcup_page table.lb .c { width: 70px; text-align: right; font-family: var(--font-mono); color: var(--ink-2); }
+.worldcup_page table.lb .st { width: 78px; text-align: right; }
+.worldcup_page table.lb .st .flame { display: inline-flex; align-items: center; gap: 3px; color: var(--warning); font-weight: 700; font-size: 13px; }
+.worldcup_page table.lb .st .ic { width: 13px; height: 13px; }
+.worldcup_page table.lb .st .dash { color: var(--ink-5); }
+.worldcup_page table.lb .p { width: 84px; text-align: right; font-family: var(--font-mono); font-weight: 700; color: var(--ink-1); }
+.worldcup_page table.lb tbody tr.me .p { color: var(--brand-700); }
+/*=============== [Worldcup - BXH trống: danh sách mờ placeholder] - START ===============*/
+.worldcup_page .lb-empty { position: relative; }
+.worldcup_page .lb-ghost {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  filter: blur(3px) saturate(.92);
+  opacity: .5;
+  pointer-events: none;
+  user-select: none;
+  }
+.worldcup_page .lb-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.worldcup_page .lb-overlay .wc-empty { max-width: 440px; width: 100%; box-shadow: var(--shadow-lg); }
+/*=============== [Worldcup - BXH trống] - END ===============*/
+.worldcup_page .tag-me { font-size: 10px; padding: 2px 8px; background: var(--brand-700); color: #fff; border-radius: var(--r-pill); font-weight: 600; }
+
+/* =========================== HISTORY =============================== */
+.worldcup_page .stats { display: flex; gap: 14px; flex-wrap: wrap; }
+.worldcup_page .stat { flex: 1; min-width: 200px; background: var(--canvas); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px 18px; }
+.worldcup_page .stat .k { font-size: 12px; font-weight: 600; color: var(--ink-3); letter-spacing: .04em; }
+.worldcup_page .stat .v { margin-top: 6px; font-size: 30px; font-weight: 700; letter-spacing: -.03em; color: var(--ink-1); font-variant-numeric: tabular-nums; }
+.worldcup_page .stat .v.brand { color: var(--brand-700); } .stat .v.warn { color: var(--warning); }
+.worldcup_page .stat .s { font-size: 12px; color: var(--ink-4); }
+.worldcup_page .hist { background: var(--canvas); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+.worldcup_page .hist-row { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-top: 1px solid var(--line-soft); }
+.worldcup_page .hist-row:first-child { border-top: none; }
+.worldcup_page .hist-row .res { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.worldcup_page .hist-row .res .sc { font-size: 14px; font-weight: 700; font-family: var(--font-mono); color: var(--ink-1); }
+.worldcup_page .hist-row .res .mt { font-size: 13px; color: var(--ink-3); margin-left: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.worldcup_page .hist-row .pk { font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+.worldcup_page .hist-row .pk b { color: var(--ink-1); }
+.worldcup_page .hist-row .pts { width: 56px; text-align: right; font-family: var(--font-mono); font-weight: 700; }
+.worldcup_page .hist-row .pts.plus { color: var(--success); } .hist-row .pts.zero { color: var(--ink-4); }
+
+/* =========================== RESULTS =============================== */
+.earn { position: relative; overflow: hidden; border-radius: var(--r-xl); color: #fff; padding: 24px 28px;
+  background: radial-gradient(120% 140% at 15% 0%, #2d6a4f, #18402f); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.earn .ico { width: 56px; height: 56px; border-radius: var(--r-lg); background: rgba(255,255,255,.14); display: flex; align-items: center; justify-content: center; }
+.worldcup_page .earn .ico .ic { width: 28px; height: 28px; }
+.worldcup_page .earn .lft { display: flex; align-items: center; gap: 16px; }
+.worldcup_page .earn .k { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.8); }
+.worldcup_page .earn .v { font-size: 38px; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
+.worldcup_page .earn .v small { font-size: 18px; font-weight: 600; }
+.worldcup_page .earn .rgt { text-align: right; font-size: 13px; color: rgba(255,255,255,.85); }
+.worldcup_page .earn .rgt b { color: #e7c97a; }
+.worldcup_page .res-card { background: var(--canvas); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px 18px; box-shadow: var(--shadow-sm); }
+.worldcup_page .res-card.win { border-color: var(--success); }
+.worldcup_page .res-card .tline { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.worldcup_page .res-card .tline .t { display: flex; align-items: center; gap: 9px; flex: 1; min-width: 0; }
+.worldcup_page .res-card .tline .t.r { justify-content: flex-end; }
+.worldcup_page .res-card .tline .t .nm { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.worldcup_page .res-card .sc { font-family: var(--font-mono); font-weight: 600; font-size: 22px; color: var(--ink-1); }
+.worldcup_page .res-card .meta { margin-top: 12px; padding-top: 11px; border-top: 1px solid var(--line-soft); display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-3); }
+.worldcup_page .res-card .meta b { color: var(--ink-1); }
+.worldcup_page .res-card .bonus { margin-top: 8px; font-size: 11.5px; color: var(--warning); font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+.worldcup_page .res-card .bonus .ic { width: 12px; height: 12px; }  
+
+/* =========================== ADMIN MODAL =========================== */
+.worldcup_page .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 60; background: rgba(40,26,15,.55);
+  display: flex; align-items: flex-start; justify-content: center; padding: 5vh 16px; overflow-y: auto; }
+.worldcup_page .admin_modal.modal { width: min(680px, 100%); background: var(--canvas); border-radius: var(--r-xl); box-shadow: var(--shadow-xl); overflow: hidden; }
+.worldcup_page .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--line); }
+.worldcup_page .modal-head .l { display: flex; align-items: center; gap: 11px; }
+.worldcup_page .modal-head .badge { width: 36px; height: 36px; border-radius: var(--r-md); background: var(--brand-700); display: flex; align-items: center; justify-content: center; }
+.worldcup_page .modal-head .badge .ic { width: 20px; height: 20px; }
+.worldcup_page .modal-head .ti { font-size: 16px; font-weight: 700; letter-spacing: -.01em; }
+.worldcup_page .modal-head .su { font-size: 12px; color: var(--ink-3); }
+.worldcup_page .modal-head .x { background: none; border: none; cursor: pointer; padding: 6px; border-radius: var(--r-md); color: var(--ink-3); }
+.worldcup_page .modal-head .x .ic { width: 20px; height: 20px; }
+.worldcup_page .modal-tabs { display: flex; gap: 14px; padding: 12px 22px 0; }
+.worldcup_page .modal-tabs button { display: inline-flex; align-items: center; gap: 7px; border: none; background: none; cursor: pointer;
+  padding: 8px 4px; font-size: 14px; font-weight: 600; color: var(--ink-3); border-bottom: 2px solid transparent; }
+.worldcup_page .modal-tabs button.on { color: var(--brand-700); border-bottom-color: var(--brand-700); }
+.worldcup_page .modal-tabs .ic { width: 15px; height: 15px; }
+.worldcup_page .modal-body { padding: 20px 22px 15px; max-height: 62vh; overflow-y: auto; }
+
+.preview-strip { background: var(--paper-2); border: 1px dashed var(--line-strong); border-radius: var(--r-lg);
+  padding: 16px 18px; display: flex; align-items: center; justify-content: center; gap: 16px; min-height: 78px; margin-bottom: 18px; }
+.preview-strip .t { display: flex; align-items: center; gap: 8px; }
+.preview-strip .t b { font-size: 14px; }
+.preview-strip .ph { color: var(--ink-4); font-size: 13px; }
+.preview-strip .vs { font-weight: 800; color: var(--ink-4); font-size: 13px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field { display: block; }
+.field .lab { font-size: 12.5px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+.inp, .sel { width: 100%; padding: 10px 12px; font-size: 14px; font-family: var(--font-sans); color: var(--ink-1);
+  background: var(--canvas); border: 1px solid var(--line); border-radius: var(--r-md); box-sizing: border-box; }
+.sel { appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b5f51' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; }
+.err { font-size: 12.5px; color: var(--danger); display: flex; align-items: center; gap: 6px; }
+.err .ic { width: 14px; height: 14px; }
+.form-actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 4px;position: sticky;bottom: 0px;background: #FFF; }
+.added { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.added .item { display: flex; align-items: center; gap: 10px; font-size: 13px; background: var(--paper-2); border-radius: var(--r-md); padding: 8px 12px; }
+.added .item .ko { margin-left: auto; color: var(--ink-3); font-family: var(--font-mono); font-size: 12px; }
+
+.dropzone { border: 2px dashed var(--line-strong); background: var(--paper-2); border-radius: var(--r-lg);
+  padding: 40px 20px; text-align: center; cursor: pointer; transition: all 140ms var(--ease-out); }
+.dropzone.drag { border-color: var(--brand-700); background: var(--brand-50); }
+.dropzone .ic { width: 40px; height: 40px; }
+.dropzone .t { margin-top: 12px; font-size: 15px; font-weight: 700; color: var(--ink-1); }
+
+/*=============== [Worldcup - Day section header + nhãn giờ] - START ===============*/
+.worldcup_page .day-section { display: flex; flex-direction: column; gap: 12px; }
+.worldcup_page .day-head { display: flex; align-items: center; gap: 8px; }
+.worldcup_page .day-head .ic { width: 17px; height: 17px; color: var(--brand-700); }
+.worldcup_page .day-head .day-title { font-size: 15px; font-weight: 800; color: var(--ink-1); letter-spacing: -0.01em; }
+.worldcup_page .day-head .day-count { /*margin-left: auto;*/ font-size: 12px; font-weight: 600; color: var(--ink-3);
+  background: var(--paper-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; }
+.worldcup_page .vs .ko { white-space: nowrap; }
+/*=============== [Worldcup - Day section header + nhãn giờ] - END ===============*/
+.dropzone .s { margin-top: 4px; font-size: 13px; color: var(--ink-3); }
+
+/*=============== [Worldcup - Empty state (giao diện mặc định khi danh sách trống)] - START ===============*/
+.worldcup_page .wc-empty { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 6px; padding: 46px 28px; background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--r-xl); }
+.worldcup_page .wc-empty::before { content: ""; position: absolute; inset: -24px; z-index: 0;
+  background: url("../images/bg_worldcup.png") center / cover no-repeat; filter: blur(12px) saturate(1.15); opacity: .13; }
+.worldcup_page .wc-empty::after { content: ""; position: absolute; inset: 0; z-index: 0;
+  background: radial-gradient(120% 90% at 50% 0%, rgba(149,11,37,.07), transparent 70%); }
+.worldcup_page .wc-empty > * { position: relative; z-index: 1; }
+.worldcup_page .wc-empty .wc-empty-ic { width: 66px; height: 66px; border-radius: 999px; margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: center; background: var(--brand-50); border: 1px solid var(--brand-100); }
+.worldcup_page .wc-empty .wc-empty-ic .ic { width: 30px; height: 30px; color: var(--brand-700); }
+.worldcup_page .wc-empty .wc-empty-title { font-size: 17px; font-weight: 800; color: var(--ink-1); letter-spacing: -0.01em; }
+.worldcup_page .wc-empty .wc-empty-sub { font-size: 13.5px; line-height: 1.55; color: var(--ink-3); max-width: 380px; }
+.worldcup_page .wc-empty .wc-empty-cta { margin-top: 14px; }
+.worldcup_page .wc-empty.loading .wc-empty-ic { background: var(--paper-3); border-color: var(--line); }
+.worldcup_page .wc-empty.loading .wc-empty-ic .ic { color: var(--ink-4); }
+/*=============== [Worldcup - Empty state] - END ===============*/
+.imp-head { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.imp-head .swap { margin-left: auto; background: none; border: none; color: var(--brand-700); font-size: 13px; font-weight: 600; cursor: pointer; }
+.imp-table { border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+.imp-row { display: grid; grid-template-columns: 1.2fr 1.2fr 1fr .7fr 1fr 70px; gap: 8px; padding: 10px 14px; font-size: 13px; align-items: center; border-top: 1px solid var(--line-soft); }
+.imp-row.head { background: var(--paper-2); font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--ink-3); text-transform: uppercase; border-top: none; }
+.imp-row.bad { background: var(--danger-soft); }
+.imp-row .mono { font-family: var(--font-mono); color: var(--ink-2); }
+.imp-row .miss { color: var(--danger); }
+.imp-row .end { text-align: right; }
+.imp-row .ic { width: 16px; height: 16px; }
+.import-hint { font-size: 12px; color: var(--ink-3); display: flex; align-items: center; gap: 6px; }
+.import-hint .ic { width: 13px; height: 13px; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 70; background: var(--success);
+  color: #fff; padding: 11px 18px; border-radius: var(--r-pill); font-size: 13.5px; font-weight: 600; box-shadow: var(--shadow-lg);
+  display: flex; align-items: center; gap: 8px; }
+.toast .ic { width: 16px; height: 16px; }
+
+/* =========================== SETTINGS PANEL ======================== */
+.gear { position: fixed; right: 18px; bottom: 78px; z-index: 45; width: 46px; height: 46px; border-radius: 50%;
+  background: var(--brand-700); color: #fff; border: none; cursor: pointer; box-shadow: var(--shadow-lg); display: flex; align-items: center; justify-content: center; }
+.gear .ic { width: 20px; height: 20px; }
+.panel { position: fixed; right: 18px; bottom: 78px; z-index: 46; width: 300px; max-height: 76vh; overflow-y: auto;
+  background: var(--canvas); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-xl); padding: 16px; }
+.panel .ph { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.panel .ph .t { font-size: 15px; font-weight: 700; }
+.panel .ph .x { background: none; border: none; cursor: pointer; color: var(--ink-3); }
+.panel .ph .x .ic { width: 18px; height: 18px; }
+.panel .ts { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin: 14px 0 8px; }
+.panel .tr { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.panel .tr .lab { font-size: 13px; color: var(--ink-2); }
+.panel .tr .val { font-size: 12px; font-family: var(--font-mono); color: var(--brand-700); font-weight: 600; }
+.panel input[type=range] { width: 100%; accent-color: var(--brand-700); }
+.sw { width: 40px; height: 23px; border-radius: 999px; background: var(--line-strong); position: relative; cursor: pointer; border: none; flex: 0 0 auto; transition: background 140ms; }
+.sw.on { background: var(--brand-700); }
+.sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 19px; height: 19px; border-radius: 50%; background: #fff; transition: left 140ms var(--ease-out); }
+.sw.on::after { left: 19px; }
+.seg.mini button { padding: 5px 10px; font-size: 12px; }
+
+@media (max-width: 460px) { .countdown { transform: scale(.9); transform-origin: center; } }
+
+/* =========================================================================
+   Fix: modal/panel/toast phải nổi TRÊN theme (theme có phần tử z-index:9999),
+   nếu không modal admin sẽ bị che khuất và "không hiển thị".
+   ========================================================================= */
+.worldcup_page .gear,
+.worldcup_page .panel  { z-index: 10040; }
+.worldcup_page .overlay { z-index: 10050; }
+.worldcup_page .toast   { z-index: 10060; }
+
+/* =========================================================================
+   Fix: Bootstrap của theme (global.min.css) đặt .modal{display:none;
+   position:fixed; height:100%; z-index:5} → ẩn & sai layout modal admin.
+   Trả .modal về hộp block bình thường (lớp full-screen là .overlay).
+   ========================================================================= */
+.worldcup_page .overlay { display: flex; }
+.worldcup_page .modal {
+    display: block;
+    position: relative;
+    top: auto;
+    left: auto;
+    height: auto;
+    z-index: auto;
+    overflow: hidden;
+}

@@ -1,0 +1,151 @@
+/*
+ * sky-theme.css — Global frontend theme tokens (all modules)
+ * ----------------------------------------------------------------
+ * Single source of truth for brand + surface + ranking colors.
+ * Navy (#1d446b) is the hardcoded default this round. A later round
+ * overrides --sky-primary (and friends) per client by injecting a
+ * <style>:root{...}</style> from the admin BrandColor config into
+ * <head> — no CSS here needs to change for that to work.
+ *
+ * Loaded once in application/views/index.tpl, after style.css and
+ * before {mod}.css, so every frontend page (sidebar, dashboard,
+ * ranking) can reference these variables and override Sneat base.
+ */
+:root {
+	/* Brand — navy scale (default; per-client override target) */
+	--sky-primary-rgb: 29, 68, 107;
+	--sky-primary-dark-rgb: 19, 49, 79;
+	--sky-primary-darker-rgb: 13, 35, 56;
+	--sky-primary: var(--main-color);
+	--sky-primary-dark: rgb(var(--sky-primary-dark-rgb));
+	--sky-primary-darker: rgb(var(--sky-primary-darker-rgb));
+	--sky-accent: var(--main-color);
+	--sky-primary-soft: #eaf1f8;
+
+	/* Surface — page background, cards, borders, text */
+	--sky-bg: #f6f8fb;
+	--sky-surface: #fff;
+	--sky-border: #e6ecf3;
+	--sky-text: #1f2b3a;
+	--sky-muted: #6b7a8d;
+
+	/* Ranking — màu chủ đạo lấy từ LOGO Sky Realty: NAVY (chữ) + GOLD (tia).
+	 * --rank-primary = navy thương hiệu (= --sky-primary). Các bậc TỰ SUY bằng color-mix
+	 * (fallback hex tĩnh navy cho trình duyệt cũ). Admin override --rank-primary nếu cần. */
+	--rank-primary: var(--sky-primary);
+	/* navy #1d446b — chủ đạo (từ logo) */
+	--rank-1: #10253b;
+	/* fallback: navy tối nhất (gốc gradient) */
+	--rank-1: color-mix(in srgb, var(--rank-primary) 55%, #000);
+	--rank-2: #173656;
+	/* fallback: navy giữa */
+	--rank-2: color-mix(in srgb, var(--rank-primary) 80%, #000);
+	--rank-3: #1d446b;
+	/* fallback: navy sáng = primary */
+	--rank-3: var(--rank-primary);
+	--rank-gold: #e6ac35;
+	/* gold từ tia logo (podium #1, viền) */
+	--rank-gold-soft: #f4d385;
+	/* gold nhạt (title/ánh sáng) */
+	--rank-accent: #c9922b;
+	/* nhấn: gold đậm (thay xanh, hợp brand) */
+}
+
+/* ===================================================================
+ * Podium BXH cá nhân (block top_ranking) — reskin ĐỎ → NAVY + GOLD.
+ * Bậc/cap gốc đỏ nằm ở style.css (Sneat original, KHÔNG sửa) → override
+ * ở đây (sky-theme.css nạp sau style.css). Dùng token --rank-*.
+ * #1 (vô địch) giữ navy + đổi cap đỏ → GOLD cho nổi bật.
+ * =================================================================== */
+/* Mỗi bậc = KHỐI HỘP 3D: mặt trước gradient navy (như #1) + mặt trên vát (:before)
+ * để navy SÁNG hơn mặt trước → lộ cạnh khối 3D (không bị phẳng). */
+.rank__block-item.rank__top-second {
+	background: linear-gradient(6deg, var(--sky-accent) 25%, var(--rank-2) 100%) !important;
+}
+
+.rank__block-item.rank__top-second:before {
+	border-bottom-color: var(--sky-accent) !important;
+}
+
+.rank__block-item.rank__top-three {
+	background: linear-gradient(6deg, var(--rank-2) 25%, var(--rank-1) 100%) !important;
+}
+
+.rank__block-item.rank__top-three:before {
+	border-bottom-color: var(--rank-2) !important;
+}
+
+.rank__block-item.rank__top-one:before {
+	border-bottom-color: var(--rank-gold) !important;
+}
+
+.rank__profile-profit {
+	background: var(--rank-1) !important;
+}
+
+.rank__tab-panel .btn-ranking {
+	background: var(--rank-1) !important;
+}
+
+/* Tab thời gian BXH Vùng/Phòng (ranking_dept) — tab active đỏ #520211 → navy */
+.ranking__dept-nav > li > a.active {
+	background: var(--rank-1) !important;
+}
+
+/* ==================================================================
+ * Empty state (.dbx-empty) — đặt ở đây vì sky-theme.css nạp GLOBAL
+ * (trước {$mod}.css) nên mọi module dùng được, không chỉ mod=home.
+ * Huy hiệu icon tròn navy nhạt + tiêu đề + phụ đề.
+ * ================================================================== */
+.dbx-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 30px 16px;
+	color: #9aa7b6;
+}
+
+.dbx-empty img {
+	width: 84px;
+	height: auto;
+	opacity: .9;
+}
+
+.dbx-empty i {
+	font-size: 42px;
+	opacity: .35;
+}
+
+.dbx-empty__ic {
+	width: 58px;
+	height: 58px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--sky-primary-soft);
+	color: var(--sky-accent);
+	margin-bottom: 2px;
+}
+
+.dbx-empty__ic i {
+	font-size: 28px;
+	opacity: 1;
+}
+
+.dbx-empty__t {
+	font-size: 13.5px;
+	font-weight: 600;
+	color: #6b7a8c;
+}
+
+.dbx-empty__s {
+	font-size: 12px;
+	color: #9aa7b6;
+	margin-top: -3px;
+}
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+    display: none !important;
+}

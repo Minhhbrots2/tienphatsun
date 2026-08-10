@@ -1,0 +1,383 @@
+<div class="modal-dialog modal-xxl">
+	<form class="modal-content" id="frmIssue" enctype="multipart/form-data">
+		<div class="modal-header{if $deviceType ne 'phone'} border-bottom{/if}">
+			<h5 class="modal-title">Công cụ tính khoản vay {$oneStock.ms_code}</h5>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<div class="modal-body">
+			<div class="row">
+				<div class="col-12 col-lg-6 mb-3 mb-lg-0 left__pop">
+					{if $deviceType eq 'phone'}
+					<div class="form-group row mb-3">
+						<label class="col-form-label col-6">Giá trị nhà đất</label>
+						<div class="col-6">
+							<div class="input-group input-group-merge">
+								<input type="number" class="form-control calc_field" onChange="$Core.calculator.do_calculator(this, event)" 
+								value="{$total_price_vat}" uid="{$uid}" id="price" onClick="this.select()" name="price" placeholder="Giá trị nhà đất">
+								<span class="input-group-text">tỷ</span>
+							</div>
+						</div>
+					</div>
+					<div class="form-group row mb-3">
+						<label class="col-form-label col-6">Tỷ lệ vay</label>
+						<div class="col-6">
+							<div class="input-group input-group-merge">
+								{if !empty($list_field_configs)}
+								<select class="form-control calc_field" uid="{$uid}" id="ratio" name="ratio" 
+								onChange="$Core.calculator.do_calculator(this, event)">
+									{foreach from=$list_field_configs item = _fConfig}
+									<option{if $_fConfig.ratio eq $def_configs.ratio} selected{/if} value="{$_fConfig.ratio}">{$_fConfig.title}</option>
+									{/foreach}
+								</select>
+								{else}
+								<input type="number" uid="{$uid}" class="form-control calc_field" onClick="this.select()" onChange="$Core.calculator.do_calculator(this, event)" value="{$def_configs.ratio}" id="ratio" name="ratio" placeholder="Tỷ lệ vay">
+								{/if}
+								<span class="input-group-text cursor-pointer">%</span>
+							</div>
+						</div>
+					</div>
+					<div class="form-group row mb-3">
+						<label class="col-form-label col-6">Thời hạn vay</label>
+						<div class="col-6">
+							<div class="input-group">
+								<input type="number" uid="{$uid}" class="form-control calc_field" onClick="this.select()" onChange="$Core.calculator.do_calculator(this, event)" id="year" name="year" value="35" placeholder="Thời hạn vay (năm)">
+								<span class="input-group-text w-px-90">Năm</span>
+							</div>
+						</div>
+					</div>
+					<div class="divider text-start">
+						<div class="divider-text text-main fw-bold">LÃI SUẤT ƯU ĐÃI</div>
+					</div>
+					<div class="form-group mb-3">
+						<label class="form-label mb-1" for="giatri">Ngân hàng</label>
+						<select onChange="$Core.calculator.set_bank(this, event)" class="form-control form-select iso-select2" data-width="100%">
+							{foreach from=$list_banks item = _oB}
+							<option{if $_oB.id eq $def_configs.id} selected{/if} preferentialRate="{$_oB.preferentialRate}" preferentialTime="{$_oB.preferentialTime}" value="{$_oB.id}">{$_oB.name}</option>
+							{/foreach}
+						</select>
+					</div>
+					<div class="form-group row mb-3">
+						<label class="col-form-label col-6">Lãi suất ưu đãi</label>
+						<div class="col-6">
+							<div class="input-group input-group-merge">
+								<input type="number" uid="{$uid}" class="form-control calc_field" onClick="this.select()" onChange="$Core.calculator.do_calculator(this, event)" value="{$def_configs.introRate}" placeholder="Thời hạn vay (năm)" id="introRate" name="introRate">
+								<span class="input-group-text cursor-pointer">%</span>
+							</div>
+						</div>
+					</div>
+					<div class="form-group row mb-3">
+						<label class="col-form-label col-6">Thời gian ưu đãi</label>
+						<div class="col-6">
+							<div class="input-group">
+								<input type="number" uid="{$uid}" class="form-control calc_field" onChange="$Core.calculator.do_calculator(this, event)" value="{$def_configs.introMonths}" placeholder="Nhập thời gian" id="introMonths" onClick="this.select()" name="introMonths">
+								<select class="form-control w-px-50 form-select" uid="{$uid}" name="introMonthsUnit" onChange="$Core.calculator.do_calculator(this, event)">
+									<option value="_MONTH">Tháng</option>
+									<option selected value="_YEAR">Năm</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="form-group row mb-3">
+						<label class="col-form-label col-6">Lãi suất sau ưu đãi</label>
+						<div class="col-6">
+							<div class="input-group input-group-merge">
+								<input type="number" uid="{$uid}" class="form-control calc_field" onClick="this.select()" onChange="$Core.calculator.do_calculator(this, event)" id="rate" value="11" name="rate" placeholder="Nhập lãi suất">
+								<span class="input-group-text cursor-pointer">%</span>
+							</div>
+						</div>
+					</div>
+					<div class="divider text-start">
+						<div class="divider-text text-main fw-bold">PHƯƠNG THỨC TÍNH LÃI</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col-6">
+							<div class="form-check">
+								<input type="radio" uid="{$uid}" name="paymentMethod" class="form-check-input calc_field" onChange="$Core.calculator.do_calculator(this, event)" id="type1" checked value="1">
+								<label class="form-check-label" for="defaultRadio1">Dư nợ giảm dần </label>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="form-check">
+								<input type="radio" uid="{$uid}" name="paymentMethod" onChange="$Core.calculator.do_calculator(this, event)" class="form-check-input calc_field" id="type2" value="2">
+								<label class="form-check-label" for="defaultRadio1"> Đều hàng tháng</label>
+							</div>
+						</div>
+					</div>
+					{assign var = gId value = $clsISO->getUniqid()}
+					<div class="form-group row mb-3">
+						<div class="col-6">
+							<div class="form-check mt-2">
+								<input class="form-check-input" onChange="$Core.calculator.set_active(this, event)" 
+								toId="gracePeriod" type="checkbox" id="{$gId}">
+								<label class="form-check-label text-upper text-nowrap" for="{$gId}">Ân hạn nợ gốc</label>
+							</div>
+						</div>
+						<div id="block_{$gId}" class="d-none col-6">
+							<div class="input-group">
+								<input type="number" uid="{$uid}" class="form-control calc_field" onChange="$Core.calculator.do_calculator(this, event)" id="gracePeriod" value="0" name="gracePeriod" onClick="this.select()" placeholder="Nhập số...">
+								<select uid="{$uid}" class="form-control w-px-50 form-select" name="gracePeriodUnit" onChange="$Core.calculator.do_calculator(this, event)">
+									<option selected value="_MONTH">Tháng</option>
+									<option value="_YEAR">Năm</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					{assign var = gId value = $clsISO->getUniqid()}
+					<div class="form-group row mb-3">
+						<div class="col-6">
+							<div class="form-check mt-2">
+								<input onChange="$Core.calculator.set_active(this, event)" toId="interestRateSupportPeriod" 
+								class="form-check-input" type="checkbox" id="{$gId}">
+								<label class="form-check-label text-upper text-nowrap" for="{$gId}">Hỗ trợ lãi suất</label>
+							</div>
+						</div>
+						<div id="block_{$gId}" class="d-none col-6">
+							<div class="input-group">
+								<input type="number" class="form-control calc_field" onClick="this.select()" onChange="$Core.calculator.do_calculator(this, event)" 
+								value="0" uid="{$uid}" id="interestRateSupportPeriod" name="interestRateSupportPeriod" placeholder="Nhập số">
+								<select uid="{$uid}" class="form-control w-px-50 form-select" name="interestRateSupportPeriodUnit" onChange="$Core.calculator.do_calculator(this, event)">
+									<option selected value="_MONTH">Tháng</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					{else}
+					<div class="form-group mb-2">
+						<label class="form-label mb-1">Giá trị nhà đất</label>
+						<div class="d-flex ga-2 align-items-center">
+							<div class="form-group w-{$col_w1}">
+								<input type="range" class="form-range" toId="price" onChange="$Core.calculator.set_change(this, event)" 
+								min="1" max="20" value="{$total_price_vat}" step="0.1">
+							</div>
+							<div class="input-group input-group-merge w-{$col_w2}">
+								<input type="number" class="form-control calc_field" onChange="$Core.calculator.do_calculator(this, event)" 
+								value="{$total_price_vat}" uid="{$uid}" id="price" onClick="this.select()" name="price" placeholder="Giá trị nhà đất">
+								<span class="input-group-text cursor-pointer">tỷ</span>
+							</div>
+						</div>
+					</div>
+					<div class="form-group mb-2">
+						<div class="mb-1 d-flex align-items-center justify-content-between">
+							<label class="form-label mb-0">Tỷ lệ vay</label>
+							<div class="total-price">
+								<span id="viewTongTienVay_{$uid}" class="fs-12 text-muted">
+									{$total_price_ratio}
+								</span> tỷ
+							</div>
+						</div>
+						<div class="d-flex ga-2 align-items-center">
+							<div class="form-group w-{$col_w1}">
+								{if !empty($list_field_configs)}
+								<input type="range" class="form-range" toId="ratio" onChange="$Core.calculator.set_change(this, event)" min="{$def_configs.min}" max="{$def_configs.max}" step="{$def_configs.step}" value="{$def_configs.ratio}">
+								{else}
+								<input type="range" class="form-range" toId="ratio" onChange="$Core.calculator.set_change(this, event)" min="1" max="100" value="{$def_configs.ratio}">
+								{/if}
+							</div>
+							<div class="input-group input-group-merge w-{$col_w2}">
+								{if !empty($list_field_configs)}
+								<select class="form-control calc_field" uid="{$uid}" id="ratio" name="ratio" 
+								onChange="$Core.calculator.do_calculator(this, event)">
+									{foreach from=$list_field_configs item = _fConfig}
+									<option{if $_fConfig.ratio eq $def_configs.ratio} selected{/if} value="{$_fConfig.ratio}">{$_fConfig.title}</option>
+									{/foreach}
+								</select>
+								{else}
+								<input type="number" uid="{$uid}" class="form-control calc_field" 
+								onClick="this.select()" onChange="$Core.calculator.do_calculator(this, event)" 
+								value="{$def_configs.ratio}" id="ratio" name="ratio" placeholder="Tỷ lệ vay">
+								{/if}
+								<span class="input-group-text cursor-pointer">%</span>
+							</div>
+						</div>
+					</div>
+					<div class="form-group mb-2">
+						<label class="form-label mb-1" for="giatri">Thời hạn vay (năm)</label>
+						<div class="d-flex ga-2 align-items-center">
+							<div class="form-group w-{$col_w1}">
+								<input type="range" class="form-range" toId="year" 
+								onChange="$Core.calculator.set_change(this, event)" min="1" max="40" value="35">
+							</div>
+							<div class="input-group input-group-merge w-{$col_w2}">
+								<input type="number" uid="{$uid}" class="form-control calc_field" onClick="this.select()" onChange="$Core.calculator.do_calculator(this, event)" id="year" name="year" value="35" placeholder="Thời hạn vay (năm)">
+								<span class="input-group-text cursor-pointer">N</span>
+							</div>
+						</div>
+					</div>
+					<div class="divider text-start">
+						<div class="divider-text text-main fw-bold">LÃI SUẤT ƯU ĐÃI</div>
+					</div>
+					<div class="form-group mb-3">
+						<label class="form-label mb-1" for="giatri">Ngân hàng</label>
+						<select onChange="$Core.calculator.set_bank(this, event)" class="form-control form-select iso-select2" data-width="100%">
+							{foreach from=$list_banks item = _oB}
+							<option{if $_oB.id eq $def_configs.id} selected{/if} preferentialRate="{$_oB.preferentialRate}" preferentialTime="{$_oB.preferentialTime}" value="{$_oB.id}">{$_oB.name}</option>
+							{/foreach}
+						</select>
+					</div>
+					<div class="form-group mb-2">
+						<label class="form-label mb-1" for="giatri">Lãi suất ưu đãi</label>
+						<div class="d-flex ga-2 align-items-center">
+							<div class="form-group w-{$col_w1}">
+								<input type="range" class="form-range" step="0.1" toId="introRate" onChange="$Core.calculator.set_change(this, event)" min="0" max="40" value="{$def_configs.introRate}">
+							</div>
+							<div class="input-group input-group-merge w-{$col_w2}">
+								<input type="number" uid="{$uid}" class="form-control calc_field" onClick="this.select()" onChange="$Core.calculator.do_calculator(this, event)" value="{$def_configs.introRate}" placeholder="Thời hạn vay (năm)" id="introRate" name="introRate">
+								<span class="input-group-text cursor-pointer">%</span>
+							</div>
+						</div>
+					</div>
+					<div class="form-group mb-2">
+						<label class="form-label mb-1" for="giatri">Thời gian ưu đãi</label>
+						<div class="d-flex ga-2 align-items-center">
+							<div class="form-group w-{$col_w1}">
+								<input type="range" class="form-range" toId="introMonths" onChange="$Core.calculator.set_change(this, event)" 
+								min="0" max="60" value="{$def_configs.introMonths}">
+							</div>
+							<div class="input-group w-{$col_w2}">
+								<input type="number" uid="{$uid}" class="form-control calc_field" onChange="$Core.calculator.do_calculator(this, event)" value="{$def_configs.introMonths}" placeholder="Nhập thời gian" id="introMonths" onClick="this.select()" name="introMonths">
+								<select class="form-control form-select" uid="{$uid}" name="introMonthsUnit" onChange="$Core.calculator.do_calculator(this, event)">
+									<option value="_MONTH">Tháng</option>
+									<option selected value="_YEAR">Năm</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="form-group mb-2">
+						<label class="form-label mb-1" for="giatri">Lãi suất sau ưu đãi</label>
+						<div class="d-flex ga-2 align-items-center">
+							<div class="form-group w-{$col_w1}">
+								<input type="range" class="form-range" step="0.1" toId="rate" onChange="$Core.calculator.set_change(this, event)" 
+								min="0" max="40" value="11">
+							</div>
+							<div class="input-group input-group-merge w-{$col_w2}">
+								<input type="number" uid="{$uid}" class="form-control calc_field" onClick="this.select()" onChange="$Core.calculator.do_calculator(this, event)" id="rate" value="11" name="rate" placeholder="Nhập lãi suất">
+								<span class="input-group-text cursor-pointer">%</span>
+							</div>
+						</div>
+					</div>
+					<div class="divider text-start">
+						<div class="divider-text text-main fw-bold">PHƯƠNG THỨC TÍNH LÃI</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col-6">
+							<div class="form-check">
+								<input type="radio" uid="{$uid}" name="paymentMethod" class="form-check-input calc_field" onChange="$Core.calculator.do_calculator(this, event)" id="type1" checked value="1">
+								<label class="form-check-label" for="defaultRadio1">Dư nợ giảm dần </label>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="form-check">
+								<input type="radio" uid="{$uid}" name="paymentMethod" onChange="$Core.calculator.do_calculator(this, event)" class="form-check-input calc_field" id="type2" value="2">
+								<label class="form-check-label" for="defaultRadio1">Đều hàng tháng</label>
+							</div>
+						</div>
+					</div>
+					<div class="form-group mb-3">
+						{assign var = gId value = $clsISO->getUniqid()}
+						<div class="form-check my-2">
+							<input class="form-check-input" onChange="$Core.calculator.set_active(this, event)" 
+							toId="gracePeriod" type="checkbox" id="{$gId}">
+							<label class="form-check-label text-upper fw-bold" for="{$gId}">Ân hạn nợ gốc</label>
+						</div>
+						<div id="block_{$gId}" class="d-none ga-2 align-items-center">
+							<div class="form-group boxrange w-{$col_w1}">
+								<input type="range" class="form-range" id="range_{$gId}" toId="gracePeriod" onChange="$Core.calculator.set_change(this, event)" min="0" max="480" value="0">
+							</div>
+							<div class="input-group w-{$col_w2}">
+								<input type="number" uid="{$uid}" class="form-control calc_field" onChange="$Core.calculator.do_calculator(this, event)" id="gracePeriod" value="0" name="gracePeriod" onClick="this.select()" placeholder="Nhập số...">
+								<select uid="{$uid}" class="form-control form-select" name="gracePeriodUnit" onChange="$Core.calculator.do_calculator(this, event)">
+									<option selected value="_MONTH">Tháng</option>
+									<option value="_YEAR">Năm</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="form-group mb-4">
+						{assign var = gId value = $clsISO->getUniqid()}
+						<div class="form-check my-2">
+							<input onChange="$Core.calculator.set_active(this, event)" toId="interestRateSupportPeriod" 
+							class="form-check-input" type="checkbox" id="{$gId}">
+							<label class="form-check-label text-upper fw-bold" for="{$gId}">Hỗ trợ lãi suất</label>
+						</div>
+						<div id="block_{$gId}" class="d-none ga-2 align-items-center">
+							<div class="form-group w-{$col_w1}">
+								<input type="range" uid="{$uid}" id="range_{$gId}" class="form-range" toId="interestRateSupportPeriod" onChange="$Core.calculator.set_change(this, event)" min="0" max="480" value="0">
+							</div>
+							<div class="input-group w-{$col_w2}">
+								<input type="number" class="form-control calc_field" onClick="this.select()" onChange="$Core.calculator.do_calculator(this, event)" 
+								value="0" uid="{$uid}" id="interestRateSupportPeriod" name="interestRateSupportPeriod" placeholder="Nhập số">
+								<select uid="{$uid}" class="form-control form-select" name="interestRateSupportPeriodUnit" onChange="$Core.calculator.do_calculator(this, event)">
+									<option selected value="_MONTH">Tháng</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					{/if}
+				</div>
+				<div class="col-12 col-lg-6 right__pop position-relative">
+					<div class="d-flex flex-column justify-content-between position-relative zindex-2 h-100">
+						<div class="top">
+							<div class="border border-primary bg-lighter p-3 mb-4 rounded-2 ">
+								<div class="viewLabelLai mb-2">Thanh toán tháng đầu</div>
+								<h5 id="viewLaiThangDau_{$uid}" class="text-primary">0.000.000</h5>
+								<div id="viewSubQuote_{$uid}" class="text-muted">Tỉ lệ vay 0% - 0 năm - 0.0%/năm</div>
+							</div>
+							<div class="row">
+								<div class="col-7" id="boxchart_{$uid}"></div>
+								<div class="col-5">
+									<p class="mb-2">Cần trả trước:</p>
+									<p class="mb-2 fs-20 viewCanTraTruoc fw-bold" id="viewCanTraTruoc_{$uid}">0.000</p>
+									<p class="mb-2">Gốc cần trả:</p>
+									<p class="mb-2 fs-20 viewGocCanTra fw-bold" id="viewGocCanTra_{$uid}">0.000</p>
+									<p class="mb-2">Lãi cần trả:</p>
+									<p class="mb-2 fs-20 viewLaiCanTra fw-bold" id="viewLaiCanTra_{$uid}">0.000</p>
+									<p class="mb-2">Tổng tiền:</p>
+									<p class="fw-bold fs-20 viewTongTien" id="viewTongTien_{$uid}">0.000</p>
+								</div>
+							</div>
+						</div>
+						<div class="d-flex align-items-center justify-content-center py-2">
+							<div id="html_MonthlyPayment_{$uid}" class="d-none">{$html_MonthlyPayment}</div>
+							<button type="button" onClick="$Core.calculator.view(this, event)" uid="{$uid}" class="btn btn-block btn-outline-primary"><strong>Xem bảng chi tiết</strong></button>
+							{if $deviceType eq 'phone'}
+							<button type="button" class="btn btn-icon btn-outline-default ml-2" data-bs-dismiss="modal" aria-label="Close" title="Đóng"><i class="bx bx-x"></i></button>
+							{/if}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{literal}
+<style type="text/css">
+	input[type="range"]{
+		width:calc(100% - 20px);
+	}
+	.right__pop:after{
+		content: "";
+		position: absolute;
+		right: -3px; top: -16px;
+		width: calc(100% + 6px);
+		height: calc(100% + 32px);
+		background: rgba(245, 131, 33, 0.1);
+		z-index:1;
+	}
+	.viewCanTraTruoc {
+		color: rgba(54, 162, 235, 1);
+		font-weight: bold;
+	}
+	.viewGocCanTra {
+		color: rgba(255, 206, 86, 1);
+		font-weight: bold;
+	}
+	.viewLaiCanTra {
+		color: rgba(255, 99, 132, 1);
+		font-weight: bold;
+	}
+	.viewTongTien {
+		color: #ec8922;
+		font-weight: bold;
+	}
+</style>
+{/literal}

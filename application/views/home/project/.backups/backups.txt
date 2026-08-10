@@ -1,0 +1,371 @@
+<div class="container-xxl flex-grow-1 pt-2 container-p-y container_project"> 
+	<section class="section_banner banner_page d-flex justify-content-center mb-4 position-relative overflow-hidden" style="background-image:url('{$oneProject.image}')">
+		<div class="container_project mx-auto d-flex flex-column justify-content-between"> 
+			<div class="top_content_banner text-white d-flex justify-content-between align-items-center w-100 zindex-1">
+				{if $show eq "project"}
+				<a href="/thong-tin/" class="btn btn_back text-white">Quay lại</a>
+				<span class="btn bg-main text-white rounded-pill py-1 px-3 fs-12">Đang mở bán</span>
+				{else if $show eq "block"}
+				<a href="{$clsProject->getLinkDetail($project_id,0,0,$oneProject)}" title="Quay lại" 
+					class="btn btn_back text-white">&nbsp; {$oneProject.title}</a>	
+				{if !empty($more_information.on_sale)}
+				<span class="btn bg-main text-white rounded-pill py-1 px-3 fs-12">Đang mở bán</span>
+				{/if}
+				{else if $show eq "building"}
+				<a href="{$clsProject->getLinkDetail($project_id,$block_id,0,$oneProject)}" title="Quay lại" 
+					class="btn btn_back text-white">&nbsp;{$oneBlock.title}</a>
+				{if !empty($more_information.on_sale)}
+				<span class="btn bg-main text-white rounded-pill py-1 px-3 fs-12">Đang mở bán</span>
+				{/if}
+				{/if}
+			</div>
+			<div class="content_banner d-flex flex-column justify-content-between align-items-start  w-100 text-white zindex-1">
+				<div class="mb-3">
+					{if $show eq "block"}
+						<h1 class="title_project fw-semibold mb-2 fs-2">Phân khu {$oneBlock.title}</h1>
+						<p class="text-white mb-0 fs-12">
+							<a href="{$clsProject->getLinkDetail($project_id,0,0,$oneProject)}" 
+								class="text-white">{$oneProject.title}</a>
+						</p>
+					{else if $show eq "building"}
+						<h1 class="title_project fw-semibold mb-2 fs-2">{$oneBuilding.title}</h1>
+						<p class="text-white mb-0 fs-12">
+							<a href="{$clsProject->getLinkDetail($project_id,$block_id,0,$oneProject)}" class="text-white">Phân khu {$oneBlock.title}</a>, <a href="{$clsProject->getLinkDetail($project_id,0,0,$oneProject)}" class="text-white">{$oneProject.title}</a>
+						</p>
+					{else}
+						<h1 class="title_project fw-semibold mb-1 fs-2">{$oneProject.title}</h1>
+						<div class="d-flex gap-1 text-white fs-12 align-items-center">
+							<i class='bx bx-map'></i>
+							<span>{$more_information.address}</span>
+						</div>
+					{/if}
+				</div>
+				<div class="d-flex w-100 {if $deviceType eq 'phone'}gap-1{else}gap-4{/if}">
+					<a data-toggle="ripple" class="item_option d-flex flex-column align-items-center {if $deviceType eq 'phone'}py-2{else}py-4{/if} px-2 rounded-3 flex-fill text-white" href="{$clsProject->getLinkInfo($project_id, $block_id, $building_id, $smarty.const._PROJECT_DOCS_IMGVIDEO_CATID)}">
+						<i class='bx bx-book-open mb-1'></i>
+						<span class="txt_option">Tổng quan</span>
+					</a>
+					<a data-toggle="ripple" class="item_option d-flex flex-column align-items-center {if $deviceType eq 'phone'}py-2{else}py-4{/if} px-2 rounded-3 flex-fill text-white" href="{$clsProject->getLinkInfo($project_id, $block_id, $building_id, $smarty.const._PROJECT_DOCS_LAYOUT_CATID)}">
+						<i class='bx bx-square mb-1'></i>
+						<span class="txt_option">Mặt bằng</span>
+					</a>
+					<a data-toggle="ripple" class="item_option d-flex flex-column align-items-center {if $deviceType eq 'phone'}py-2{else}py-4{/if} px-2 rounded-3 flex-fill text-white{if !empty($link_stock)}{else} disabled preventDefault{/if}" href="{$link_stock}">
+						<i class='bx bx-grid-alt mb-1'></i>
+						<span class="txt_option">Quỹ căn</span>
+					</a>
+					<a data-toggle="ripple" href="{$more_information.vr_link}" data-fancybox data-type="iframe" data-preload="true" class="item_option d-flex flex-column align-items-center {if $deviceType eq 'phone'}py-2{else}py-4{/if} px-2 rounded-3 flex-fill text-white">
+						<i class="material-icons-outlined no-translate">360</i>
+						<span class="txt_option">VR 360</span>
+					</a>
+				</div>
+			</div>
+		</div>
+	</section>
+	<div class="row">
+		<div class="col-12">
+			<!-- Document -->
+			<div id="box_tab" class="box_tab mb-4">
+				<div class="nav-align-top nav-tabs-shadow">
+					{if !empty($list_category_docs)}
+					<div class="w-100 overflow-x-auto mb-4">
+						<ul class="nav nav-tabs" role="tablist">
+							{foreach from=$list_category_docs item=_oCatDocs key=key name=i}
+							<li class="nav-item" role="presentation">
+								<a href="{$clsProject->getLinkInfo($project_id, $block_id, $building_id, $_oCatDocs.property_id, $_oCatDocs.title)}" class="btn btn_tab rounded-pill{if $root_id eq $_oCatDocs.property_id} active{/if}" role="tab" >{$_oCatDocs.title}</a>
+							</li>
+							{/foreach}
+						</ul>
+					</div>
+					{/if}
+					{if !empty($list_childs)}
+						<!-- Có danh mục -->
+						{foreach from=$list_childs item = _oChild}
+							{assign var = list_docs value = $_oChild.list_docs}
+							{assign var = list_subchilds value = $_oChild.list_subchilds}
+							{if !empty($list_docs)}
+							<div class="tab_box mb-3">
+								{if !empty($list_subchilds)}{else}{/if}
+								<div class="tab_header d-flex align-items-center justify-content-between mb-3">
+									<h3 class="title_box mb-0 fs-16 text-dark fw-semibold">{$_oChild.title}</h3>
+								</div>
+								<div class="tab_body mb-2">
+									<div class="{if $deviceType eq 'phone'}form-{/if}row">
+										{foreach from=$list_docs item=_oDoc key=k_doc name=n_doc}
+										{assign var = _more_information value = $_oDoc.more_information}
+										<div class="col-6 col-lg-3 mb-3 awe__doc-item{if $smarty.foreach.n_doc.iteration gt '8'} d-none awe__doc-item-hidden{/if}">
+											<a class="link awe__doc-link" {if $_more_information.type eq 'youtu.be'}data-fancybox href="https://www.youtube.com/watch?v={$_more_information.youtu_id}"{elseif $_more_information.type eq 'google.file'}data-fancybox href="{$_oDoc.link}" data-type="iframe"{else}href="{$_oDoc.content}" target="_blank" {/if}>
+												<div class="rounded-2 awe__doc-img mb-2 position-relative overflow-hidden">
+													{if $_oChild.property_id eq $smarty.const._PROJECT_DOCS_VIDEO_CATID}
+													<div class="img-play">
+														<i class="bx bx-play"></i>
+													</div>
+													{/if}
+													<div class="img-background" style="background-image:url({if $_more_information.type eq 'youtu.be'}{$_oDoc.image}{elseif $_more_information.type eq 'google.file'}{$clsISO->genGoogleURL($_more_information.gg_id)}{else}{$_oDoc.image}{/if}), url({$URL_IMAGES}/no-image.png)"></div>
+												</div>
+												<h4 class="fs-14 text-center text-dark lh-sm mb-0">{$_oDoc.title}</h4>
+												{if $_oChild.property_id eq $smarty.const._PROJECT_DOCS_PR_CATID}
+												<div class="mt-2 d-flex justify-content-center">
+													<span class="btn w-100 btn-block btn-primary">Link bài viết</span>
+												</div>
+												{/if}
+											</a>
+										</div>
+										{/foreach}
+									</div>
+									{if $list_docs|@count gt '8'}
+									<div class="d-flex justify-content-center">
+										<a href="javascript:void(0)" onClick="$Core.home.toggle_item(this, event)" class="btn btn-outline-default px-4 rounded-pill"><i class="bx bx-chevron-down"></i> Xem thêm</a>
+									</div>
+									{/if}
+								</div>
+							</div>
+							{if !empty($list_subchilds)}
+							{foreach $list_subchilds item = _oSubChild}
+								{assign var = list_docs value = $_oSubChild.list_docs}
+								{if !empty($list_docs)}
+								<div class="tab_box mb-3">
+									<div class="tab_header d-flex align-items-center justify-content-between mb-3">
+										<h3 class="title_box mb-0 fs-16 text-dark fw-semibold">{$_oSubChild.title}</h3>
+									</div>
+									<div class="tab_body mb-2">
+										<div class="{if $deviceType eq 'phone'}form-{/if}row">
+											{foreach from=$list_docs item=_oDoc key=k_doc name=n_doc}
+											{assign var = _more_information value = $_oDoc.more_information}
+											<div class="col-6 col-lg-3 mb-3 awe__doc-item{if $smarty.foreach.n_doc.iteration gt '8'} d-none awe__doc-item-hidden{/if}">
+												<a class="link awe__doc-link" {if $_more_information.type eq 'youtu.be'}data-fancybox href="https://www.youtube.com/watch?v={$_more_information.youtu_id}"{elseif $_more_information.type eq 'google.file'}data-fancybox href="{$_oDoc.link}" data-type="iframe"{else}href="{$_oDoc.content}" target="_blank" {/if}>
+													<div class="rounded-2 awe__doc-img mb-2 overflow-hidden">
+														<div class="img-background" style="background-image:url({if $_more_information.type eq 'youtu.be'}{$_oDoc.image}{elseif $_more_information.type eq 'google.file'}{$clsISO->genGoogleURL($_more_information.gg_id)}{else}{$_oDoc.image}{/if}), url({$URL_IMAGES}/no-image.png)"></div>
+													</div>
+													<h4 class="fs-14 text-center text-dark lh-sm mb-0">{$_oDoc.title}</h4>
+												</a>
+											</div>	
+											{/foreach}
+										</div>
+										{if $list_docs|@count gt '8'}
+										<div class="d-flex justify-content-center">
+											<a href="javascript:void(0)" onClick="$Core.home.toggle_item(this, event)" class="btn btn-outline-default px-4 rounded-pill"><i class="bx bx-chevron-down"></i> Xem thêm</a>
+										</div>
+										{/if}
+									</div>
+								</div>
+								{/if}
+							{/foreach}	
+							{/if}
+						{/if}
+						{/foreach}
+						<!-- End có danh mục -->
+						{if $total_docs eq '0'}
+						<div class="d-flex justify-content-center">
+							<div class="text-center p-5">
+								<img src="{$URL_IMAGES}/no-data.png" height="250">
+								<p class="text-muted mt-n2">Xin lỗi. Chưa có dữ liệu trong thư mục này!</p>
+							</div>
+						</div>
+						{/if}
+					{else}
+						<!-- Không có danh mục -->
+						<div class="tab_box mb-3">
+							<div class="tab_body">
+								{if !empty($list_docs) || !empty($list_policy_docs)}
+								<div class="{if $deviceType eq 'phone'}form-{/if}row">
+									{foreach from=$list_docs item=_oDoc key=k_doc name=n_doc}
+									{assign var = _more_information value = $_oDoc.more_information}
+									<div class="col-6 col-lg-3 mb-3 awe__doc-item{if $smarty.foreach.n_doc.iteration gt '8'} d-none awe__doc-item-hidden{/if}">
+										<a class="link awe__doc-link" {if $_more_information.type eq 'youtu.be'}data-fancybox href="https://www.youtube.com/watch?v={$_more_information.youtu_id}"{elseif $_more_information.type eq 'google.file'}data-fancybox href="{$_oDoc.link}" data-type="iframe"{else}href="{$_oDoc.content}" target="_blank" {/if}>
+											<div class="rounded-3 mb-2 awe__doc-img overflow-hidden">
+												<div class="img-background" style="background-image:url({if $_more_information.type eq 'youtu.be'}{$_oDoc.image}{elseif $_more_information.type eq 'google.file'}{$clsISO->genGoogleURL($_more_information.gg_id)}{else}{$_oDoc.image}{/if}), url({$URL_IMAGES}/no-image.png)"></div>
+											</div>
+											<h4 class="fs-14 text-center text-dark lh-sm mb-0">{$_oDoc.title}</h4>
+										</a>
+									</div>	
+									{/foreach}
+									{if !empty($list_policy_docs)}
+										{foreach from=$list_policy_docs item=_oDoc name=n_doc}
+										{assign var = _more_information value = $_oDoc.more_information}
+										<div class="col-6 col-lg-3 mb-3 awe__doc-item{if $smarty.foreach.n_doc.iteration gt '8'} d-none awe__doc-item-hidden{/if}">
+											<a class="link awe__doc-link" target="_blank" href="{$_oDoc.link_ns}">
+												<div class="rounded-3 mb-2 overflow-hidden">
+													<div class="img-background" style="background-image:url({$_more_information.image}), url({$URL_IMAGES}/no-image.png)"></div>
+												</div>
+												<h4 class="fs-14 text-dark text-center lh-sm mb-0">{$_oDoc.title} (Áp dụng {$clsISO->convertTimeToText($_oDoc.ms_date)})</h4>
+											</a>
+										</div>	
+										{/foreach}
+									{/if}
+								</div>
+								{if $list_docs|@count gt '8'}
+								<div class="d-flex justify-content-center">
+									<a href="javascript:void(0)" onClick="$Core.home.toggle_item(this, event)" class="btn btn-outline-default px-4 rounded-pill"><i class="bx bx-chevron-down"></i> Xem thêm</a>
+								</div>
+								{/if}
+								{else}
+									<div class="d-flex justify-content-center">
+										<img src="{$URL_IMAGES}/empty.svg" alt="" width="190" height="140">
+									</div>
+								{/if}
+								{if !empty($list_policy_blocks)}
+									{foreach from=$list_policy_blocks item = _oBlock}
+									{assign var = list_policy_docs value = $_oBlock.list_policy_docs}
+									{if !empty($list_policy_docs)}
+									<div class="tab_box mb-2">
+										<div class="tab_header d-flex align-items-center justify-content-between mb-3">
+											<h3 class="title_box mb-0 fs-16 text-dark fw-semibold">{$_oBlock.title}</h3>
+										</div>
+										<div class="tab_body">
+											<div class="{if $deviceType eq 'phone'}form-{/if}row">
+												{foreach from=$list_policy_docs item=_oDoc name=n_doc}
+												{assign var = _more_information value = $_oDoc.more_information}
+												<div class="col-6 col-lg-3 mb-3 awe__doc-item{if $smarty.foreach.n_doc.iteration gt '8'} d-none awe__doc-item-hidden{/if}">
+													<a class="link awe__doc-link" target="_blank" href="{$_oDoc.link_ns}">
+														<div class="rounded-3 mb-2 overflow-hidden">
+															<div class="img-background" style="background-image:url({$_more_information.image}), url({$URL_IMAGES}/no-image.png)"></div>
+														</div>
+														<h4 class="fs-14 text-dark text-center lh-sm mb-0">{$_oDoc.title} (Áp dụng {$clsISO->convertTimeToText($_oDoc.ms_date)})</h4>
+													</a>
+												</div>	
+												{/foreach}
+											</div>
+											{if $_oBlock.total_policy_docs gt '8'}
+											<div class="d-flex justify-content-center">
+												<a href="javascript:void(0)" onClick="$Core.home.toggle_item(this, event)" class="btn btn-outline-default px-4 rounded-pill"><i class="bx bx-chevron-down"></i> Xem thêm</a>
+											</div>
+											{/if}
+										</div>
+									</div>
+									{/if}
+									{/foreach}
+								{/if}
+							</div>
+						</div>
+						<!-- End không có danh mục -->
+					{/if}
+				</div>
+			</div>
+			{if $show eq "project" || ($stock_type eq $smarty.const._BLOCK_TYPE_LOWFLOOR_SALE && $show eq 'block')}
+			<div class="box_block mb-4">
+				<h3 class="mb-2 fs-5">Phân khu</h3>
+				<div class="owl_carousel owl_block owl-carousel">
+					{foreach name=i from=$list_blocks item = _oBlock}
+					{assign var = _more_information value = $_oBlock.more_information}
+					<div class="card-body bg-white h-100 item_block d-block d-flex flex-column 
+						justify-content-between border rounded-2">
+						<div class="gtouKtNtBW">
+							<div class="d-flex justify-content-between align-items-center mb-2">
+								<div class="item_top d-flex flex-column">
+									<span class="text-muted fs-11">Phân khu</span>
+									<a href="{$clsProject->getLinkDetail($project_id,$_oBlock.property_id,0,$oneProject)}" class="fs-16 fw-semibold text-dark">{$_oBlock.title}</a>
+								</div>
+								{if !empty($_oBlock.on_sale)}
+									<span class="btn bg-main text-white rounded-pill btn-sm fs-10">Mở bán</span>
+								{/if}
+							</div>
+							<div class="box_scale rounded-2 overflow-hidden mb-2">
+								<a href="{$clsProject->getLinkDetail($project_id,$_oBlock.property_id,0,$oneProject)}">
+									<img src="/images/BDS/vinhomes-ocean-park-2-the-empire.jpg" class="w-100" width="200" height="150">
+								</a>
+							</div>
+							<div class="item_top d-flex flex-column mb-2">
+								<span class="text-muted fs-11">Phong cách xây dựng</span>
+								<span class="fs-14 text-dark">
+									{if !empty($_more_information.construction_style)}
+										{$_more_information.construction_style}
+									{else} Đang cập nhật{/if}
+								</span>
+							</div>
+							<div class="item_top d-flex flex-column mb-2">
+								<span class="text-muted fs-11">Giá bán</span>
+								<span class="fs-14 text-dark">
+									{if !empty($_more_information.price_range)}
+										{$_more_information.price_range}
+									{else} Đang cập nhật{/if}
+								</span>
+							</div>
+							<div class="item_top d-flex flex-column mb-2">
+								<span class="text-muted fs-11">Loại hình</span>
+								{if !empty($_more_information.construction_type)}
+									{foreach from=$_more_information.construction_type item = _item}
+									<span class="fs-14 text-dark">
+										<i class="bx bx-check text-muted"></i>{$_item}
+									</span>
+									{/foreach}
+								{else}
+									<span class="fs-14 text-dark">Đang cập nhật</span>
+								{/if}
+							</div>
+						</div>
+						<div class="d-flex mt-2">
+							<a href="{$clsProject->getLinkDetail($project_id, $_oBlock.property_id,0,$oneProject)}" class="btn btn-block btn-outline-default rounded-1 text-dark bg-white">Xem chi tiết</a>
+						</div>
+					</div>
+					{/foreach}
+				</div>
+			</div>
+			{else if $show eq 'block' || $show eq 'building'}
+				{if !empty($list_buildings)}
+				<div class="box_building mb-4">
+					<h3 class="mb-2 fs-5">Toà nhà</h3>
+					<div class="owl_carousel owl_building owl-carousel rounded-2 overflow-hidden">
+						{foreach name=i from=$list_buildings item = _oBuilding}
+						{assign var = _more_information value = $_oBuilding.more_information}
+						<a class="card-body bg-white h-100 item_block d-flex flex-column justify-content-between border rounded-2" 
+							href="{$clsProject->getLinkDetail($project_id,$block_id, $_oBuilding.property_id,$oneProject)}">
+							<div class="gtouKtNtBW">
+								<div class="d-flex justify-content-between align-items-center mb-2">
+									<div class="item_top d-flex flex-column">
+										<span class="text-muted fs-11">Tòa</span>
+										<span class="fs-16 fw-semibold text-dark">{$_oBuilding.title}</span>
+									</div>
+									{if !empty($_oBuilding.on_sale)}
+									<span class="btn bg-main text-white rounded-pill btn-sm fs-10">Mở bán</span>
+									{/if}
+								</div>
+								<div class="box_scale rounded-2 overflow-hidden mb-2">
+									<img src="/images/BDS/vinhomes-ocean-park-2-the-empire.jpg" class="w-100" width="200" height="120">
+								</div>
+								<div class="item_top d-flex flex-column mb-2">
+									<span class="text-muted fs-11">Tầng</span>
+									<span class="fs-14 text-dark">{$_more_information.number_floor} tầng</span>
+								</div>
+								<div class="item_top d-flex flex-column mb-2">
+									<span class="text-muted fs-11">Căn hộ/tầng</span>
+									<span class="fs-14 text-dark">{$_more_information.number_house} căn hộ</span>
+								</div>
+								<div class="item_top d-flex flex-column mb-2">
+									<span class="text-muted fs-11">Phong cách xây dựng</span>
+									<span class="fs-14 text-dark">
+										{if !empty($_more_information.construction_style)}
+											{$_more_information.construction_style}
+										{else}
+											Đang cập nhật
+										{/if}
+									</span>
+								</div>
+								<div class="item_top d-flex flex-column mb-2">
+									<span class="text-muted fs-11">Giá bán</span>
+									<span class="fs-14 text-dark">
+										{if !empty($_more_information.price_range)}
+											{$_more_information.price_range}
+										{else}
+											Đang cập nhật
+										{/if}
+									</span>
+								</div>
+							</div>
+							<div class="mt-2">
+								<div class="btn btn-block btn-outline-default rounded-1text-dark bg-white">Xem chi tiết</div>
+							</div>
+						</a>
+						{/foreach}
+					</div>
+				</div>
+				{/if}
+			{/if}
+			<!-- End Block -->
+		</div>
+	</div>
+</div>
+{literal}
+<script type="text/javascript">
+	
+</script>
+{/literal}

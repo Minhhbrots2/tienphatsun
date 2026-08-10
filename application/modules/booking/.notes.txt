@@ -1,0 +1,216 @@
+function default_crawl(){
+	global $smarty,$assign_list,$_CONFIG,$core,$dbconn,$mod,$act,$_LANG_ID,$title_page
+	,$description_page,$keyword_page,$extLang,$clsISO,$image_page,$type_list,$profile_id;
+	$clsBooking = new Booking();
+	$clsBookingMeta = new BookingMeta();
+	$clsProfile = new Profile();
+	$clsProperty = new Property();
+	#- Reuired Library
+	require_once(DIR_INCLUDES.'/json_master/autoload.php');				
+	require_once(DIR_INCLUDES . '/googleapiclient/vendor/autoload.php');
+	#- Init Client
+	$client = new Google_Client();
+	$client->setClientId(GOOGLE_CLIENT_ID_DEV);
+	$client->setClientSecret(GOOGLE_CLIENT_SECRET_DEV);
+	$client->refreshToken(GOOGLE_DRIVE_REFRESH_TOKEN_DEV);
+	$client->setScopes([Google_Service_Drive::DRIVE]);
+	$client->setScopes(Google_Service_Sheets::SPREADSHEETS);
+	$service = new Google_Service_Sheets($client);
+	// 1DYQknf2wWDfrzA7xiYOIauY60bFEIMrjXAp0bbfdv2Q
+	// $spreadsheetId = '1eeB4Oee_H81tYA2hZg-zEn0PXWPdO5i94BZolXMG46Y';
+	if(1==1){
+		$project_id =3;
+		$block_id = 10846;
+		/*$tmp = $clsBooking->getAll("`project_id`='{$project_id}' AND `block_id`='{$block_id}'", $clsBooking->pkey);
+		if(!empty($tmp)){
+			foreach($tmp as $key => $val){
+				$clsBookingMeta->deleteByCond("`booking_id`='".$val[$clsBooking->pkey]."'");
+				$clsBooking->deleteOne($val[$clsBooking->pkey]);
+			}
+		}
+		die("xxx"); */
+		$spreadsheetId = '1ea2IO5ZINsNiDvOUgb0BcwPyb0-O5e2UmG61dmmbYMs';
+		$ranges = 'BOOKING NỘI BỘ';
+		$response = $service->spreadsheets_values->get($spreadsheetId, $ranges);
+		$tblData = $response->getValues();
+		// $clsISO->print_pre($tblData); die();
+		$errors = array();
+		if(!empty($tblData)){
+			$total_record = count($tblData);
+			for($i=3; $i<$total_record; $i++){
+				$booking_date = $tblData[$i][1];
+				$customer_name = $tblData[$i][3];
+				$content = $tblData[$i][4];
+				$sale_name = $tblData[$i][5];
+				$department_name = $tblData[$i][6];
+				$amount = $tblData[$i][8];
+				#
+				$action_date = $tblData[$i][10];
+				$building_name = $tblData[$i][11];
+				$unit_axis = $tblData[$i][12];
+				$floor_range = "";
+				#
+				$building_id = 0;
+				if(!empty($building_name)){
+					$tmp = $clsProperty->getByCond("`property_type`='_BUILDING' AND `for_id`='{$block_id}' 
+						AND (`property_code`='{$building_name}' OR `title_vn`='{$building_name}')", $clsProperty->pkey);
+					if(!empty($tmp)){
+						$building_id = $tmp[$clsProperty->pkey];
+					}
+				}
+				#
+				$more_information = $content_logs = array();
+				$more_information['notes'] = "";
+				$more_information['payment_order'] = "";
+				$more_information['content'] = $content;
+				$more_information['customer_name'] = $customer_name;
+				$more_information['customer_phone'] = "";
+				$more_information['customer_email'] = "";
+				#
+				if(!empty($booking_date)) $content_logs[] = sprintf('Ngày booking: %s', $booking_date);
+				if(!empty($customer_name)) $content_logs[] = sprintf('Tên khách hàng: %s', $customer_name);
+				if(!empty($content)) $content_logs[] = sprintf('Nội dung: %s', $content);
+				if(!empty($sale_name)) $content_logs[] = sprintf('Tên sales: %s', $sale_name);
+				if(!empty($amount)) $content_logs[] = sprintf('Số tiền: %s', $amount);
+				
+				$staff_id = $department_id = 0;
+				if(!empty($sale_name)){
+					$tmp = $clsProfile->getByCond("full_name_slug='".$core->replaceSpace($sale_name)."'", "{$clsProfile->pkey},`department_id`");
+					if(!empty($tmp)){
+						$staff_id = $tmp[$clsProfile->pkey];
+						$department_id = $tmp['department_id'];
+					}
+				}
+				#
+				$more_information['staff_id'] = $staff_id;
+				$more_information['department_id'] = $department_id;
+				$action_logs = array();
+				$action_logs[$clsISO->getUniqid()] = array(
+					'user_id' => $profile_id,
+					'reg_date' => time(),
+					'content' => sprintf('<strong>%s</strong> đã thêm mới booking với thông tin %s', $clsProfile->getFullName($profile_id, $oneProfile), implode(',', $content_logs))
+				);
+				#
+				$booking_id = $clsBooking->getMaxId();
+				if($clsBooking->insert(array(
+					$clsBooking->pkey => $booking_id,
+					'booking_type' => _BOOKING_TYPE_INTERNAL_ID,
+					'booking_code' => $clsBooking->getCode(_BOOKING_TYPE_INTERNAL_ID),
+					'booking_date' => $clsISO->convertTextToTime($booking_date),
+					'project_id' => $project_id,
+					'block_id' => $block_id,
+					'building_id' => $building_id,
+					// 'staff_id' => $staff_id,
+					'status_id' => _BOOKING_WAIT_DEPOSIT_ID,
+					'customer_name' => $customer_name,
+					'amount' => $clsISO->processSmartNumber($amount),
+					'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE),
+					'action_logs' => json_encode($action_logs, JSON_UNESCAPED_UNICODE),
+					'reg_date' => time(),
+					'upd_date' => time(),
+					'user_id' => $profile_id,
+					'user_id_update' => $profile_id
+				))){
+					if(!empty($unit_axis) || !empty($floor_range)){
+						$more_information = array(
+							'unit_axis' => $unit_axis,
+							'floor_range' => $floor_range
+						);
+						$clsBookingMeta->insert(array(
+							$clsBookingMeta->pkey => $clsBookingMeta->getMaxId(),
+							'type' => 'priority',
+							'booking_id' => $booking_id,
+							'action_date' => !empty($action_date) ? $clsISO->convertTextToTime($action_date) : 0,
+							'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE),
+							'reg_date' => time(),
+							'upd_date' => time(),
+							'user_id' => $profile_id,
+							'user_id_update' => $profile_id
+						));
+					}
+				} else {
+					$errors[] = array(
+						'customer_name' => $customer_name,
+						'sale_name' => $sale_name
+					);
+				}
+			}
+		}
+		$clsISO->print_pre($errors); die();
+	} else if(1==3) {
+		$spreadsheetId = '1N5isx2tDCHDD4txIn9DEhzcS7RSfb9hQYeCq3yTB72U';
+		$ranges = 'BK TÒA PALMA 2'; // BK TÒA PALMA 1
+		$response = $service->spreadsheets_values->get($spreadsheetId, $ranges);
+		$tblData = $response->getValues();
+		// $clsISO->print_pre($tblData); die();
+		if(!empty($tblData)){
+			$total_record = count($tblData);
+			for($i=2; $i<$total_record; $i++){
+				$customer_name = $tblData[$i][2];
+				$customer_idcard = $tblData[$i][3];
+				$bedroom_name = $tblData[$i][4];
+				#
+				$bedroom_id = 0;
+				if(!empty($bedroom_name)){
+					$tmp = $clsProperty->getByCond("`property_type`='_BEDROOM' AND (`property_code`='{$bedroom_name}' OR `slug`='".$core->replaceSpace($bedroom_name)."')", $clsProperty->pkey);
+					$bedroom_id = $tmp[$clsProperty->pkey];
+				}
+				$unit_axis = $tblData[$i][5];
+				$floor_range = $tblData[$i][6];
+				$floor_type_name = $tblData[$i][7];
+				if($floor_type_name == 'Tầng thấp'){
+					$floor_type = 'low_floor';
+				} else if($floor_type_name == 'Tầng trung'){
+					$floor_type = 'mid_floor';
+				} else if($floor_type_name == 'Tầng cao'){
+					$floor_type = 'high_floor';
+				}
+				#
+				$project_id =1;
+				$block_id = 10784;
+				// $building_id = 10785;
+				$building_id = 10786;
+				#
+				$content = $tblData[$i][8];
+				$trans_code = $tblData[$i][9];
+				$payment_date = $tblData[$i][10];
+				$payment_time = !empty($payment_date) ? $clsISO->toTime($payment_date) : 0;
+				$amount = 50000000;
+				#
+				$more_information = array();
+				$more_information['notes'] = "";
+				$more_information['payment_order'] = "";
+				$more_information['content'] = $content;
+				$more_information['payment_date'] = $payment_time;
+				$more_information['customer_name'] = $customer_name;
+				$more_information['customer_idcard'] = $customer_idcard;
+				$more_information['unit_axis'] = $unit_axis;
+				$more_information['floor_range'] = $floor_range;
+				$more_information['floor_type'] = $floor_type;
+				$more_information['trans_code'] = $trans_code;
+				#
+				$booking_id = $clsBooking->getMaxId();
+				if($clsBooking->insert(array(
+					$clsBooking->pkey => $booking_id,
+					'booking_type' => _BOOKING_TYPE_INVESTOR_ID,
+					'booking_code' => $clsBooking->getCode(_BOOKING_TYPE_INVESTOR_ID),
+					'booking_date' => time(),
+					'project_id' => $project_id,
+					'block_id' => $block_id,
+					'building_id' => $building_id,
+					'status_id' => _BOOKING_WAIT_DEPOSIT_ID,
+					'customer_name' => $customer_name,
+					'bedroom_id' => $bedroom_id,
+					'amount' => $clsISO->processSmartNumber($amount),
+					'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE),
+					'reg_date' => time(),
+					'upd_date' => time(),
+					'user_id' => $profile_id,
+					'user_id_update' => $profile_id
+				))){
+				
+				}
+			}
+		}
+	}
+}

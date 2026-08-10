@@ -1,0 +1,397 @@
+<div class="tab-pane fade py-3 active in" id="home" role="tabpanel" aria-labelledby="home-tab">
+	<div class="d-flex align-items-center">
+		<button class="ui-button ui-button--link" onClick="add_property(this, event)" project_id="{$pvalTable}">+ Thêm</button>
+	</div>
+	<table width="100%" class="table table-vertical mb-0 table-stripped">
+		<thead><tr>
+			<th width="3%">No.</th>
+			<th width="30%">Tên thuộc tính</th>
+			<th>Giá trị</th>
+			<th class="text-center" width="60px">HOT</th>
+			<th width="5%"></th>
+		</tr></thead>
+		<tbody class="tbody_property no_group">
+			{if !empty($list_props)}
+				{foreach from = $list_props name=i item = _Item}
+				{assign var = uid value = $clsISO->getUniqid()}
+				<tr id="{$uid}" class="tr_property no_group">
+					<td class="text-center">{$smarty.foreach.i.iteration}</td>
+					<td class="text-left">
+						<input type="hidden" name="properties[{$uid}][id]" value="{$_Item.id}">
+						<input type="hidden" name="properties[{$uid}][lock]" value="{$_Item.lock}">
+						<input class="form-control title_field_{$uid}" name="properties[{$uid}][title]" placeholder="Nhập tiêu đề" value="{$_Item.title}" type="text" />
+					</td>
+					<td class="text-left">
+						<input class="form-control content_field_{$uid}" name="properties[{$uid}][content]" placeholder="Nhập giá trị" value="{$_Item.content}" type="text" />
+					</td>
+					<td class="text-center">
+						<label class="switch">
+							<input type="checkbox" name="properties[{$uid}][is_hot]"{if $_Item.is_hot eq '1'} checked{/if} value="1">
+							<span class="slider round"></span>
+						</label>
+					</td>
+					<td class="text-center">
+						<div class="btn-group">
+							<button class="btn btn-xs btn-default dropdown-toggle" type="button" data-toggle="dropdown"> <i class="icon-cog"></i> <span class="caret"></span></button>
+							<ul class="dropdown-menu" style="right:0px !important;left:auto; min-width:130px">
+								<li><a title="Tải File" href="javascript:void(0);" uid="{$uid}" onClick="select_file(this, event)">{$core->makeIcon('upload', 'Tải File')}</a></li>
+								<li><a title="Xóa" href="javascript:void(0);" uid="{$uid}" onClick="delete_property(this, event)">{$core->makeIcon('trash', 'Xóa')}</a></li>
+							</ul>
+						</div>
+					</td>
+				</tr>
+				{/foreach}
+			{else}
+				{assign var = uid value = $clsISO->getUniqid()}
+				<tr id="{$uid}" class="tr_property no_group">
+					<td class="text-center">1</td>
+					<td class="text-center">
+						<input type="hidden" name="properties[{$uid}][lock]" value="1" />
+						<input class="form-control title_field_{$uid}" name="properties[{$uid}][title]" placeholder="Nhập tiêu đề" type="text" /></td>
+					<td class="text-center">
+						<input class="form-control content_field_{$uid}" name="properties[{$uid}][content]" placeholder="Nhập giá trị" type="text" />
+					</td>
+					<td class="text-center">
+						<label class="switch">
+							<input type="checkbox" name="properties[{$uid}][is_hot]" value="1">
+							<span class="slider round"></span>
+						</label>
+					</td>
+					<td class="text-center">
+						<div class="btn-group">
+							<button class="btn btn-xs btn-default dropdown-toggle" type="button" data-toggle="dropdown"> <i class="icon-cog"></i> <span class="caret"></span></button>
+							<ul class="dropdown-menu" style="right:0px !important;left:auto; min-width:130px">
+								<li><a title="Tải File" href="javascript:void(0);" uid="{$uid}" onClick="select_file(this, event)">{$core->makeIcon('upload', 'Tải File')}</a></li>
+								<li><a title="Xóa" href="javascript:void(0);" uid="{$uid}" onClick="delete_property(this, event)">{$core->makeIcon('trash', 'Xóa')}</a></li>
+							</ul>
+						</div>
+					</td>
+				</tr>
+			{/if}
+		</tbody>
+	</table>
+</div>
+ // 1. Tạo bản đồ Leaflet
+    //var map = L.map('map').setView([10.7769, 106.7009], 13); // [Vĩ độ, Kinh độ], Zoom 13
+
+    // 2. Thêm bản đồ nền OpenStreetMap
+    //L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    //    attribution: '&copy; OpenStreetMap contributors'
+    //}).addTo(map);
+
+    // 3. Vẽ các hình dạng bất kỳ
+
+    // a) Vẽ hình tròn
+     //var circle = L.circle([10.7769, 106.7009], {  // Tọa độ
+       //  color: "red",   // Màu viền
+      //   fillColor: "pink",  // Màu nền
+      //   fillOpacity: 0.5,
+      //   radius: 500 // Đơn vị: mét
+    // }).addTo(map);
+
+    // b) Vẽ hình chữ nhật
+     //var rectangle = L.rectangle([
+     //    [10.7700, 106.6950], // Góc trên trái
+      //   [10.7800, 106.7050]  // Góc dưới phải
+     //], {
+     //    color: "blue",
+     //    weight: 2
+    // }).addTo(map);
+
+    // c) Vẽ đa giác (Polygon)
+     //var polygon = L.polygon([
+       //  [10.7750, 106.6900],  // Điểm 1
+       // //  [10.7850, 106.7000],  // Điểm 2
+       //  [10.7750, 106.7100],  // Điểm 3
+       //  [10.7650, 106.7000]   // Điểm 4
+     //], {
+      //   color: "green",
+      //   fillColor: "lightgreen",
+      //   fillOpacity: 0.5
+     //}).addTo(map);
+
+    // d) Vẽ một đường Polyline
+   //  var polyline = L.polyline([
+      //   [10.7650, 106.6900],
+      //   [10.7700, 106.6950],
+       //  [10.7800, 106.7050]
+     //], {
+      //   color: "purple",
+      //   weight: 4
+     //}).addTo(map);
+
+    // 4. Thêm sự kiện click để hiển thị thông tin
+   // circle.bindPopup("Đây là một hình tròn!");
+    //rectangle.bindPopup("Hình chữ nhật.");
+    //polygon.bindPopup("Đây là một đa giác.");
+   // polyline.bindPopup("Đây là một đường polyline.");
+// Chuyển đổi ảnh Leaflet thành ảnh OpenCV
+    function loadImageToCanvas(imgUrl, callback) {
+        var img = new Image();
+        img.src = imgUrl;
+        img.onload = function () {
+            var canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            callback(canvas);
+        };
+    }
+ // 3. Xử lý sự kiện click để vẽ ô tự động
+    function onMapClick(e) {
+        var clickLatLng = e.latlng; // Lấy tọa độ click
+        var boxSize = 50; // Kích thước ô (có thể chỉnh)
+
+        // Tạo tọa độ cho hình chữ nhật bao quanh điểm click
+        var bounds = [
+            [clickLatLng.lat - boxSize, clickLatLng.lng - boxSize], // Góc trên trái
+            [clickLatLng.lat + boxSize, clickLatLng.lng + boxSize]  // Góc dưới phải
+        ];
+
+        // Vẽ ô bao quanh vị trí click
+        L.rectangle(bounds, { color: "red", weight: 3 }).addTo(map)
+            .bindPopup("🔴 Ô tự động").openPopup();
+    }
+    // 4. Gắn sự kiện click vào bản đồ
+    // map.on('dblclick', onMapClick);
+	
+	 function detectBoxSize(latlng) {
+        // Ở đây giả lập kích thước ô (có thể thay bằng thuật toán dò biên ảnh)
+        var boxWidth = 80;
+        var boxHeight = 50;
+        // Tính toán giới hạn của ô dựa vào tọa độ click
+        return [
+            [latlng.lat - boxHeight / 2, latlng.lng - boxWidth / 2], // Góc trên trái
+            [latlng.lat + boxHeight / 2, latlng.lng + boxWidth / 2]  // Góc dưới phải
+        ];
+    }
+
+    // 4. Khi double-click, tự động vẽ ô bao quanh vùng click
+    function onMapDoubleClick(e) {
+        var bounds = detectBoxSize(e.latlng);
+
+        L.rectangle(bounds, { color: "red", weight: 3 }).addTo(map)
+            .bindPopup("🟥 Ô được vẽ tự động").openPopup();
+    }
+
+    // 5. Gắn sự kiện double-click vào bản đồ
+    // map.on('dblclick', onMapDoubleClick);
+	
+	// Hàm để dò biên ảnh và vẽ ô bao quanh
+    function detectEdgesAndDrawBoxxxx2(latlng) {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        // Chuyển đổi ảnh Leaflet sang Canvas
+        var img = new Image();
+        img.src = imageUrl;
+		
+        img.onload = function () {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            // Dò biên ảnh với OpenCV
+            cv.onRuntimeInitialized = function () {
+                // Chuyển canvas thành ảnh OpenCV
+                var src = cv.imread(canvas);
+                var dst = new cv.Mat();
+                var edges = new cv.Mat();
+
+                // Dò biên ảnh bằng Canny
+                cv.Canny(src, edges, 100, 200);
+
+                // Xác định vùng bao quanh các biên (bounding box)
+                var contours = new cv.MatVector();
+                var hierarchy = new cv.Mat();
+                cv.findContours(edges, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+                // Vẽ hình chữ nhật bao quanh ô
+                contours.forEach(function (contour) {
+                    var boundingBox = cv.boundingRect(contour);
+                    var x = boundingBox.x;
+                    var y = boundingBox.y;
+                    var w = boundingBox.width;
+                    var h = boundingBox.height;
+
+                    // Vẽ rectangle lên ảnh
+                    cv.rectangle(src, new cv.Point(x, y), new cv.Point(x + w, y + h), [255, 0, 0, 255], 2);
+                });
+
+                // Chuyển kết quả về canvas và hiển thị
+                cv.imshow(canvas, src);
+
+                // Chuyển Canvas về tọa độ trên bản đồ Leaflet
+                var bounds = [
+                    [latlng.lat - 50, latlng.lng - 50],
+                    [latlng.lat + 50, latlng.lng + 50]
+                ];
+                L.rectangle(bounds, { color: "red", weight: 3 }).addTo(map)
+                    .bindPopup("🔴 Ô bao quanh").openPopup();
+
+                // Giải phóng bộ nhớ
+                src.delete();
+                dst.delete();
+                edges.delete();
+                contours.delete();
+                hierarchy.delete();
+            };
+        };
+    }
+	function detectEdgesAndDrawBoxxxxxxxx(latlng) {
+        loadImageToCanvas(imageUrl, function (canvas) {
+            cv.onRuntimeInitialized = function () {
+                // Chuyển canvas thành ảnh OpenCV
+                var src = cv.imread(canvas);
+                var edges = new cv.Mat();
+                
+                // Dò biên ảnh bằng Canny
+                cv.Canny(src, edges, 100, 200);
+
+                // Tìm kiếm đường biên bao quanh
+                var contours = new cv.MatVector();
+                var hierarchy = new cv.Mat();
+                cv.findContours(edges, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+                // Vẽ hình chữ nhật bao quanh đường viền
+                contours.forEach(function (contour) {
+                    var boundingBox = cv.boundingRect(contour);
+                    var x = boundingBox.x;
+                    var y = boundingBox.y;
+                    var w = boundingBox.width;
+                    var h = boundingBox.height;
+
+                    // Vẽ rectangle lên ảnh
+                    cv.rectangle(src, new cv.Point(x, y), new cv.Point(x + w, y + h), [255, 0, 0, 255], 2);
+                });
+
+                // Chuyển kết quả về canvas và hiển thị
+                cv.imshow(canvas, src);
+
+                // Tạo một hình chữ nhật trên bản đồ (Leaflet)
+                var bounds = [
+                    [latlng.lat - 50, latlng.lng - 50],
+                    [latlng.lat + 50, latlng.lng + 50]
+                ];
+                L.rectangle(bounds, { color: "red", weight: 3 }).addTo(map)
+                    .bindPopup("🔴 Ô bao quanh").openPopup();
+
+                // Giải phóng bộ nhớ
+                src.delete();
+                edges.delete();
+                contours.delete();
+                hierarchy.delete();
+            };
+        });
+    }
+    // Xử lý sự kiện double-click
+    //map.on('dblclick', function (e) {
+    //    detectEdgesAndDrawBox(e.latlng);
+    //});
+	 // Nhận diện biên với thuật toán Canny (hoặc Sobel)
+     // Hàm xử lý ảnh, nhận diện biên và vẽ hình bao quanh
+    // Hàm lấy tọa độ pixel từ tọa độ bản đồ
+    // Hàm lấy tọa độ pixel từ tọa độ bản đồ
+   // Hàm lấy tọa độ pixel từ tọa độ bản đồ
+   // Biến lưu trữ hình vẽ hiện tại và các tọa độ hình đã vẽ
+    // Biến lưu trữ hình vẽ hiện tại và các tọa độ hình đã vẽ
+    // Biến lưu trữ hình vẽ hiện tại và các tọa độ hình đã vẽ
+    // Chuyển đổi tọa độ bản đồ thành tọa độ ảnh
+	var currentPolygon = null; // Biến lưu polygon đang vẽ
+
+	map.doubleClickZoom.disable(); // Tắt zoom khi double-click
+
+	// Hàm giúp vẽ lại hình sau khi nhận diện
+	// Hàm giúp vẽ lại hình sau khi nhận diện
+function drawPolygon(latlngs) {
+    if (currentPolygon) {
+        map.removeLayer(currentPolygon); // Xóa hình cũ nếu có
+    }
+    currentPolygon = L.polygon(latlngs, { color: 'blue', weight: 2, opacity: 0.7 }).addTo(map)
+        .bindPopup("📍 Hình bao quanh ô căn hộ").openPopup();
+}
+
+// Hàm tính toán khoảng cách giữa 2 điểm
+function calculateDistance(p1, p2) {
+    return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+}
+
+// Hàm nhận diện và vẽ hình theo vùng có viền
+function detectAndDraw(latlng) {
+    var img = new Image();
+    img.src = imageUrl;
+    img.onload = function () {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        // Chuyển canvas thành ảnh xám để dễ dàng xử lý
+        var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        var data = imgData.data;
+        
+        // Xử lý và nhận diện viền đen
+        var contours = [];  // Mảng lưu trữ các đường viền nhận diện
+        for (var i = 0; i < data.length; i += 4) {
+            var r = data[i];
+            var g = data[i + 1];
+            var b = data[i + 2];
+
+            // Kiểm tra nếu là màu đen (hoặc gần đen)
+            if (r < 50 && g < 50 && b < 50) {
+                // Tạo vùng viền tại các điểm đen
+                var x = (i / 4) % canvas.width;
+                var y = Math.floor((i / 4) / canvas.width);
+
+                // Kiểm tra vùng xung quanh điểm này để xác định hình
+                contours.push({ x: x, y: y });
+            }
+        }
+
+        // Tìm đối tượng gần nhất với vị trí click
+        var clickPoint = map.latLngToContainerPoint(latlng);
+        var closestContour = null;
+        var minDistance = Infinity;
+
+        contours.forEach(function (point) {
+            var distance = calculateDistance(clickPoint, point);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestContour = point;
+            }
+        });
+
+        // Nếu tìm thấy một điểm gần nhất, vẽ hình bao quanh
+        if (closestContour) {
+            // Giả sử rằng chúng ta nhận diện được hình chữ nhật hoặc các hình đơn giản
+            var latlngs = [
+                map.containerPointToLatLng(L.point(closestContour.x, closestContour.y)),
+                map.containerPointToLatLng(L.point(closestContour.x + 100, closestContour.y)), // Xác định kích thước
+                map.containerPointToLatLng(L.point(closestContour.x + 100, closestContour.y + 50)),
+                map.containerPointToLatLng(L.point(closestContour.x, closestContour.y + 50))
+            ];
+
+            drawPolygon(latlngs);
+        }
+    };
+}
+
+// Lắng nghe sự kiện double click để xử lý nhận diện và vẽ
+map.on('dblclick', function (event) {
+    var clickLatLng = event.latlng;
+    detectAndDraw(clickLatLng); // Xử lý ảnh và vẽ hình bao quanh
+});
+
+
+if(shape_type == 'marker' || shape_type == 'circlemarker'){
+				var latlng = layer.getLatLng(),
+					coordinates = [latlng.lat, latlng.lng];
+			} else if(shape_type == 'circle'){
+				var latlng = layer.getLatLng(),
+					radius = layer.getRadius(),
+					coordinates = {center : [latlng.lat, latlng.lng,], radius : radius };
+			} else {
+				var coordinates = layer.getLatLngs()[0].map(function (latlng) {
+					return [latlng.lat, latlng.lng]; // Đảm bảo đúng thứ tự
+				});
+			}

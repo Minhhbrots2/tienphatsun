@@ -1,0 +1,2 @@
+<button class="form-control btn btn-outline-default bg-white btn_left btn_view_docs btn-sm {if $_ss_view_docs eq 'list'}active{/if}" onClick="$Core.docs.setView(this,event)" data-type="list"><i class='bx bx-list-ul'></i></button>
+<button class="form-control btn btn-outline-default bg-white btn_right btn_view_docs btn-sm {if $_ss_view_docs eq 'grid'}active{/if}" onClick="$Core.docs.setView(this,event)" data-type="grid"><i class='bx bx-grid-alt' ></i></button>

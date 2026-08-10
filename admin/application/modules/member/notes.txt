@@ -1,0 +1,38 @@
+if(!empty($allItem)){
+		$arrCached = array();
+		foreach($allItem as $key => $val){
+			// $clsHubJS = new HubJS();
+			// $sale_type = $val['role_id'] == _ROLE_MOC_VIP ? 1 : 0;
+			// $clsHubJS->sendData($val, 'sale', $sale_type);
+			$more_information = !empty($val['more_information']) ? $clsISO->to_array_json($val['more_information']) : [];
+			if(!empty($more_information['is_tried']) && $more_information['is_tried'] == 1) {
+				$allItem[$key]['is_tried'] = 1;
+			}
+			
+			$status_id = $val['status_id'];
+			$department_id = $val['department_id'];
+			if($department_id > 0 && isset($arrCached[$department_id])){
+				$allItem[$key]['department'] = $arrCached[$department_id];
+			} else {
+				if($department_id > 0){
+					$arrCached[$department_id] = $clsProperty->getTitle($department_id);
+					$allItem[$key]['department'] = $arrCached[$department_id];
+				} else {
+					$allItem[$key]['department'] = '--';
+				}
+			}
+			if($status_id > 0 && isset($arrCached[$status_id])){
+				$allItem[$key]['status_name'] = $arrCached[$status_id];
+			} else {
+				if($status_id > 0){
+					$arrCached[$status_id] = sprintf(
+						'<span class="label label-default">%s</span>', 
+						$clsProperty->getTitle($status_id)
+					);
+					$allItem[$key]['status_name'] = $arrCached[$status_id];
+				} else {
+					$allItem[$key]['status_name'] = '--';
+				}
+			}
+		}
+	}

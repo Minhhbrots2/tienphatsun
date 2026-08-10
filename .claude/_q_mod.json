@@ -1,0 +1,76 @@
+{
+  "magic": 1111,
+  "conn_errno": 0,
+  "results": [
+    {
+      "errno": 0,
+      "affected_rows": 4,
+      "insert_id": 0,
+      "num_fields": 10,
+      "num_rows": 4,
+      "columns": [
+        "moduleid",
+        "site",
+        "name",
+        "intro",
+        "status",
+        "anonymous",
+        "fsize",
+        "upddate",
+        "config",
+        "lang_id"
+      ],
+      "rows": [
+        [
+          "11",
+          "ADMIN",
+          "faqs",
+          "Faqs Management Module by VietISO",
+          "Active",
+          "NO",
+          "0",
+          "1597028059",
+          "a:9:{s:4:\"Name\";s:4:\"faqs\";s:12:\"Display_Name\";s:15:\"Faqs Management\";s:11:\"Description\";s:33:\"Faqs Management Module by VietISO\";s:6:\"Status\";s:6:\"Active\";s:9:\"Anonymous\";s:2:\"NO\";s:6:\"Author\";s:6:\"ISOCMS\";s:11:\"Author_Link\";s:22:\"http://www.vietiso.com\";s:7:\"Version\";s:3:\"1.0\";s:11:\"License_Key\";s:32:\"2d2df894f5aa0527fb9d4abf98db8fe1\";}",
+          ""
+        ],
+        [
+          "12",
+          "ADMIN",
+          "page",
+          "Page Management Module by VietISO",
+          "Active",
+          "NO",
+          "0",
+          "1597028064",
+          "a:9:{s:4:\"Name\";s:4:\"page\";s:12:\"Display_Name\";s:15:\"Page Management\";s:11:\"Description\";s:33:\"Page Management Module by VietISO\";s:6:\"Status\";s:6:\"Active\";s:9:\"Anonymous\";s:2:\"NO\";s:6:\"Author\";s:6:\"ISOCMS\";s:11:\"Author_Link\";s:22:\"http://www.vietiso.com\";s:7:\"Version\";s:3:\"1.0\";s:11:\"License_Key\";s:32:\"8a89e19bd5766ba11206a2db22624732\";}",
+          ""
+        ],
+        [
+          "40",
+          "ADMIN",
+          "project",
+          "Project Management Module by MaxxCMS",
+          "Active",
+          "NO",
+          "0",
+          "1602512913",
+          "a:9:{s:4:\"Name\";s:7:\"project\";s:12:\"Display_Name\";s:18:\"Project Management\";s:11:\"Description\";s:36:\"Project Management Module by MaxxCMS\";s:6:\"Status\";s:6:\"Active\";s:9:\"Anonymous\";s:2:\"NO\";s:6:\"Author\";s:7:\"MaxxCMS\";s:11:\"Author_Link\";s:22:\"http://www.pftsoft.com\";s:7:\"Version\";s:3:\"1.0\";s:11:\"License_Key\";s:32:\"8a89e19bd5766ba11206a2db22624732\";}",
+          ""
+        ],
+        [
+          "61",
+          "ADMIN",
+          "policy",
+          "Policy Management Module by VietISO",
+          "Active",
+          "NO",
+          "0",
+          "1697554621",
+          "a:9:{s:4:\"Name\";s:6:\"policy\";s:12:\"Display_Name\";s:17:\"Policy Management\";s:11:\"Description\";s:35:\"Policy Management Module by VietISO\";s:6:\"Status\";s:6:\"Active\";s:9:\"Anonymous\";s:2:\"NO\";s:6:\"Author\";s:6:\"ISOCMS\";s:11:\"Author_Link\";s:22:\"http://www.vietiso.com\";s:7:\"Version\";s:3:\"1.0\";s:11:\"License_Key\";s:32:\"e2c2f1c339068b576aa4704dfdda7aac\";}",
+          ""
+        ]
+      ],
+      "_sep": 0
+    }
+  ]
+}

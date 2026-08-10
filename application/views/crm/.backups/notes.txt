@@ -1,0 +1,245 @@
+<div class="form-row mb-2">
+		<div class="col-12 col-md-6 mb-2 mb-xxl-0">
+			<div class="card h-100">
+				<div class="card-header">
+					<ul class="nav nav-tabs nav-tabs-bordered" role="tablist">
+						{foreach from=$list_boxs key= _oKey item = _oBox}
+						<li class="nav-item flex-fill" role="presentation">
+							<button onClick="$Core.crm.set_view_desktop_followup(this, event)" 
+								class="nav-link hnnyecGoRk{if $_oKey eq 'today'} active{/if}" tp="{$_oKey}" role="tab">
+								<i class='bx {$_oBox.icon}'></i> {$_oBox.title}
+							</button>
+						</li>
+						{/foreach}	
+					</ul>
+				</div>
+				<div class="card-body">
+					<div id="followups_desktop" class="overflow-y-auto h-px-250 holder_followups_desktop">
+						<div class="p-5 text-muted text-center">
+							<div class="d-flex flex-column justify-content-center align-items-center gap-2 p-4">
+								<i class="fa fa-circle-o-notch fa-spin fa-3x"></i>
+								<span>Loading...</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-md-6 col-lg-6 col-xxxl-3 mb-2 mb-xxl-0">
+			<div class="card h-100">
+				<div class="card-header">
+					<h3 class="card-title mb-0">📈 Thống kê khách hàng</h3>
+				</div>
+				<div class="card-body">
+					<div class="briefs crm-funnel">
+						<div class="p-5 text-muted text-center">
+							<div class="d-flex flex-column justify-content-center align-items-center gap-2 p-5">
+								<i class="fa fa-circle-o-notch fa-spin fa-3x"></i>
+								<span>Loading...</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-xxxl-3 mt-2 mt-xxxl-0">
+			<div class="card h-100">
+				<div class="card-header">
+					<h3 class="card-title mb-0">⚠️ Thông báo</h3>
+				</div>
+				<div id="box_warning" class="card-body">
+					{foreach from=$list_alerts key = _bgColor item = _oAlert}
+					<div class="d-flex align-items-center gap-2 alert-message bg-label-{$_bgColor}  p-2 rounded-2">
+						<div class="w-px-40 p-2">
+							<i class="fa fa-{$_oAlert} text-fs-20"></i>
+						</div>
+						<div style="width:calc(100% - 50px)" class="d-flex flex-column">
+							<div class="mb-1 animate-bg w-100 h-px-10 rounded-2"></div>
+							<div class="animate-bg w-100 h-px-10 rounded-2"></div>
+						</div>
+					</div>
+					{/foreach}
+				</div>	
+			</div>
+		</div>
+	</div>
+	<div class="form-row mb-2">
+		<div class="col-12 col-xxxl-3 mb-2 mb-xxl-0">
+			<div class="card h-100">
+				<div class="card-header">
+					<div class="d-flex align-items-center justify-content-between">
+						<h5 class="card-title mb-2 mb-lg-0 me-2">Tỉ lệ chuyển đổi</h5>
+						<button class="btn btn-icon btn-sm rounded-pill btn-link">
+							<i class='bx bx-dots-horizontal-rounded text-muted'></i>
+						</button>
+					</div>
+				</div>
+				<div id="holder_converted_rates" class="card-body"></div>
+			</div>
+		</div>
+		<div class="col-12 col-xxxl-5 mb-2 mb-xxl-0">
+			<div class="card h-100 dashboard-panel-item">
+				{assign var = gId value = $clsISO->getUniqid()}
+				<div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+					<h5 class="card-title mb-2 mb-lg-0 me-2">Báo cáo chiến dịch MKT</h5>
+					<div class="d-flex flex-wrap gap-2">
+						{if $deviceType eq 'phone'}
+						<div class="dropdown">
+							<button class="btn btn-icon p-0 h-auto" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								<i class="bx bx-dots-vertical-rounded"></i>
+							</button>
+							<div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end">
+								<div class="p-3">
+									<div class="form-group mb-2" role="group" aria-label="Sắp xếp">
+										<div class="form-label mb-1">Nguồn gốc</div>
+										<select class="form-control {$crm_field} form-select search_group" data-width="100%" holderG="{$holderG}" onchange="$Core.crm.reload(this,event)" data-placeholder="Nguồn gốc" data-width="100%" data-allow-clear="true" name="resource_id" data-field="resource_id">
+											<option value="0">Nguồn gốc</option>
+											{$clsProperty->getSelectByProperty('_CUSTOMER_RESOURCES',$get_resource_id, "", true)}
+										</select>
+									</div>
+									<div class="form-group mb-2" role="group" aria-label="Sắp xếp">
+										<div class="form-label mb-1">Chiến dịch</div>
+										<select name="campaign_id" data-placeholder="Chiến dịch" class="form-control {$crm_field} search_group iso-select2" data-width="100%" 
+										data-allow-clear="true" holderG="{$holderG}" onchange="$Core.crm.reload(this,event)" data-field="campaign_id">
+											<option value="0">Chiến dịch</option>
+											{if !empty($list_campaigns)}
+												{foreach from=$list_campaigns item = _oCampaign}
+												<option value="{$_oCampaign.campaign_id}">{$_oCampaign.title}</option>
+												{/foreach}
+											{/if}
+										</select>
+									</div>
+									<div class="form-group mb-2" role="group" aria-label="Sắp xếp">
+										<select class="form-control form-control-sm form-select search_group" name="month" gid="{$gId}" onchange="$Core.crm.reload(this,event)" data-field="month"> 
+											{foreach from=$list_months item = _month}
+											<option{if $_month eq $smarty.now|date_format:"%m"} selected{/if} value="{$_month}">Tháng {$_month}</option>
+											{/foreach}	
+										</select>
+									</div>
+									<div class="form-group  mb-2" role="group" aria-label="Sắp xếp">	
+										<select class="form-control form-control-sm form-select search_group" name="year" gid="{$gId}" onchange="$Core.crm.reload(this,event)" data-field="year">
+											{foreach from=$list_years item = _year}
+											<option{if $_year eq $current_year} selected{/if} value="{$_year}">{$_year}</option>
+											{/foreach}
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+						{else}
+						<div class="p-right ox:w-100">
+							<div class="input-group w-px-400 ox:w-100 d-flex" role="group" aria-label="Sắp xếp">
+								<select class="form-control form-control-sm form-select search_group" data-width="100%" holderG="{$holderG}" onchange="$Core.crm.reload(this, event)" data-placeholder="Nguồn gốc" data-width="100%" data-allow-clear="true" name="resource_id" data-field="resource_id">
+									<option value="0">Nguồn gốc</option>
+									{$clsProperty->getSelectByProperty('_CUSTOMER_RESOURCES',$get_resource_id, "", true)}
+								</select>
+								<select name="campaign_id" data-placeholder="Chiến dịch" class="form-control form-control-sm form-select search_group" data-width="100%" data-allow-clear="true" holderG="{$holderG}" onchange="$Core.crm.reload(this,event)" data-field="campaign_id">
+									<option value="0">Chiến dịch</option>
+									{if !empty($list_campaigns)}
+										{foreach from=$list_campaigns item = _oCampaign}
+										<option value="{$_oCampaign.campaign_id}">{$_oCampaign.title}</option>
+										{/foreach}
+									{/if}
+								</select>
+								<select class="form-control form-control-sm form-select search_group" name="month" gId="{$gId}" onChange="$Core.crm.reload(this,event)" data-field="month"> 
+									<option value="">Tháng</option>			
+									{foreach from=$list_months item = _month}
+									<option value="{$_month}">T{$_month}</option>
+									{/foreach}
+								</select>
+								<select class="form-control form-control-sm form-select search_group" name="year" gId="{$gId}" onChange="$Core.crm.reload(this,event)" data-field="year">
+									{foreach from=$list_years item = _year}
+									<option{if $_year eq $current_year} selected{/if} value="{$_year}">{$_year}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+						{/if}
+					</div>
+				</div>
+				<div class="card-body pb-0">
+					<div class="ajax" gId="{$gId}" data-url="{$PCMS_URL}/index.php?mod={$mod}&act=load_report_campaign&tp=chart" data-options='{ldelim}{rdelim}'>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-xxxl-4">
+			<div class="card h-100 dashboard-panel-item">
+				{assign var = gId value = $clsISO->getUniqid()}
+				<div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+					<h5 class="card-title mb-2 mb-lg-0 me-2">Báo cáo thống kê</h5>
+					<div class="d-flex flex-wrap gap-2">
+						<div class="dropdown">
+							<button class="btn btn-icon p-0 h-auto" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								<i class="bx bx-dots-vertical-rounded"></i>
+							</button>
+							<div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end">
+								<div class="p-3">
+									<div class="form-group mb-2" role="group" aria-label="Nguồn gốc">
+										<div class="form-label mb-1">Nguồn gốc</div>
+										<select class="form-control {$crm_field} form-select search_group" data-width="100%" holderG="{$holderG}" onchange="$Core.crm.reload(this,event)" data-placeholder="Nguồn gốc" data-width="100%" data-allow-clear="true" name="resource_id" data-field="resource_id">
+											<option value="0">Nguồn gốc</option>
+											{$clsProperty->getSelectByProperty('_CUSTOMER_RESOURCES',$get_resource_id, "", true)}
+										</select>
+									</div>
+									<div class="form-group mb-2" role="group" aria-label="Chiến dịch">
+										<div class="form-label mb-1">Chiến dịch</div>
+										<select name="campaign_id" data-placeholder="Chiến dịch" class="form-control {$crm_field} search_group" data-width="100%" 
+										data-allow-clear="true" holderG="{$holderG}" onchange="$Core.crm.reload(this,event)" data-field="campaign_id">
+											<option value="0">Chiến dịch</option>
+											{if !empty($list_campaigns)}
+												{foreach from=$list_campaigns item = _oCampaign}
+												<option value="{$_oCampaign.campaign_id}">{$_oCampaign.title}</option>
+												{/foreach}
+											{/if}
+										</select>
+									</div>
+									<div class="form-group mb-2" role="group" aria-label="Tháng">
+										<div class="form-label mb-1">Tháng</div>
+										<select class="form-control form-control-sm form-select search_group" name="month" gid="{$gId}" onchange="$Core.crm.reload(this,event)" data-field="month"> 
+											<option value="">Tháng</option>		
+											{foreach from=$list_months item = _month}
+											<option value="{$_month}">Tháng {$_month}</option>
+											{/foreach}	
+										</select>
+									</div>
+									<div class="form-group  mb-2" role="group" aria-label="Năm">	
+										<div class="form-label mb-1">Năm</div>
+										<select class="form-control form-control-sm form-select search_group" name="year" gid="{$gId}" onchange="$Core.crm.reload(this,event)" data-field="year">
+											{foreach from=$list_years item = _year}
+											<option{if $_year eq $current_year} selected{/if} value="{$_year}">{$_year}</option>
+											{/foreach}
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="card-body pb-0">
+					<div class="ajax" gId="{$gId}" data-url="{$PCMS_URL}/index.php?mod={$mod}&act=load_report_campaign&tp=status" data-options='{ldelim}{rdelim}'>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-15 w-100"></div>
+					</div>
+				</div>
+			</div>
+		</div>	
+	</div>

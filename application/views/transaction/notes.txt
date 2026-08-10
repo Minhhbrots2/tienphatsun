@@ -1,0 +1,145 @@
+<div class="modal-dialog modal-xl">
+	<form class="modal-content">
+		<div class="modal-header">
+			<h5 class="modal-title" id="modalTopTitle">
+				{if $action eq '_add'}Thêm{else}Chỉnh sửa{/if} xác nhận hoa hồng
+			</h5>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		</div>
+		<div class="modal-body">
+			<div class="form-group form-row mb-3">
+				<div class="col-12 col-md-2">
+					<label class="col-form-label">Mã xác nhận</label>
+					<input type="text" class="form-control" value="{$clsTransaction->genCode()}" />
+				</div>
+				<div class="col-12 col-md-3">
+					<label class="col-form-label">Ngày xác nhận</label>
+					<div class="input-group-date">
+						<input type="text" class="form-control datepicker" placeholder="dd/mm/yyyy" />
+					</div>
+				</div>
+				<div class="col-12 col-md-4">
+					<label class="col-form-label">Nhân viên</label>
+					<select class="iso-selectizeNotSearch required w-100" placeholder="Nhân viên" data-url="{$PCMS_URL}/index.php?mod=home&act=list_staff&holderG=permiss" name="staff_id" data-optgroup="false">
+						{if $action eq '_edit'}
+							<option value="{$oneBilling.staff_id}" selected="selected">{$clsProfile->getIndentity($oneBilling.staff_id)}</option>
+						{else}
+							<option value="{$profile_id}" selected="selected">{$oneProfile.code}-{$oneProfile.full_name}</option>
+						{/if}
+					</select>
+				</div>
+				<div class="col-12 col-md-3">
+					<label class="col-form-label">Tình trạng</label>
+					<select type="text" class="form-control form-select">
+						
+					</select>
+				</div>
+			</div>
+			<div class="mb-2">
+				<small>Danh sách giao dịch</small>
+			</div>
+			<table class="table table-bordered table-transaction" width="100%">
+				<thead><tr>
+					<th class="text-center bg-lighter" rowspan="3" width="3%">STT</th>
+					<th width="10%" class="text-center bg-lighter" rowspan="3">Giao dịch</th>
+					<th width="10%" class="text-center bg-lighter" rowspan="3">Mã căn</th>
+					<th width="15%" class="text-center bg-lighter" rowspan="3">Dự án</th>
+					<th width="10%" class="text-center bg-lighter" rowspan="3">Ngày kí<br />HĐMB</th>
+					<th width="10%" class="text-center bg-lighter" rowspan="3">Gía trị<br />HĐMB</th>
+					<th class="text-center bg-lightest" colspan="4">Thông tin hoa hồng</th>
+					<th width="10%" class="text-center bg-lighter" rowspan="3">Ghi chú</th>
+					<th width="3%" class="text-center bg-lighter" rowspan="3"></th>
+				</tr>
+				<tr>
+					<th class="text-center bg-lighter" width="80" rowspan="2">Tỷ lệ<br />HH(%)</th>
+					<th class="text-center bg-lighter" colspan="2">Thưởng</th>
+					<th class="text-center bg-lighter" rowspan="2">Hỗ trợ<br />(Nếu có)</th>
+				</tr>
+				<tr>
+					<th class="text-center bg-lighter">Đại lý</th>
+					<th class="text-center bg-lighter">CĐT</th>
+				</tr></thead>
+				<tbody>
+					<tr class="transaction_item_{$transaction_id}">
+						<td class="p-0 text-center">1</td>
+						<td class="p-0">
+							<select prompt="Chọn giao dịch" id="cboProduct_{$uid}" data-options="{literal}
+							panelWidth: 900,
+							url:'/index.php?mod=home&sub=transaction&act=search_billing&uid={/literal}{$uid}{literal}',
+							mode:'remote',
+							method:'post',
+							height:'34px',
+							width:'110px',
+							multiple:false, 
+							columns: [[
+								{field:'billing_code',title:'Mã GD',width:70,align:'left'},
+								{field:'deposit_date',title:'Ngày cọc',width:85,align:'left'},
+								{field:'staff_name',title:'Nhân viên',width:120,align:'left'},
+								{field:'stock_code',title:'Mã căn',width:80},
+								{field:'project_name',title:'Dự án',width:120,align:'left'},
+								{field:'totalgrand',title:'Tồng tiền',width:80,align:'left'}
+							]],
+							idField:'billing_code',
+							textField:'billing_code',
+							fitColumns:true,
+							showFooter:true,
+							pagination:true,
+							pageSize: 20{/literal}"></select>
+						</td>
+						<td class="p-0"><input type="text" class="form-control" /></td>
+						<td class="p-0"><input type="text" class="form-control" /></td>
+						<td class="p-0"><input type="text" placeholder="dd/mm/yy" class="form-control" /></td>
+						<td class="p-0"><input type="text" class="form-control" /></td>
+						<td class="p-0"><input type="text" class="form-control" /></td>
+						<td class="p-0"><input type="text" class="form-control" /></td>
+						<td class="p-0"><input type="text" class="form-control" /></td>
+						<td class="p-0"><input type="text" class="form-control" /></td>
+						<td class="p-0"><input type="text" class="form-control" /></td>
+						<td class="text-center"></td>
+					</tr>
+				</tbody>
+				<tfoot><tr>
+					<td class="text-left" colspan="12">
+						<a href="javascript:void(0);" onClick="$Core.transaction.addline(this, event)" class="text-link" transaction_id="{$transaction_id}">+ Thêm dòng</a>
+					</td>
+				</tr></tfoot>
+			</table>
+			<div class="form-group form-row mb-3">
+				<label class="col-form-label">Ghi chú</label>
+				<textarea class="form-control" cols="255" rows="3" placeholder="Viết ghi chú"></textarea>
+			</div>
+			<div class="form-group mb-3">
+				<label class="col-form-label">File đính kèm</label>
+				<div class="MultiFile-preview" id="MultiFile-preview_{$uid}"></div>
+				<div class="clearfix"></div>
+				<input name="media_file[]" type="file" multiple="multiple" class="maxsize-10240" id="attachments_{$uid}" />
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+			<button type="button" billing_id="{$billing_id}" onClick="pop_save_billing(this, event)" class="btn btn-primary">Lư lại</button>
+		</div>
+	</form>
+</div>
+{literal}
+<style type="text/css">
+	.textbox,
+	.table-transaction .form-control {
+		margin:1px;
+		border-radius: 0;
+		-moz-border-radius: 0;
+		-webkit-border-radius: 0;
+		-khtml-border-radius: 0;
+		border-style: dotted;
+		border-width: 0 0 1px 0;
+	}
+	.selectize-input{
+		padding-top:7px;
+		padding-bottom:7px;
+		border-radius:4px;
+		-moz-border-radius:4px;
+		-webkit-border-radius:4px;
+		-khtml-border-radius:4px;
+	}
+</style>
+{/literal}

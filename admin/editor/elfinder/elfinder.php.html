@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>elFinder</title>
+	<!--<script type='text/javascript' src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>-->
+	<link rel="stylesheet" href="css/smoothness/jquery-ui-1.8.13.custom.css" type="text/css" media="all" charset="utf-8">
+	<link rel="stylesheet" href="css/elfinder.full.css" type="text/css" media="all" charset="utf-8">
+	<link rel="stylesheet" href="css/theme.css" type="text/css" media="all" charset="utf-8">
+	<script src="js/jquery-1.6.4.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/jquery-ui-1.8.13.custom.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/elfinder.min.js" type="text/javascript" charset="utf-8"></script>
+	<!--<script src="js/i18n/elfinder.ru.js" type="text/javascript" charset="utf-8"></script>-->
+	<script type="text/javascript" charset="utf-8">
+		$().ready(function() {
+			var f = $('#finder').elfinder({
+				url : 'php/connector.php',
+				height:500,
+				lang : 'en',
+				docked : true
+
+				// dialog : {
+				// 	title : 'File manager',
+				// 	height : 500
+				// }
+
+				// Callback example
+				//editorCallback : function(url) {
+				//	if (window.console && window.console.log) {
+				//		window.console.log(url);
+				//	} else {
+				//		alert(url);
+				//	}
+				//},
+				//closeOnEditorCallback : true
+			})
+			// window.console.log(f)
+		})
+	</script>
+</head>
+<body>
+	<div id="finder">finder</div>
+</body>
+</html>

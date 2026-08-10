@@ -1,0 +1,304 @@
+.btn-link:hover{
+	background: #DDD;
+}
+.leaflet-marker-icon{
+	border-radius:50%;
+	-moz-border-radius:50%;
+	-webkit-border-radius:50%;
+	-moz-shadow:0px 5px 5px 2px #959595;
+	-webkit-shadow:0px 5px 5px 2px #959595;
+}
+.leaflet-tooltip-custom {
+    background-color: #f44336 !important;
+    color: #fff !important;
+    border-radius: 4px !important;
+    padding: 4px 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+    border: none;
+	margin-top: -12px
+}
+.leaflet-tooltip-background {
+    background: none;
+}
+.custom-tooltip .tooltip-title {
+    font-weight: bold;
+}
+.custom-tooltip .tooltip-price {
+    font-size: 9px;
+}
+.leaflet-tooltip-custom .leaflet-tooltip {
+    padding: 6px;
+}
+#map .leaflet-marker-icon,
+#map-detail .leaflet-marker-icon:first-child {
+	/* box-shadow:0px 5px 5px 2px #959595; */
+}
+#map {
+    height: calc(100vh - 21.55px - 53.96px - 53.19px - 55px - 20px);
+    width: 100%;
+    border-radius: 6px;
+}
+.project-map .custom-label {
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+    /* Ẩn nút close của InfoWindow */
+.project-map .gm-ui-hover-effect {
+    display: none !important;
+}
+.project-map .box-router .router {
+    list-style: none;
+    flex-direction: column;
+    padding-left: 0;
+}
+.project-map .box-router .router .item-router {
+    cursor: pointer;
+    background-color: #fff;
+    padding: 10px 15px;
+    border-bottom: 1px solid #DDD;
+}
+.project-map .box-router .router .item-router:hover {
+    background-color: rgba(105, 108, 255, 0.16) !important
+}
+.project-map .box-router .router .item-router.active, {
+    background-color: rgba(105, 108, 255, 0.16) !important;
+}
+.project-map .router .item-router.active {
+    color: #696cff;
+}
+.project-map .box-router .box-location {
+    max-height: calc(100vh - 21.55px - 53.96px - 53.19px - 55px);
+    height: calc(100vh - 21.55px - 53.96px - 53.19px - 55px);
+    background-color: #fff;
+    padding: 11px 15px 15px 15px;
+    overflow: auto;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #DDD;
+}
+.project-map .box-router .box-location .item-location {
+    font-weight: 600;
+}
+.project-map .router .item-router .image-project {
+    width: 95px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.project-map .router .item-router .image-project img {
+    width: 100px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+}
+.project-map .box-location {
+    transition: max-height 0.5s ease;
+}
+.project-map .box-location.collapse-active {
+    max-height: 50px;
+    margin-bottom: 15px;
+    overflow: hidden
+}
+.project-map .collapse-project {
+        display: none;
+        position: absolute;
+        right: 10px;
+        margin-top: -4px;
+}
+.project-map .header-page {
+    flex-wrap: wrap;
+}
+.fh_AI,
+.bottom-navbar,
+.menu_plus {
+    z-index: 1000 !important;
+}
+#map-detail {
+	z-index:2;
+    height: calc(100vh - 21.55px - 53.96px - 89.76px - 53.19px - 50px);
+    /* height: 100%; */
+    width: 100%;
+    border-radius: 8px;
+}
+.ellipsis-2-lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; 
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.project-map-detail .custom-label {
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+    /* Ẩn nút close của InfoWindow */
+.project-map-detail .gm-ui-hover-effect {
+    display: none !important;
+}
+.project-map-detail .box-menu-location .item-menu {
+    padding-left: 0px;
+}
+.project-map-detail .box-menu-location .menu-location {
+    list-style: none; 
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.project-map-detail .box-menu-location .item-menu .btn-action-map {
+    background-color: #e6e6ef;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+    width: 150px;
+    border-radius: 8px;
+}
+.project-map-detail .box-menu-location .item-menu .btn-action-map i {
+    font-size: 2rem;
+}
+.project-map-detail .box-menu-location .item-menu.active .btn-action-map {
+    background-color: #696cff;
+    border-radius: 5px;
+    color: #fff;
+}
+.project-map-detail .box-router .router {
+    list-style: none;
+    flex-direction: column;
+    padding-left: 0;
+    height: calc(100% - 30px);
+    overflow: auto;
+}
+.project-map-detail .box-router .router .item-router {
+    background-color: #fff;
+    padding: 10px 5px;
+    cursor: pointer;
+    border-bottom: 1px solid #DDD;
+}
+.project-map-detail .box-router .router .item-router:hover {
+    background-color: rgba(105, 108, 255, 0.16) !important
+}
+.project-map-detail .box-router .router .item-router.active {
+    background-color: rgba(105, 108, 255, 0.16) !important;
+}
+.project-map-detail .box-router .router .item-router .item-location {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: warp
+}
+.project-map-detail .box-router .router .item-router .item-location .group-info-location {
+    max-width: 80%;
+    padding: 0 5px;
+}
+.project-map-detail .box-router .router .item-router .group-info {
+    display: flex;
+    flex-direction: column;
+}
+.project-map-detail .box-router .box-location {
+    height: calc(100vh - 21.55px - 53.96px - 89.76px - 53.19px - 50px);
+    /* height: 100%; */
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    /* border: 1px solid #DDD; */
+}
+.project-map-detail .box-map {
+    margin-left: auto;
+    transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+.project-map-detail .box-info-project {
+    width: 250px;
+}
+.project-map-detail .box-info-project .img-project {
+    width: 100%;
+    height: 177px;
+}
+.leaflet-routing-container {
+  display: none !important;
+}
+.group-search-location .location-keyword, .group-search-location .location-keyword:focus {
+    border: 1px solid #d9dee3;
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+}
+.group-search-location .btn-search-location {
+    border: 1px solid #d9dee3 !important;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+}
+.project-map-detail .box-router .router .not-location .image-not-location {
+    opacity: 0.2;
+}
+@media (max-width: 1024px) { 
+    #map-detail {
+        height: calc(50vh);
+		min-height:450px;
+        width: 100%;
+    }
+    .project-map-detail .box-menu-location .menu-location  {
+        flex-direction: row;
+        width: 100%;
+        overflow: auto;
+        flex-wrap: nowrap;
+        /* justify-content: center; */
+    }
+    .project-map-detail .box-menu-location .item-menu .btn-action-map i {
+        font-size: 1.15rem;
+    }
+    .project-map-detail .box-map {
+        width: 100%;
+        order: 1;
+    }
+    .project-map-detail .box-router {
+        width: 100%;
+        margin-top: 10px;
+        order: 2;
+    }
+    .project-map-detail .box-menu-location .item-menu .btn-action-map {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+}
+    
+@media (min-width: 768px) and (max-width: 1024px) { 
+    .project-map .box-router,
+    .project-map .box-map {
+        width: 100%;
+    }
+    .project-map .collapse-project {
+        display: block;
+        right: 55px;
+    }
+    #map {
+        height: calc(100vh - 21.55px - 53.96px - 53.19px - 77px - 39px - 1rem);
+    }
+}
+@media (max-width: 768px) { 
+    .project-map .collapse-project {
+        display: block;
+        right: 10px;
+    }
+    #map {
+        height: calc(100vh - 21.55px - 53.96px - 53.19px - 100px - 39px - 1rem);
+        width: 100%;
+    }
+    .project-map-detail .box-menu-location .item-menu .btn-action-map {
+        width: 90px;
+    }
+}

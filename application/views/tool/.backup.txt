@@ -1,0 +1,140 @@
+<div class="container-xxl flex-grow-1 container-p-y">
+	<h4 class="fw-bold py-3 mb-3"><span class="text-muted fw-light">Dashboard /</span> Tình trạng căn hộ</h4>
+    <!-- Basic Bootstrap Table -->
+    <div class="card">
+		<div class="frame-layer">
+			<div class="frame-layer-ls">
+				<div class="frame-layer-xs">
+					<div class="d-flex align-items-center py-2">
+						<div class="logo-branch">
+							<img class="img-responsive" style="width:150px" src="{$URL_IMAGES}/logo-h.png" />
+						</div>
+						<div style="width:calc(100% - 150px)" class="frame-layer-title text-center">
+							Tra cứu thông tin căn hộ cao tầng
+						</div>
+					</div>
+					<table class="table table-bordered table-ilooca" width="100%">
+						<tbody>
+							<tr>
+								<td class="text-bold text-center" width="25%">Dự án</td>
+								<td class="p-0 text-upper" colspan="3">
+									<select data-field="project_id" name="project_id" 
+									class="sop_field form-control text-upper text-center">
+										{foreach name=i from=$list_projects item = _oProject}
+										<option value="{$_oProject.project_id}">{$_oProject.title}</option>
+										{/foreach}
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td class="text-bold text-center" width="25%">Tòa nhà</td>
+								<td class="p-1 holder__ipn-cell fm-cell-1" width="25%"></td>
+								<td colspan="2" class="text-center fm-cell-5" rowspan="3">
+									<i>Điền Toà-Tầng-Mã căn [OR] Tòa-Mã căn đầy đủ vào ô bên trái</i>
+								</td>
+							</tr>
+							<tr>
+								<td class="text-bold text-center" width="25%">Tầng</td>
+								<td class="p-0 fm-cell-1">
+									<input class="form-control text-center custom-input sop_field numberonly" data-field="floor" onClick="this.select()" placeholder="Số tầng" value="" maxlength="255" />
+								</td>
+							</tr>
+							<tr>
+								<td class="text-bold text-center" width="25%">Mã căn</td>
+								<td class="p-0 fm-cell-1">
+									<input class="form-control text-center custom-input numberonly sop_field" data-field="code" onClick="this.select()" placeholder="Mã căn" maxlength="255" />
+								</td>
+							</tr>
+						</tbody>
+						<tbody class="holder_result">
+							<tr>
+								<td class="text-bold text-center text-bold">Mã căn đầy đủ</td>
+								<td class="text-center" colspan="2">--</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td class="text-right" colspan="2">Loại căn hộ</td>
+								<td class="text-center">---</td>
+								<td class="text-center">(số phòng ngủ)</td>
+							</tr>
+							<tr>
+								<td class="text-right" colspan="2">Diện tích thông thủy (m2)</td>
+								<td class="text-center">--</td>
+								<td class="text-center">m2</td>
+							</tr>
+							<tr>
+								<td class="text-right" colspan="2">Diện tích tim tường (m2)</td>
+								<td class="text-center">--</td>
+								<td class="text-center">m2</td>
+							</tr>
+							<tr>
+								<td class="text-right" colspan="2">Hướng</td>
+								<td class="text-center">--</td>
+								<td class="text-center">Hướng ban công</td>
+							</tr>
+							<tr>
+								<td class="text-right" colspan="2">GBCH (Gồm VAT +KPBT)</td>
+								<td class="text-center">--</td>
+								<td class="text-center">Giá full VAT</td>
+							</tr>
+							<tr>
+								<td class="text-center fm-cell-3" colspan="2">Link mặt bằng tổng VHOP</td>
+								<td class="fm-cell-3"></td>
+								<td class="fm-cell-3"></td>
+							</tr>
+							<tr>
+								<td class="text-center fm-cell-3" width="25%">Layout --</td>
+								<td class="text-center fm-cell-3" width="25%">Tiện ích nội khu --</td>
+								<td class="text-center fm-cell-3" width="25%">Thiết kế căn --</td>
+								<td class="text-center fm-cell-3" width="25%">Layout ZR1</td>
+							</tr>
+							<tr>
+								<td  class="text-center fm-cell-3">Video mẫu --</td>
+								<td class="text-center fm-cell-3">Tiêu chuẩn bàn giao --</td>
+								<td class="text-center fm-cell-3">CSBS</td>
+								<td class="text-center fm-cell-3">Ảnh căn mẫu --</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+</div>
+{literal}
+<style type="text/css">
+	
+</style>
+<script type="text/javascript">
+	$(function(){
+		setTimeout(() => {
+			$('select[name=project_id]').trigger('change');
+		}, 1000);
+		$_document.on('change', 'select[name=project_id]', function(){
+			var _this = $(this), 
+				project_id = _this.val();
+			$.post('/index.php?mod='+MOD+'&act=load_input_building', {
+				'project_id' : project_id
+			}, function(respJson){
+				$('.holder__ipn-cell').html(respJson.html);
+				if(respJson.callback) eval(respJson.callback);
+			},'json');
+		});
+		$_document.on('change', '.sop_field', function(){
+			var _validated = 0, $_adata = {};
+			$('.sop_field').each((_i, _elem) => {
+				var field = $(_elem).data('field');
+				if($Core.util.isEmpty($(_elem).val())){
+					_validated++;
+				} else {
+					$_adata[field] = $(_elem).val();
+				}
+			});
+			$.post('/index.php?mod='+MOD+'&act=load_apartment_info', $_adata, function(html){
+				$('.holder_result').html(html);
+			});
+		});
+	});
+</script>
+{/literal}

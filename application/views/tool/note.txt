@@ -1,0 +1,174 @@
+
+
+	function pickByChance(items) {
+		let r = Math.random(), acc = 0
+		for (let item of items) {
+			acc += item.weight
+			if (r <= acc) return item
+		}
+		return items[0]
+	}
+	
+	const rand = (m, M) => Math.random() * (M - m) + m
+	const tot = sectors.length
+	const spinEl = document.querySelector('#spin')
+	const ctx = document.querySelector('#wheel').getContext('2d')
+	const dia = ctx.canvas.width
+	const rad = dia / 2
+	const PI = Math.PI
+	const TAU = 2 * PI
+	const arc = TAU / tot
+
+	let friction = 0.991
+	let angVel = 0
+	let ang = 0
+	let targetIndex = null
+
+	const getIndex = () => Math.floor(tot - (ang / TAU) * tot) % tot
+	
+	function drawSector(sector, i, total) {
+		  const arc = (2 * Math.PI) / total;
+		  const ang = arc * i;
+
+		  // --- Vẽ nền ---
+		  ctx.save();
+		  ctx.beginPath();
+		  ctx.fillStyle = sector.color;
+		  ctx.moveTo(rad, rad);
+		  ctx.arc(rad, rad, rad, ang, ang + arc);
+		  ctx.lineTo(rad, rad);
+		  ctx.fill();
+		  ctx.restore();
+
+		  // --- Tính góc giữa ô ---
+		  const midAngle = ang + arc / 2;
+		  const textX = rad + Math.cos(midAngle) * (rad * 0.6);
+		  const textY = rad + Math.sin(midAngle) * (rad * 0.6);
+
+		  // --- Reset transform để chữ và ảnh nằm ngang ---
+		  ctx.save();
+		  ctx.textAlign = 'center';
+		  ctx.textBaseline = 'middle';
+		  ctx.fillStyle = '#fff';
+		  ctx.font = 'bold 18px sans-serif';
+
+		  // --- Vẽ ảnh (nếu có) ---
+		  if (sector.image) {
+			const img = new Image();
+			img.src = sector.image;
+			img.onload = function () {
+			  ctx.drawImage(img, textX - 25, textY - 45, 50, 50);
+			  drawText(sector.label, textX, textY + 30);
+			};
+		  } else {
+			drawText(sector.label, textX, textY);
+		  }
+
+		  ctx.restore();
+		}
+
+		// --- Hàm vẽ text nhiều dòng ---
+		function drawText(text, x, y) {
+		  const lines = text.split(/\n|\\n/);
+		  lines.forEach((line, idx) => {
+			ctx.fillText(line, x, y + (idx - (lines.length - 1) / 2) * 20);
+		  });
+		}
+	
+	function drawSector232(sector, i) {
+	  const ang = arc * i;
+	  ctx.save();
+	  ctx.beginPath();
+	  ctx.fillStyle = sector.color;
+	  ctx.moveTo(rad, rad);
+	  ctx.arc(rad, rad, rad, ang, ang + arc);
+	  ctx.lineTo(rad, rad);
+	  ctx.fill();
+
+	  // === TEXT & ICON ===
+	  ctx.translate(rad, rad);
+	  ctx.rotate(ang + arc / 2);
+	  ctx.textAlign = 'center';
+	  ctx.fillStyle = '#fff';
+	  ctx.font = 'bold 18px sans-serif';
+
+	  const lines = sector.label.split(/\n|\\n| /).reduce((arr, word) => {
+		if (!arr.length || (arr[arr.length - 1] + ' ' + word).length > 12)
+		  arr.push(word);
+		else
+		  arr[arr.length - 1] += ' ' + word;
+		return arr;
+	  }, []);
+
+	  // Hiển thị icon nếu có
+	  if (sector.image) {
+		const img = new Image();
+		img.src = sector.icon;
+		img.onload = () => {
+		  ctx.drawImage(img, rad - 90, -25, 40, 40);
+		};
+	  }
+
+	  // Hiển thị text nhiều dòng
+	  lines.forEach((line, j) => {
+		ctx.fillText(line, rad - 45, (j - lines.length / 2) * 20);
+	  });
+
+	  ctx.restore();
+	}
+	function drawSectorx(sector, i) {
+		const ang = arc * i
+		ctx.save()
+		ctx.beginPath()
+		ctx.fillStyle = sector.color
+		ctx.moveTo(rad, rad)
+		ctx.arc(rad, rad, rad, ang, ang + arc)
+		ctx.lineTo(rad, rad)
+		ctx.fill()
+		ctx.translate(rad, rad)
+		ctx.rotate(ang + arc / 2)
+		ctx.textAlign = 'right'
+		ctx.fillStyle = '#fff'
+		ctx.font = 'bold 22px sans-serif'
+		ctx.fillText(sector.label, rad - 20, 20)
+		ctx.restore()
+	}
+	function rotate() {
+		const sector = sectors[getIndex()]
+		ctx.canvas.style.transform = `rotate(${ang - PI / 2}rad)`
+		// spinEl.textContent = !angVel ? 'SPIN' : sector.label
+		spinEl.style.background = sector.color
+	}
+	function frame() {
+		if (!angVel) return
+		angVel *= friction
+		if (angVel < 0.002) {	
+			angVel = 0
+			const sector = sectors[getIndex()]
+			$Core.lucky_wheel.spiner(sector.prize_id);
+			setTimeout(() => alert('🎉 Bạn trúng: ' + sector.label + ' 🎉'), 300)
+		}
+		ang += angVel
+		ang %= TAU
+		rotate()
+	}
+	function engine() {
+		frame()
+		requestAnimationFrame(engine)
+	}
+	function init() {
+		sectors.forEach(drawSector)
+		rotate()
+		engine()
+		spinEl.addEventListener('click', () => {
+			if (angVel) return // đang quay thì bỏ qua
+			const winner = pickByChance(sectors)
+			targetIndex = sectors.findIndex(s => s.label === winner.label)
+			console.log('Kết quả chọn:', winner.label, '=> vị trí', targetIndex)
+			const stopAngle = TAU * (1 - targetIndex / tot) + rand(-arc/4, arc/4)
+			const extraSpins = 6
+			const totalAngle = extraSpins * TAU + stopAngle
+			angVel = (totalAngle * (1 - friction)) / (1 - Math.pow(friction, 500))
+		})
+	}
+	init();

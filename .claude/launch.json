@@ -1,0 +1,72 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "admin-preview",
+      "runtimeExecutable": "php",
+      "runtimeArgs": [
+        "-S",
+        "127.0.0.1:8347",
+        "-t",
+        "admin"
+      ],
+      "port": 8347
+    },
+    {
+      "name": "crmpreview",
+      "runtimeExecutable": "php",
+      "runtimeArgs": [
+        "-S",
+        "127.0.0.1:8788",
+        "-t",
+        "C:\\Users\\Admin\\AppData\\Local\\Temp\\crm_preview_srv"
+      ],
+      "port": 8788
+    },
+    {
+      "name": "crmroot",
+      "runtimeExecutable": "php",
+      "runtimeArgs": [
+        "-S",
+        "127.0.0.1:8899",
+        "-t",
+        "G:/Projects/ca.futurehomes.vn"
+      ],
+      "port": 8899
+    },
+    {
+      "name": "ca-modal",
+      "runtimeExecutable": "php",
+      "runtimeArgs": [
+        "-S",
+        "127.0.0.1:8801",
+        "-t",
+        "C:/Users/Admin/AppData/Local/Temp/ca_modal_preview"
+      ],
+      "port": 8801
+    },
+    {
+      "name": "ld-preview",
+      "runtimeExecutable": "php",
+      "runtimeArgs": [
+        "-S",
+        "127.0.0.1:8815",
+        "-t",
+        "G:/Projects/ca.futurehomes.vn/.claude/preview_root"
+      ],
+      "port": 8815
+    },
+    {
+      "name": "signin-test",
+      "runtimeExecutable": "php",
+      "runtimeArgs": ["-S", "127.0.0.1:8792", "-t", "G:/Projects/skyrealty.futureglobal.vn"],
+      "port": 8792
+    },
+    {
+      "name": "previews",
+      "runtimeExecutable": "php",
+      "runtimeArgs": ["-S", "127.0.0.1:8794", "-t", "G:/Projects/skyrealty.futureglobal.vn/previews"],
+      "port": 8794
+    }
+  ]
+}

@@ -1,0 +1,605 @@
+<div class="form-row">
+	<div class="col-12 col-lg-4 mb-2">
+		<div class="card h-100">
+			{assign var = gId value = $clsISO->getUniqid()}
+			<div class="card-body">
+				<div class="d-flex align-items-center mb-3 justify-content-between">
+					<div class="p-left">
+						<h5 class="card-title mb-0 text-nowrap">Doanh số</h5>
+						<small class="d-block text-nowrap">Doanh số bán hàng</small>
+					</div>
+					<div class="p-right">
+						<div class="input-group w-px-150 d-flex align-items-center" role="group">
+							<select class="form-control form-select" name="month" gId="{$gId}" 
+								onChange="$Core.dashboard.reload(this,event)"> 
+								<option value="">Tháng</option>			
+								{foreach from=$list_months item = _month}
+								<option value="{$_month}">T{$_month}</option>
+								{/foreach}
+							</select>
+							<select class="form-control form-select" name="year" gId="{$gId}" 
+								onChange="$Core.dashboard.reload(this,event)">
+								{foreach from=$list_years item = _year}
+								<option{if $_year eq $current_year} selected{/if} value="{$_year}">{$_year}</option>
+								{/foreach}
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="ajax" gId="{$gId}" data-url="{$PCMS_URL}/index.php?mod={$mod}&sub=dashboard&act=load_sales_overview">
+					<div class="p-4 text-center">
+						<div class="py-1">Loading...</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-12 col-lg-4 mb-2">
+		<div class="card h-100">
+			{assign var = gId value = $clsISO->getUniqid()}
+			<div class="card-body">
+				<div class="w-100 d-flex align-items-center justify-content-between mb-3">
+					<div class="card-header-left">
+						<h5 class="card-title mb-0 text-nowrap">Loại hình giao dịch</h5>
+						<small class="d-block text-nowrap">Thống kê loại hình giao dịch</small>
+					</div>
+					<div class="card-header-right">
+						<div class="input-group w-px-150 d-flex" role="group">
+							<select class="form-control form-select" name="month" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)"> 
+								<option value="">Tháng</option>			
+								{foreach from=$list_months item = _month}
+								<option value="{$_month}">T{$_month}</option>
+								{/foreach}
+							</select>
+							<select class="form-control form-select" name="year" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)">
+								{foreach from=$list_years item = _year}
+								<option{if $_year eq $current_year} selected{/if} value="{$_year}">{$_year}</option>
+								{/foreach}
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="ajax" gId="{$gId}" data-url="{$PCMS_URL}/index.php?mod={$mod}&sub=dashboard&act=load_group_sale_overview">
+					<div class="p-4 text-center">
+						<div class="py-1">Loading...</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-12 col-lg-4 mb-2">
+		<div class="card h-100">
+			<div class="d-flex align-items-end">
+				<div class="card-body row ajax" data-url="{$PCMS_URL}/index.php?mod={$mod}&sub=dashboard&act=load_info_staff" 
+				data-options='{ldelim}{rdelim}'>
+					<div class="p-5 text-center">
+						<div class="p-2">Loading...</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{if $deviceType eq 'phone'}
+<div class="card ranking mb-2">
+	<div class="card-body">
+		{$core->getBlock('top_ranking')}
+	</div>
+</div>
+{/if}
+<div class="form-row">
+	<div class="col-12 col-lg-4 mb-2">
+		<div class="card h-100">
+			{assign var = gId value = $clsISO->getUniqid()}
+			<div class="w-100 d-flex card-header align-items-center justify-content-between">
+				<h5 class="card-title mb-0">Thống kê quỹ ôm MWF</h5>
+				<a class="text-main" href="/billing/report/mwf.html">{$clsISO->makeIcon('bx-line-chart-down', 'Báo cáo')}</a>
+			</div>
+			<div class="card-body ajax" data-options='{ldelim}{rdelim}' 
+				data-url="{$PCMS_URL}/index.php?mod={$mod}&sub=dashboard&act=load_stock_hug">
+				<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+				<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+				<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+				<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+			</div>
+		</div>
+	</div>
+	<div class="col-12 col-lg-4 mb-2">
+		<div class="card h-100">
+			{assign var = gId value = $clsISO->getUniqid()}
+			<div class="card-header d-flex flex-wrap align-items-center justify-content-between">
+				<h5 class="card-title mb-2 mb-lg-0 me-2">Thống kê M.O.C</h5>
+				<div class="dropdown">
+					<button class="btn btn-icon p-0 h-auto" type="button" data-bs-toggle="dropdown">
+						<i class="bx bx-dots-vertical-rounded"></i>
+					</button>
+					<div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end">
+						<div class="p-3">
+							<div class="form-group mb-2" role="group" aria-label="Sắp xếp">
+								<select class="form-control form-select" name="month" gid="{$gId}" onchange="$Core.dashboard.reload(this,event)"> 
+									{foreach from=$list_months item = _month}
+									<option{if $_month eq $smarty.now|date_format:"%m"} selected{/if} value="{$_month}">Tháng {$_month}</option>
+									{/foreach}	
+								</select>
+							</div>
+							<div class="form-group  mb-2" role="group" aria-label="Sắp xếp">	
+								<select class="form-control form-select" name="year" gid="{$gId}" onchange="$Core.dashboard.reload(this,event)">
+									{foreach from=$list_years item = _year}
+									<option{if $_year eq $current_year} selected{/if} value="{$_year}">{$_year}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="card-body">
+				<div class="ajax" gId="{$gId}" data-url="{$PCMS_URL}/index.php?mod={$mod}&act=load_log_check_stock" data-options='{ldelim}{rdelim}'>
+					<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+					<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+					<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+					<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-12 col-lg-4 mb-2">
+		<div class="log_stock ajax" data-url="{$PCMS_URL}/index.php?mod={$mod}&act=load_top_search_stock" data-options="{ldelim}{rdelim}">
+			<div class="card h-100">
+				<div class="card-header">
+					<h5 class="card-title mb-0">Thống kê lượt tra cứu 24h qua</h5>
+				</div>
+				<div class="card-body">
+					<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+					<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+					<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+					<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="form-row">
+	<div class="col-12 col-md-8 col-lg-8 mb-2">
+		<div class="card h-100">
+			{assign var = gId value = $clsISO->getUniqid()}
+			<div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+				<h5 class="card-title mb-2 mb-lg-0 me-2">Biểu đồ tăng trưởng doanh số</h5>
+				<div class="d-flex flex-wrap gap-2">
+					{if $deviceType eq 'phone'}
+					<div class="dropdown">
+						<button class="btn btn-icon p-0 h-auto" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="bx bx-dots-vertical-rounded"></i>
+						</button>
+						<div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end">
+							<div class="p-3">
+								<div class="form-group mb-2" role="group" aria-label="Sắp xếp">
+									<select class="form-control form-select" name="department" gId="{$gId}" onChange="$Core.dashboard.load_profile(this,event)"> 
+										<option value="">Phòng</option>			
+										{foreach from=$lstDepartMent item = _department}
+										<option value="{$_department.property_id}">{$_department.title}</option>
+										{/foreach}
+										<option value="OTHER">Phòng tổng hợp</option>
+									</select>
+								</div>
+								<div class="form-group mb-2" role="group" aria-label="Sắp xếp">
+									<select class="form-control form-select" name="profile_id" id="profile_{$gId}" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)"> 
+										<option value="">Nhân viên</option>			
+										{foreach from=$lstProfile item = _oProfile}
+										<option value="{$_oProfile.profile_id}">{$_oProfile.full_name}</option>
+										{/foreach}
+									</select>
+								</div>
+								<div class="form-group mb-2" role="group" aria-label="Sắp xếp">
+									<select class="form-control form-select" name="month" gid="{$gId}" onchange="$Core.dashboard.reload(this,event)"> 
+										{foreach from=$list_months item = _month}
+										<option{if $_month eq $smarty.now|date_format:"%m"} selected{/if} value="{$_month}">Tháng {$_month}</option>
+										{/foreach}	
+									</select>
+								</div>
+								<div class="form-group  mb-2" role="group" aria-label="Sắp xếp">	
+									<select class="form-control form-select" name="year" gid="{$gId}" onchange="$Core.dashboard.reload(this,event)">
+										{foreach from=$list_years item = _year}
+										<option{if $_year eq $current_year} selected{/if} value="{$_year}">{$_year}</option>
+										{/foreach}
+									</select>
+								</div>
+							</div>
+						</div>
+					</div>
+					{else}
+					<div class="p-right ox:w-100">
+						<div class="input-group w-px-400 ox:w-100 d-flex" role="group" aria-label="Sắp xếp">
+							<select class="form-control form-select" name="department" gId="{$gId}" onChange="$Core.dashboard.load_profile(this,event)"> 
+								<option value="">Phòng</option>			
+								{foreach from=$lstDepartMent item = _department}
+								<option value="{$_department.property_id}">{$_department.title}</option>
+								{/foreach}
+								<option value="OTHER">Phòng tổng hợp</option>
+							</select>
+							<select class="form-control form-select" name="profile_id" id="profile_{$gId}" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)"> 
+								<option value="">Nhân viên</option>			
+								{foreach from=$lstProfile item = _oProfile}
+								<option value="{$_oProfile.profile_id}">{$_oProfile.full_name}</option>
+								{/foreach}
+							</select>
+							<select class="form-control form-select" name="month" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)"> 
+								<option value="">Tháng</option>			
+								{foreach from=$list_months item = _month}
+								<option value="{$_month}">T{$_month}</option>
+								{/foreach}
+							</select>
+							<select class="form-control form-select" name="year" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)">
+								{foreach from=$list_years item = _year}
+								<option{if $_year eq $current_year} selected{/if} value="{$_year}">{$_year}</option>
+								{/foreach}
+							</select>
+							{if $deviceType ne 'phone' && 1==2}
+							<button type="button" onClick="$Core.dashboard.open_full(this, event)" tp="load_billing_chart" class="btn d-none d-lg-block btn-icon btn-outline-default"><i class='bx bx-windows'></i></button>
+							{/if}
+						</div>
+					</div>
+					{/if}
+				</div>
+			</div>
+			<div class="card-body pb-0">
+				<div class="ajax" gId="{$gId}" data-url="{$PCMS_URL}/index.php?mod={$mod}&sub=dashboard&act=load_billing_chart" data-options='{ldelim}{rdelim}'>
+					<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+					<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+					<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+					<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+					<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+					<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+					<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+					<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--/ Customer Ratings -->
+	<!--/ Overview & Sales Activity -->
+	<div class="col-12 col-md-12 col-lg-4">
+		{assign var = gId value = $clsISO->getUniqid()}
+		<div class="form-row ajax" gId="{$gId}" data-url="/index.php?mod={$mod}&sub=dashboard&act=load_info_fund" data-options='{ldelim}"gId":"{$gId}"{rdelim}'>
+			{foreach name=i from=$list_fund_block key = icon item = title}
+			{assign var = _index value = $smarty.foreach.i.iteration}
+			<div class="col-6 col-md-3 col-lg-6 mb-2">
+				<div class="card">
+					<div class="card-body">
+						<div class="card-title d-flex align-items-start justify-content-between mb-4">
+							<div class="avatar flex-shrink-0">
+								<img src="{$URL_IMAGES}/dashboard/{$icon}.png" alt="cube" class="rounded">
+							</div>
+						</div>
+						<span class="fw-medium d-block mb-1">{$title}</span>
+						<h4 class="card-title mb-2">
+							<div class="animate-bg w-px-75 h-px-15 rounded-2"></div>
+						</h4>
+						<small class="text-danger fw-medium"><i class="bx bx-down-arrow-alt"></i> 0.0%</small>
+					</div>
+				</div>
+			</div>
+			{/foreach}
+		</div>
+	</div>
+</div>	
+<div class="form-row">
+	<div class="col-12 col-lg-4 mb-2 order-0">
+		<div class="card">
+			{assign var = gId value = $clsISO->getUniqid()}
+			<div class="card-header d-flex mb-0 justify-content-between align-items-center">
+				<h5 class="card-title">TK. tiếp khách</h5>
+				<div class="search-control">
+					<div class="input-group w-px-150 ox:w-100 d-flex" role="group">
+						<select class="form-control form-select" name="month" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)"> 
+							<option value="">Tháng</option>			
+							{foreach from=$list_months item = _month}
+							<option{if $_month eq $smarty.now|date_format:"%m"} selected{/if} value="{$_month}">T{$_month}</option>
+							{/foreach}
+						</select>
+						<select class="form-control form-select" name="year" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)">
+							{foreach from=$list_years item = _year}
+							<option{if $_year eq $current_year} selected{/if} value="{$_year}">{$_year}</option>
+							{/foreach}
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="card-body ajax" gId="{$gId}" data-url="/index.php?mod={$mod}&sub=dashboard&act=load_data_share" data-options='{ldelim}"gId":"{$gId}"{rdelim}'>
+				<div class="p-5 text-center">
+					<div class="p-5">
+						<div class="p-5">Loading....</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-12 col-lg-4 mb-2 order-0">
+		<div class="card">
+			{assign var = gId value = $clsISO->getUniqid()}
+			<div class="card-header d-flex mb-0 justify-content-between align-items-center">
+				<h5 class="card-title">Chăm sóc KH</h5>
+				<div class="search-control">
+					<div class="input-group w-px-150 ox:w-100 d-flex" role="group" aria-label="Sắp xếp">
+						<select class="form-control form-select" name="month" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)"> 
+							<option value="">Tháng</option>			
+							{foreach from=$list_months item = _month}
+							<option value="{$_month}">T{$_month}</option>
+							{/foreach}
+						</select>
+						<select class="form-control form-select" name="year" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)">
+							{foreach from=$list_years item = _year}
+							<option{if $_year eq $current_year} selected{/if} value="{$_year}">{$_year}</option>
+							{/foreach}
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="card-body ajax" gId="{$gId}" data-url="/index.php?mod={$mod}&sub=dashboard&act=load_data_followups" data-bind="{$uid}" data-options='{ldelim}"gId":"{$gId}"{rdelim}'>
+				<div class="p-5 text-center">
+					<div class="p-5">
+						<div class="p-5">Loading....</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-12 col-lg-4 mb-2 order-0">
+		<div class="card">
+			{assign var = gId value = $clsISO->getUniqid()}
+			<div class="card-header d-flex mb-0 justify-content-between align-items-center">
+				<h5 class="card-title mb-0">Khách hàng mới</h5>
+				<select class="form-control form-select w-px-100" name="year" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)">
+					{foreach from=$list_years item = _year}
+					<option{if $_year eq $current_year} selected{/if} value="{$_year}">{$_year}</option>
+					{/foreach}
+				</select>
+			</div>
+			<div class="card-body ajax" gId="{$gId}" data-url="/index.php?mod={$mod}&sub=dashboard&act=load_data_customer" data-options='{ldelim}"gId":"{$gId}"{rdelim}'>
+				<div class="p-5 text-center">
+					<div class="p-5">
+						<div class="p-5">Loading....</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>		
+<div class="form-row">
+	<div class="col-12 col-lg-8 mb-2 order-0">	
+		<div class="card mb-2">
+			<div class="card-header d-flex mb-0 justify-content-between align-items-center">
+				<h5 class="card-title mb-0">Hoạt động tiếp khách</h5>
+				<a href="{$PCMS_URL}/net-dep-lao-dong.html" class="btn btn-link">Xem tất cả</a>
+			</div>
+			<div class="card-body ajax" data-bind="{$uid}" data-url="/index.php?mod={$mod}&act=load_top_shares">
+				<div class="form-row">
+					{if $deviceType eq 'phone'}
+						{section name=i loop=$list_preloader max=3}
+						<div class="col-4">
+							<div class="animate-bg rounded-2 w-100 h-px-100"></div>
+						</div>
+						{/section}
+					{else}
+						{section name=i loop=$list_preloader max=5}
+						<div class="col-2">
+							<div class="animate-bg rounded-2 w-100 h-px-150"></div>
+						</div>
+						{/section}
+					{/if}
+				</div>
+			</div>
+		</div>
+		<div class="card">
+			<div class="row row-bordered">
+				<div class="col-md-6">
+					{assign var = gId value = $clsISO->getUniqid()}
+					<div class="card-header d-flex align-items-center justify-content-between">
+						<div class="mb-2 mb-lg-0">
+							<h5 class="m-0 me-2">TOP 10 Sales</h5>
+							<small class="text-muted">Người bán hàng tốt nhất</small>
+						</div>
+						<div class="search-control">
+							<div class="input-group w-px-150 ox:w-100 d-flex" role="group" aria-label="Sắp xếp">
+								<select class="form-control form-select" name="month" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)"> 
+									<option value="">Tháng</option>			
+									{foreach from=$list_months item = _month}
+									<option value="{$_month}">Tháng {$_month}</option>
+									{/foreach}
+								</select>
+								<select class="form-control form-select" name="year" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)">
+									{foreach from=$list_years item = _year}
+									<option{if $_year eq $current_year} selected{/if} value="{$_year}">{$_year}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="card-body ajax" gId="{$gId}" data-url="{$PCMS_URL}/index.php?mod={$mod}&sub=dashboard&act=top_billing" data-options='{ldelim}{rdelim}'>
+						<div class="p-5 text-center w-100 h-100">
+							<div class="p-5">
+								<div class="p-5 text-muted">Loading...</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					{assign var = gId value = $clsISO->getUniqid()}
+					<div class="card-header d-flex align-items-center justify-content-between">
+						<div class="mb-2 mb-lg-0">
+							<h5 class=" m-0 me-2">Thống kê</h5>
+							<small class="text-muted">Theo loại giao dịch</small>
+						</div>
+						<div class="input-group-wrapper">
+							<div class="input-group w-px-175 ox:w-100 d-flex" role="group" aria-label="Sắp xếp">
+								<select class="form-control form-select" name="month" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)"> 
+									<option value="">Tháng</option>			
+									{foreach from=$list_months item = _month}
+									<option value="{$_month}">Tháng {$_month}</option>
+									{/foreach}
+								</select>
+								<select class="form-control form-select" name="year" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)">
+									{foreach from=$list_years item = _year}
+									<option{if $_year eq $current_year} selected{/if} value="{$_year}">{$_year}</option>
+									{/foreach}
+								</select>
+								{if $deviceType ne 'phone' && 1==2}
+								<button type="button" onClick="$Core.dashboard.open_full(this, event)" tp="chart_billing_type" class="btn d-none d-lg-block btn-icon btn-outline-default"><i class='bx bx-windows'></i></button>
+								{/if}
+							</div>
+						</div>
+					</div>
+					<div class="card-body ajax" gId="{$gId}" data-url="{$PCMS_URL}/index.php?mod={$mod}&sub=dashboard&act=chart_billing_type" data-options='{ldelim}{rdelim}'>
+						<div class="p-5 text-center w-100 h-100">
+							<div class="p-5">
+								<div class="p-5 text-muted">Loading...</div>
+							</div>
+						</div>
+					</div>	
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--/ Total Revenue -->
+	{if $deviceType ne 'phone'}
+	<div class="col-12 col-md-8 col-lg-4 order-3 order-md-2">
+		<div class="card ranking mb-2">
+			<div class="card-body">
+				{$core->getBlock('top_ranking')}
+			</div>
+		</div>
+	</div>
+	{/if}
+</div>
+<div class="form-row">
+	<!-- Order Statistics -->
+	<div class="col-12 ol-md-6 col-lg-8 col-xl-8 order-0 mb-2">
+		<div class="card h-100">
+			{assign var = gId value = $clsISO->getUniqid()}
+			<div class="card-header d-flex align-items-center justify-content-between">
+				<div class="card-title mb-2 mb-lg-0">
+					<h5 class="m-0 me-2 text-nowrap">Doanh số phòng ban</h5>
+					<small class="text-muted">Thống kê doanh số phòng ban</small>
+				</div>
+				<div class="input-group-control">
+					<div class="input-group w-px-150 ox:w-100 d-flex" role="group" aria-label="Sắp xếp">
+						<select class="form-control form-select" name="month" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)"> 
+							<option value="">Tháng</option>			
+							{foreach from=$list_months item = _month}
+							<option value="{$_month}">T{$_month}</option>
+							{/foreach}
+						</select>
+						<select class="form-control form-select" name="year" gId="{$gId}" onChange="$Core.dashboard.reload(this,event)">
+							{foreach from=$list_years item = _year}
+							<option{if $_year eq $current_year} selected{/if} value="{$_year}">{$_year}</option>
+							{/foreach}
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="card-body ajax" gId="{$gId}" data-url="/index.php?mod={$mod}&sub=dashboard&act=load_department_billing" data-options='{ldelim}{rdelim}'>
+				<div class="p-5 text-center w-100 h-100">
+					<div class="p-5">
+						<div class="p-5 text-muted">Loading...</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Transactions -->
+	<div class="col-12 col-md-6 col-lg-4 order-2 mb-2">
+		<div class="card h-100">
+			<div class="card-header d-flex align-items-center justify-content-between">
+				<h5 class="card-title m-0 me-2">Giao dịch mới</h5>
+			</div>
+			<div class="card-body ajax" data-url="{$PCMS_URL}/index.php?mod={$mod}&act=dashboard&tp=top_billing" 
+			data-options='{ldelim}{rdelim}'>
+				<div class="loader text-center py-8">
+					<img src="{$URL_IMAGES}/loading.gif" />
+					<p>Loading...</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--/ Transactions -->
+</div>
+{if 1==2}
+<div class="form-row mb-3">
+	<div class="col-12">
+		<div class="card h-100">
+			<div class="card-header">
+				<h5 class="card-title m-0 me-2">Danh sách đại lý bán MWF</h5>
+				<small class="text-muted">Thống kê số lượng căn các đại lý bán MWF</small>
+			</div>
+			<div id="list_agent" class="card-body ajax" data-url="/index.php?mod=report&act=load_report_MOC" data-options='{ldelim}"type":"agent"{rdelim}' class="w-100" style="min-height:300px;">
+				<div class="p-5 text-center">
+					<div class="p-5 text-muted">Loading...</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{/if}
+<!-- <div class="form-row">	
+	<div class="col-12 col-lg-6">
+		<div class="card mb-2">
+			<div class="card-header d-flex flex-wrap align-items-center justify-content-between mb-0">
+				<div class="xs:w-100 mb-2 mb-lg-0">
+					<h5 class="card-title mb-0">Danh sách cập nhật đại lý</h5>
+					<small class="text-muted">Thống kê cập nhật bảng hàng đại lý</small> 
+				</div>
+				<div class="input-group xs:w-100 w-px-350">
+					<select data-field="project_id" onChange="$Core.report.agent_log();" class="form-control filter_agency_updated_log_field form-select w-50">
+						<option value="0">Tất cả</option>
+						{foreach from=$list_projects item = _oProject}
+						<option value="{$_oProject.project_id}">{$_oProject.title}</option>
+						{/foreach}
+					</select>
+					<select data-field="stock_type" onChange="$Core.report.agent_log();" class="form-control form-select filter_agency_updated_log_field w-50">
+						<option value="0">Tất cả</option>
+						<option value="{$smarty.const._BLOCK_TYPE_HIGHLEVEL_SALE}">Cao tầng</option>
+						<option value="{$smarty.const._BLOCK_TYPE_LOWFLOOR_SALE}">Thấp tầng</option>
+					</select>
+				</div>
+			</div>
+			<div id="list_agent_log" class="w-100 card-body box_loadMore" style="min-height:300px;">
+				<div class="p-5 text-center">
+					<div class="p-5 text-muted">Đang tải dữ liệu...</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-12 col-lg-6">
+		<div class="card h-100">
+			<div class="card-header">
+				<h5 class="card-title m-0 me-2">Cập nhật đại lý</h5>
+				<small class="text-muted">Thống kê số lượng cập nhật đại lý</small>
+			</div>
+			<div class="card-body ajax" data-url="/index.php?mod={$mod}&sub=dashboard&act=load_report_update_stock" data-options='{ldelim}"type":"agent"{rdelim}' class="w-100" style="min-height:100px;">
+				<div class="p-5 text-center">
+					<div class="text-muted">Loading...</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div> -->
+{literal}
+<style type="text/css">
+	.card-header{
+		position:relative; 
+	}
+	.card-header::before{
+		content: "";
+		width: 0px;
+		height: 30px;
+		position: absolute;
+		left: 0px; top: 20px;
+		border-left: 5px solid #950b25;
+	}
+</style>
+<script>
+	$(document).ready(function(){
+		$Core.report.agent_log();
+	});
+</script>
+{/literal}

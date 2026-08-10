@@ -1,0 +1,660 @@
+<td class="text-center" style="background:{$status_bgcolor_arrs.$_status_id}">
+	<a href="javascript:void(0)" data-url="/index.php?mod={$mod}&sub=project&act=load_stock_popover&stock_id={$_stock_id}" style="color:{$_textcolor}" data-toggle="webui-popover" data-trigger="click" data-width="350">{if $_status_id eq $smarty.const._STOCK_STATUS_HIDDEN_ID}Check
+	{else}{if !empty($_total_price_vat)}{$_total_price_vat}{else}<font class="fs-10 text-white">*</font>{/if}{/if}</a>
+</td>
+
+
+
+
+#
+	$oneProject = $clsProject->getOne($project_id);
+	$information_project = $clsISO->to_array_json($oneProject['more_information']);
+//	$clsISO->print_pre($information_project);die;
+	$block_type = $oneProject['block_type'];
+	$assign_list["block_type"] = $block_type;
+	$assign_list["oneProject"] = $oneProject;
+	$assign_list["information_project"] = $information_project;
+	if($show=='block'){
+		$for_id = $block_id = (int) Input::get('block_id', 0);
+		$oneBlock = $clsProperty->getOne($block_id);
+		$title_page = 'Phân khu '. $oneBlock['title'];
+		$more_information = $oneBlock['more_information'];
+		$more_information = !empty($more_information) 
+			? json_decode(html_entity_decode($more_information), true) : array();
+		#
+		$assign_list["block_id"] = $block_id;
+		$assign_list["oneBlock"] = $oneBlock;
+		$assign_list["more_information"] = $more_information;
+		if($block_type == _BLOCK_TYPE_HIGHLEVEL_SALE){
+			$field = "{$clsProperty->pkey},property_code,title,intro,more_information";
+			$list_buildings = $clsProperty->getAll("`is_trash`=0 and `property_type`='_BUILDING' and `for_id`='{$block_id}' order by `reg_date` ASC", $field);
+			foreach ($list_buildings as $k_building => $v_building) {
+				$more_information_building = $clsISO->to_array_json($v_building['more_information']);
+
+				$price_range = !empty($more_information_building['price_range']) ? $more_information_building['price_range'] : "";
+				$construction_tyle = !empty($more_information_building['construction_style']) ? $more_information_building['construction_style'] : "";	
+				$lst_construction_tyle = array();
+				if($construction_tyle != ""){
+					$lst_construction_tyle = explode("/",$construction_tyle);
+				}	
+				$list_buildings[$k_building]["price_range"] = $price_range;
+				$list_buildings[$k_building]["lst_construction_tyle"] = $lst_construction_tyle;
+				$list_buildings[$k_building]["more_information"] = $more_information_building;
+				$list_buildings[$k_building]["on_sale"] = !empty($more_information_building['on_sale']) ? $more_information_building['on_sale'] : 0;
+			}
+			$order_no_arrs = @array_column($list_buildings, 'on_sale');
+			@array_multisort($order_no_arrs, SORT_DESC, $list_buildings);
+			$assign_list["list_buildings"] = $list_buildings;
+//			 $clsISO->print_pre($list_buildings); die();
+		} else {
+			$field = "{$clsProperty->pkey},property_code,title,intro,more_information,parent_id";
+			$list_blocks = $clsProperty->getAll("for_id='{$project_id}' order by order_no ASC", $field);
+			foreach($list_blocks as $k_block => $v_block) {
+				$list_blocks[$k_block]["block_type"] = !empty($arr_block_type[$v_block['parent_id']]['title']) ? $arr_block_type[$v_block['parent_id']]['title'] : "";				
+				$more_information_block = $clsISO->to_array_json($v_block['more_information']);
+				
+				$price_range = !empty($more_information_block['price_range']) ? $more_information_block['price_range'] : "";
+				$construction_tyle = !empty($more_information_block['construction_tyle']) ? $more_information_block['construction_tyle'] : "";
+				$priceFrom = $priceTo = 0;
+				if($price_range != ""){
+					$price_range = explode("-",$price_range);
+					$priceFrom = !empty($price_range[0]) ? $price_range[0] : 0;
+					$priceTo = !empty($price_range[1]) ? $price_range[1] : 0;
+				}	
+				$lst_construction_tyle = array();
+				if($construction_tyle != ""){
+					$lst_construction_tyle = explode("/",$construction_tyle);
+				}				
+				$list_blocks[$k_block]["priceFrom"] = $priceFrom;
+				$list_blocks[$k_block]["priceTo"] = $priceTo;
+				$list_blocks[$k_block]["lst_construction_tyle"] = $lst_construction_tyle;
+				$list_blocks[$k_block]["more_information"] = $more_information_block;
+				$list_blocks[$k_block]["on_sale"] = !empty($more_information_block['on_sale']) ? $more_information_block['on_sale'] : 0;
+			}
+			$order_no_arrs = @array_column($list_blocks, 'on_sale');
+			@array_multisort($order_no_arrs, SORT_DESC, $list_blocks);
+			$assign_list["list_blocks"] = $list_blocks;
+		}
+		
+		$list_props = $clsProjectMeta->getAll("`type`='{$show}' and `for_id`='{$for_id}' order by `order_no` ASC");
+		if(!empty($list_props)){
+			foreach($list_props as $key => $val){
+				$is_driver = $clsISO->checkContainer($val['content'],"drive.google.com","") ? 1 : 0;
+				$list_props[$key]['is_driver'] = $is_driver;
+				$list_props[$key]['link'] = $clsISO->getIframeUrl($val['content']);
+				$list_props[$key]['reg_date_f'] = $clsISO->getTimeAgo($val['reg_date']);
+			}
+		}	
+	}  else if($show=='building'){
+		$block_id = (int) Input::get('block_id', 0);
+		$for_id = $building_id = (int) Input::get('building_id', 0);
+		$oneBlock = $clsProperty->getOne($block_id,"title");
+		$oneBuilding = $clsProperty->getOne($building_id);
+		$title_page = sprintf('Tòa %s, %s', $oneBuilding['title'], $oneBlock['title']);
+		$more_information = $oneBuilding['more_information'];
+		$more_information = !empty($more_information) 
+			? json_decode(html_entity_decode($more_information), true) : array();
+		$assign_list["block_id"] = $block_id;
+		$assign_list["building_id"] = $building_id;
+		$assign_list["oneBlock"] = $oneBlock;
+		$assign_list["oneBuilding"] = $oneBuilding;
+		$assign_list["more_information"] = $more_information;
+		// $clsISO->print_pre($oneBuilding); die();
+		$field = "{$clsProperty->pkey},property_code,title,intro,more_information";
+		$list_buildings = $clsProperty->getAll("`is_trash`=0 and `property_type`='_BUILDING' 
+		and `for_id`='{$block_id}' and {$clsProperty->pkey}<>'{$building_id}' order by `reg_date` ASC", $field);
+		foreach ($list_buildings as $k_building => $v_building) {
+			$more_information_building = $clsISO->to_array_json($v_building['more_information']);
+
+			$price_range = !empty($more_information_building['price_range']) ? $more_information_building['price_range'] : "";
+			$construction_tyle = !empty($more_information_building['construction_style']) ? $more_information_building['construction_style'] : "";	
+			$lst_construction_tyle = array();
+			if($construction_tyle != ""){
+				$lst_construction_tyle = explode("/",$construction_tyle);
+			}	
+			$list_buildings[$k_building]["price_range"] = $price_range;
+			$list_buildings[$k_building]["lst_construction_tyle"] = $lst_construction_tyle;
+			$list_buildings[$k_building]["more_information"] = $more_information_building;
+			$list_buildings[$k_building]["on_sale"] = !empty($more_information_building['on_sale']) ? $more_information_building['on_sale'] : 0;
+		}
+		$order_no_arrs = @array_column($list_buildings, 'on_sale');
+		@array_multisort($order_no_arrs, SORT_DESC, $list_buildings);
+		$assign_list["list_buildings"] = $list_buildings;
+		###
+		$list_props = $clsProjectMeta->getAll("((`type`='{$show}' and `for_id`='{$for_id}') or (`type`='block' and `for_id`='{$block_id}')) 
+		order by type DESC, `order_no` ASC");
+		if(!empty($list_props)){
+			foreach($list_props as $key => $val){
+				if($val['type']=='building'){
+					$list_props[$key]['title'] = sprintf('%s %s', $val['title'], $oneBuilding['title']);
+				} else {
+					$list_props[$key]['title'] = sprintf('%s %s', $val['title'], $oneBlock['title']);
+				}
+				$is_driver = $clsISO->checkContainer($val['content'],"drive.google.com","") ? 1 : 0;
+				$list_props[$key]['is_driver'] = $is_driver;
+				$list_props[$key]['link'] = $clsISO->getIframeUrl($val['content']);
+				$list_props[$key]['reg_date_f'] = $clsISO->getTimeAgo($val['reg_date']);
+			}
+		}	
+	} else {
+		$for_id = $project_id;
+		$more_information = $oneProject['more_information'];
+		$more_information = !empty($more_information) 
+			? json_decode(html_entity_decode($more_information), true) : array();
+		$assign_list["more_information"] = $more_information;
+		// $clsISO->print_pre($more_information); die();
+		$title_page = $oneProject['title'];		
+		
+		#
+		$field = "{$clsProperty->pkey},property_code,title,intro,more_information,parent_id";
+		$list_blocks = $clsProperty->getAll("for_id='{$project_id}' order by order_no ASC", $field);
+		
+		foreach($list_blocks as $k_block => $v_block) {
+			$list_blocks[$k_block]["block_type"] = !empty($arr_block_type[$v_block['parent_id']]['title']) ? $arr_block_type[$v_block['parent_id']]['title'] : "";
+			$list_blocks[$k_block]["block_type"] = !empty($arr_block_type[$v_block['parent_id']]['title']) ? $arr_block_type[$v_block['parent_id']]['title'] : "";				
+			$more_information_block = $clsISO->to_array_json($v_block['more_information']);
+
+			$price_range = !empty($more_information_block['price_range']) ? $more_information_block['price_range'] : "";
+			$construction_tyle = !empty($more_information_block['construction_tyle']) ? $more_information_block['construction_tyle'] : "";	
+			$lst_construction_tyle = array();
+			if($construction_tyle != ""){
+				$lst_construction_tyle = explode("/",$construction_tyle);
+			}	
+			$list_blocks[$k_block]["price_range"] = $price_range;
+			$list_blocks[$k_block]["lst_construction_tyle"] = $lst_construction_tyle;
+			$list_blocks[$k_block]["more_information"] = $more_information_block;
+			$list_blocks[$k_block]["on_sale"] = !empty($more_information_block['on_sale']) ? $more_information_block['on_sale'] : 0;
+			
+			$list_buildings = $clsProperty->getAll("`is_trash`=0 and `property_type`='_BUILDING' and `for_id`='{$v_block["property_id"]}' order by `reg_date` ASC", $clsProperty->pkey.",title,slug,more_information");
+			foreach($list_buildings as $k_building => $v_building) {
+				$more_information_building = $clsISO->to_array_json($v_building['more_information']);
+				$list_buildings[$k_building]["more_information"] = $more_information_building;
+				$list_buildings[$k_building]["on_sale"] = !empty($more_information_building['on_sale']) ? $more_information_building['on_sale'] : 0;
+			}
+			$order_no_arrs = @array_column($list_buildings, 'on_sale');
+			@array_multisort($order_no_arrs, SORT_DESC, $list_buildings);
+			$list_blocks[$k_block]["list_buildings"] = $list_buildings;
+		}
+		$order_no_arrs = @array_column($list_blocks, 'on_sale');
+		@array_multisort($order_no_arrs, SORT_DESC, $list_blocks);
+		$assign_list["list_blocks"] = $list_blocks;
+		###
+		$list_props = $clsProjectMeta->getAll("`type`='{$show}' and `for_id`='{$for_id}' order by `order_no` ASC");
+		if(!empty($list_props)){
+			foreach($list_props as $key => $val){
+				$is_driver = $clsISO->checkContainer($val['content'],"drive.google.com","") ? 1 : 0;
+				$list_props[$key]['is_driver'] = $is_driver;
+				$list_props[$key]['link'] = $clsISO->getIframeUrl($val['content']);
+				$list_props[$key]['reg_date_f'] = $clsISO->getTimeAgo($val['reg_date']);
+			}
+		}	
+	}
+	$assign_list["list_props"] = $list_props;
+			
+			
+			
+			
+			
+			<div class="tab-content p-0">
+						{foreach from=$arrCategoryDocs item=_oCatDocs key=key name=i}
+							<div class="tab_items tab-pane fade {if $smarty.foreach.i.first}active show{/if}" id="nav_tab_{$_oCatDocs.property_id}" role="tabpanel">
+								{if !empty($_oCatDocs.lst_child)}									
+									{assign var=checkEmpty value=1}
+									{foreach from=$_oCatDocs.lst_child item=_oChild key=key}
+										{assign var=gid value=$clsISO->getUniqid()}
+										{assign var=lstDocs value=$_oChild.lstDocs}
+										{if !empty($lstDocs)}									
+											{assign var=checkEmpty value=0}
+											<div class="tab_header d-flex align-items-center justify-content-between mb-3">
+												<h3 class="title_box mb-0 fs-16 text-dark fw-semibold">{$_oChild.title}</h3>
+												<a href="javascript:void(0)" class=" text-dark txt_view_all" onClick="$Core.projects.viewAllDocs(this,event)" project_id="{$project_id}" block_id="{$block_id}" building_id="{$building_id}" parent_id="{$_oCatDocs.property_id}" cat_id="{$_oChild.property_id}"  toId="{$gid}">Tất cả<i class='bx bx-chevron-right me-2' ></i></a>
+											</div>
+											<div class="tab_body mb-2">
+												<div class="{if $deviceType eq 'phone'}form-row{else}row{/if}">
+													{foreach from=$lstDocs item=_oDoc key=k_doc name=n_doc}
+														{assign var=list_image value=$_oDoc.list_image}
+														{if !empty($list_image)}
+															<div class="col-6 col-lg-3 mb-2">
+																{foreach from=$list_image item=image key=k_img name=n_img}
+																	<div class="item_tab {if !$smarty.foreach.n_img.first}d-none{/if}" {if $smarty.foreach.n_img.first}id="{$gid}"{/if} data-fancybox="gallery-{$_oDoc.id}" data-src="{$image}" data-caption="{$_oDoc.title}">
+																		<img src="{$image}" class="w-100 rounded-3" width="200" height="140" alt="{$_oDoc.title}" onerror="this.src='{$URL_IMAGES}/no-image.jpg'">
+																	</div>
+																{/foreach}
+															</div>
+														{/if}
+														{if !empty($_oDoc.link_video)}
+															<div class="col-6 col-lg-3 mb-2">
+																<span class="item_tab box_video" data-fancybox="gallery-{$_oDoc.id}" data-src="{$_oDoc.link_video}" data-caption="{$_oDoc.title}">
+																	<img src="{$_oDoc.image_video}" class="w-100 rounded-3" width="200" height="140" alt="{$_oDoc.title}" onerror="this.src='{$URL_IMAGES}/no-image.jpg'">
+																</span>
+															</div>
+														{/if}
+													{/foreach}
+												</div>
+											</div>
+										{/if}
+									{/foreach}
+									{if !empty($checkEmpty)}
+										<div class="d-flex justify-content-center">
+											<img src="{$URL_IMAGES}/empty.svg" alt="" width="190" height="140">
+										</div>
+									{/if}
+								{else}
+									{assign var=gid value=$clsISO->getUniqid()}
+									{assign var=lstDocs value=$_oCatDocs.lstDocs}
+									{if !empty($lstDocs)}
+										<div class="tab_header d-flex align-items-center justify-content-between mb-3">
+											<h3 class="title_box mb-0 fs-16 text-dark fw-semibold">{$_oCatDocs.title}</h3>
+											<a href="javascript:void(0)" class=" text-dark txt_view_all" onClick="$Core.projects.viewAllDocs(this,event)" project_id="{$project_id}" block_id="{$block_id}" building_id="{$building_id}" parent_id="{$_oCatDocs.property_id}" cat_id="{$_oChild.property_id}"  toId="{$gid}">Tất cả<i class='bx bx-chevron-right me-2' ></i></a>
+										</div>
+										<div class="tab_body">
+											<div class="{if $deviceType eq 'phone'}form-row{else}row{/if}">
+												{foreach from=$lstDocs item=_oDoc key=k_doc name=n_doc}
+													{assign var=list_image value=$_oDoc.list_image}
+													{if !empty($list_image)}
+														<div class="col-6 col-lg-3 mb-2">
+															{foreach from=$list_image item=image key=k_img name=n_img}
+																<div class="item_tab {if !$smarty.foreach.n_img.first}d-none{/if}" {if $smarty.foreach.n_img.first}id="{$gid}"{/if} data-fancybox="gallery-{$_oDoc.id}" data-src="{$image}" data-caption="{$_oDoc.title}">
+																	<img src="{$image}" class="w-100 rounded-3" width="200" height="140" alt="{$_oDoc.title}" onerror="this.src='{$URL_IMAGES}/no-image.jpg'">
+																</div>
+															{/foreach}
+														</div>
+													{/if}
+													{if !empty($_oDoc.link_video)}
+														<div class="col-6 col-lg-3 mb-2">
+															<span class="item_tab box_video" data-fancybox="gallery-{$_oDoc.id}" data-src="{$_oDoc.link_video}" data-caption="{$_oDoc.title}">
+																<img src="{$_oDoc.image_video}" class="w-100 rounded-3" width="200" height="140" alt="{$_oDoc.title}" onerror="this.src='{$URL_IMAGES}/no-image.jpg'">
+															</span>
+														</div>
+													{/if}
+												{/foreach}
+
+											</div>
+										</div>
+									{else}
+										<div class="d-flex justify-content-center">
+											<img src="{$URL_IMAGES}/empty.svg" alt="" width="190" height="140">
+										</div>
+									{/if}
+								{/if}
+							</div>
+						{/foreach}
+					</div>
+					
+					
+					
+					{if !empty($_oDoc.link_video)}
+											<div class="col-6 col-lg-3 mb-2">
+												<span class="item_tab box_video" data-fancybox="gallery-{$_oDoc.id}" data-src="{$_oDoc.link_video}" data-caption="{$_oDoc.title}">
+													<img src="{$_oDoc.image_video}" class="w-100 rounded-3" width="200" height="140" alt="{$_oDoc.title}" onerror="this.src='{$URL_IMAGES}/no-image.jpg'">
+												</span>
+											</div>
+										{/if}
+										\
+										
+										
+										<div class="item_tab"  data-fancybox="gallery-{$_oDoc.id}" data-src="{$image}" data-caption="{$_oDoc.title}">
+												<img src="{$_oDoc.image}" class="w-100 rounded-3" width="200" height="140" alt="{$_oDoc.title}" onerror="this.src='{$URL_IMAGES}/no-image.jpg'">
+											</div>
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+$arrCategoryDocs = [];
+	$lstDocs = [];
+	$cond_project_meta = "`is_trash`='0'";
+	if($show == "block") {
+		$cond_project_meta .= "	AND `type`='block' AND `for_id`='{$block_id}'";
+	}else if($show == "building") {
+		$cond_project_meta .= "	AND `type`='building' AND `for_id`='{$building_id}'";
+	}else{
+		$cond_project_meta .= "	AND `type`='project' AND `for_id`='{$project_id}'";
+	}
+	$limit = " LIMIT 0,4";
+	foreach ($list_category_docs as $k => $val) {	
+	
+	
+	
+		$lstDocs = $clsProjectMeta->getAll($cond_project_meta." AND (`cat_id`='{$val['property_id']}')".$limit,$clsProjectMeta->pkey.',title,more_information,cat_id');
+		
+		
+		
+		if(!empty($lstDocs)) {
+			foreach($lstDocs as $k_doc => $v_doc) {
+				$more_information_doc = $clsISO->to_array_json($v_doc['more_information']);
+				$list_gg_id = !empty($more_information_doc["list_gg_id"]) ? $more_information_doc["list_gg_id"] : array();
+				$youtu_id = !empty($more_information_doc["youtu_id"]) ? $more_information_doc["youtu_id"] : "";
+				$list_image = array();
+				if(!empty($list_gg_id)) {
+					foreach($list_gg_id as $gg_id){
+						$list_image[] =  sprintf('https://lh3.googleusercontent.com/d/%s=w320', $gg_id);
+					}
+				}
+				$lstDocs[$k_doc]["list_image"] = $list_image;
+				if(!empty($youtu_id)) {
+					$link_video = "https://youtu.be/".$youtu_id;
+					$lstDocs[$k_doc]["link_video"] = $link_video;
+					$lstDocs[$k_doc]["image_video"] = $more_information_doc["image"];
+				}
+				unset($more_information_doc);
+			}
+		}
+//			$clsISO->print_pre($lstDocs);
+		if($val['parent_id'] == 0) {
+			if(isset($arrCategoryDocs[$val['property_id']])) {
+				$arrCategoryDocs[$val['property_id']] = array_merge($arrCategoryDocs[$val['property_id']],$val);
+			}else{
+				$arrCategoryDocs[$val['property_id']] = $val; 	
+			}			
+			$arrCategoryDocs[$val['property_id']]['lstDocs'] = $lstDocs;
+		}else{
+			$arrCategoryDocs[$val['parent_id']]["lst_child"][$val['property_id']] = $val;
+			$arrCategoryDocs[$val['parent_id']]["lst_child"][$val['property_id']]['lstDocs'] = $lstDocs;
+			
+		}		
+	}	
+//	die;
+//	$clsISO->print_pre($arrCategoryDocs);die;
+	$assign_list["arrCategoryDocs"] = $arrCategoryDocs;
+	
+	
+	$publication_docs = $arrCategoryDocs[_PUBLICATION_DOCS]["lst_child"];
+	foreach($publication_docs as $k_publication => $v_publication) {
+		$arr_image = [];
+		if(!empty($v_publication['lstDocs'])) {
+			foreach($v_publication['lstDocs'] as $k_doc => $v_doc) {
+				if(!empty($v_doc['list_image'])) {
+					$arr_image = array_merge($arr_image,$v_doc['list_image']);
+				}
+			}
+		}
+		$publication_docs[$k_publication]["lst_image"] = $arr_image;
+		
+	}
+	$assign_list["publication_docs"] = $publication_docs;
+	$image_docs = $arrCategoryDocs[_IMAGES_DOCS];
+	$arr_image = [];
+	foreach($image_docs["lst_child"] as $k_image => $v_image) {
+		if(!empty($v_image['lstDocs'])) {
+			foreach($v_image['lstDocs'] as $k_doc => $v_doc) {
+				if(!empty($v_doc['list_image'])) {
+					$arr_image = array_merge($arr_image,$v_doc['list_image']);
+				}
+			}
+		}
+	}
+	$image_docs["lst_image"] = $arr_image;
+	//	$clsISO->print_pre($image_docs);die;
+	$assign_list["image_docs"] = $image_docs;
+	
+	
+	#
+	$oneProject = $clsProject->getOne($project_id);
+	$information_project = $clsISO->to_array_json($oneProject['more_information']);
+//	$clsISO->print_pre($information_project);die;
+	$block_type = $oneProject['block_type'];
+	$assign_list["block_type"] = $block_type;
+	$assign_list["oneProject"] = $oneProject;
+	$assign_list["information_project"] = $information_project;
+	if($show=='block'){
+		$for_id = $block_id = (int) Input::get('block_id', 0);
+		$oneBlock = $clsProperty->getOne($block_id);
+		$title_page = 'Phân khu '. $oneBlock['title'];
+		$more_information = $oneBlock['more_information'];
+		$more_information = !empty($more_information) 
+			? json_decode(html_entity_decode($more_information), true) : array();
+		#
+		$assign_list["block_id"] = $block_id;
+		$assign_list["oneBlock"] = $oneBlock;
+		$assign_list["more_information"] = $more_information;
+		if($block_type == _BLOCK_TYPE_HIGHLEVEL_SALE){
+			$field = "{$clsProperty->pkey},property_code,title,intro,more_information";
+			$list_buildings = $clsProperty->getAll("`is_trash`=0 and `property_type`='_BUILDING' and `for_id`='{$block_id}' order by `reg_date` ASC", $field);
+			foreach ($list_buildings as $k_building => $v_building) {
+				$more_information_building = $clsISO->to_array_json($v_building['more_information']);
+
+				$price_range = !empty($more_information_building['price_range']) ? $more_information_building['price_range'] : "";
+				$construction_tyle = !empty($more_information_building['construction_style']) ? $more_information_building['construction_style'] : "";	
+				$lst_construction_tyle = array();
+				if($construction_tyle != ""){
+					$lst_construction_tyle = explode("/",$construction_tyle);
+				}	
+				$list_buildings[$k_building]["price_range"] = $price_range;
+				$list_buildings[$k_building]["lst_construction_tyle"] = $lst_construction_tyle;
+				$list_buildings[$k_building]["more_information"] = $more_information_building;
+				$list_buildings[$k_building]["on_sale"] = !empty($more_information_building['on_sale']) ? $more_information_building['on_sale'] : 0;
+			}
+			$order_no_arrs = @array_column($list_buildings, 'on_sale');
+			@array_multisort($order_no_arrs, SORT_DESC, $list_buildings);
+			$assign_list["list_buildings"] = $list_buildings;
+//			 $clsISO->print_pre($list_buildings); die();
+		} else {
+			$field = "{$clsProperty->pkey},property_code,title,intro,more_information,parent_id";
+			$list_blocks = $clsProperty->getAll("for_id='{$project_id}' order by order_no ASC", $field);
+			foreach($list_blocks as $k_block => $v_block) {
+				$list_blocks[$k_block]["block_type"] = !empty($arr_block_type[$v_block['parent_id']]['title']) ? $arr_block_type[$v_block['parent_id']]['title'] : "";				
+				$more_information_block = $clsISO->to_array_json($v_block['more_information']);
+				
+				$price_range = !empty($more_information_block['price_range']) ? $more_information_block['price_range'] : "";
+				$construction_tyle = !empty($more_information_block['construction_tyle']) ? $more_information_block['construction_tyle'] : "";
+				$priceFrom = $priceTo = 0;
+				if($price_range != ""){
+					$price_range = explode("-",$price_range);
+					$priceFrom = !empty($price_range[0]) ? $price_range[0] : 0;
+					$priceTo = !empty($price_range[1]) ? $price_range[1] : 0;
+				}	
+				$lst_construction_tyle = array();
+				if($construction_tyle != ""){
+					$lst_construction_tyle = explode("/",$construction_tyle);
+				}				
+				$list_blocks[$k_block]["priceFrom"] = $priceFrom;
+				$list_blocks[$k_block]["priceTo"] = $priceTo;
+				$list_blocks[$k_block]["lst_construction_tyle"] = $lst_construction_tyle;
+				$list_blocks[$k_block]["more_information"] = $more_information_block;
+				$list_blocks[$k_block]["on_sale"] = !empty($more_information_block['on_sale']) ? $more_information_block['on_sale'] : 0;
+			}
+			$order_no_arrs = @array_column($list_blocks, 'on_sale');
+			@array_multisort($order_no_arrs, SORT_DESC, $list_blocks);
+			$assign_list["list_blocks"] = $list_blocks;
+		}
+		
+		$list_props = $clsProjectMeta->getAll("`type`='{$show}' and `for_id`='{$for_id}' order by `order_no` ASC");
+		if(!empty($list_props)){
+			foreach($list_props as $key => $val){
+				$is_driver = $clsISO->checkContainer($val['content'],"drive.google.com","") ? 1 : 0;
+				$list_props[$key]['is_driver'] = $is_driver;
+				$list_props[$key]['link'] = $clsISO->getIframeUrl($val['content']);
+				$list_props[$key]['reg_date_f'] = $clsISO->getTimeAgo($val['reg_date']);
+			}
+		}	
+	}  else if($show=='building'){
+		$block_id = (int) Input::get('block_id', 0);
+		$for_id = $building_id = (int) Input::get('building_id', 0);
+		$oneBlock = $clsProperty->getOne($block_id,"title");
+		$oneBuilding = $clsProperty->getOne($building_id);
+		$title_page = sprintf('Tòa %s, %s', $oneBuilding['title'], $oneBlock['title']);
+		$more_information = $oneBuilding['more_information'];
+		$more_information = !empty($more_information) 
+			? json_decode(html_entity_decode($more_information), true) : array();
+		$assign_list["block_id"] = $block_id;
+		$assign_list["building_id"] = $building_id;
+		$assign_list["oneBlock"] = $oneBlock;
+		$assign_list["oneBuilding"] = $oneBuilding;
+		$assign_list["more_information"] = $more_information;
+		// $clsISO->print_pre($oneBuilding); die();
+		$field = "{$clsProperty->pkey},property_code,title,intro,more_information";
+		$list_buildings = $clsProperty->getAll("`is_trash`=0 and `property_type`='_BUILDING' 
+		and `for_id`='{$block_id}' and {$clsProperty->pkey}<>'{$building_id}' order by `reg_date` ASC", $field);
+		foreach ($list_buildings as $k_building => $v_building) {
+			$more_information_building = $clsISO->to_array_json($v_building['more_information']);
+
+			$price_range = !empty($more_information_building['price_range']) ? $more_information_building['price_range'] : "";
+			$construction_tyle = !empty($more_information_building['construction_style']) ? $more_information_building['construction_style'] : "";	
+			$lst_construction_tyle = array();
+			if($construction_tyle != ""){
+				$lst_construction_tyle = explode("/",$construction_tyle);
+			}	
+			$list_buildings[$k_building]["price_range"] = $price_range;
+			$list_buildings[$k_building]["lst_construction_tyle"] = $lst_construction_tyle;
+			$list_buildings[$k_building]["more_information"] = $more_information_building;
+			$list_buildings[$k_building]["on_sale"] = !empty($more_information_building['on_sale']) ? $more_information_building['on_sale'] : 0;
+		}
+		$order_no_arrs = @array_column($list_buildings, 'on_sale');
+		@array_multisort($order_no_arrs, SORT_DESC, $list_buildings);
+		$assign_list["list_buildings"] = $list_buildings;
+		###
+		$list_props = $clsProjectMeta->getAll("((`type`='{$show}' and `for_id`='{$for_id}') or (`type`='block' and `for_id`='{$block_id}')) 
+		order by type DESC, `order_no` ASC");
+		if(!empty($list_props)){
+			foreach($list_props as $key => $val){
+				if($val['type']=='building'){
+					$list_props[$key]['title'] = sprintf('%s %s', $val['title'], $oneBuilding['title']);
+				} else {
+					$list_props[$key]['title'] = sprintf('%s %s', $val['title'], $oneBlock['title']);
+				}
+				$is_driver = $clsISO->checkContainer($val['content'],"drive.google.com","") ? 1 : 0;
+				$list_props[$key]['is_driver'] = $is_driver;
+				$list_props[$key]['link'] = $clsISO->getIframeUrl($val['content']);
+				$list_props[$key]['reg_date_f'] = $clsISO->getTimeAgo($val['reg_date']);
+			}
+		}	
+	} else {
+		$for_id = $project_id;
+		$more_information = $oneProject['more_information'];
+		$more_information = !empty($more_information) 
+			? json_decode(html_entity_decode($more_information), true) : array();
+		$assign_list["more_information"] = $more_information;
+		// $clsISO->print_pre($more_information); die();
+		$title_page = $oneProject['title'];		
+		
+		#
+		$field = "{$clsProperty->pkey},property_code,title,intro,more_information,parent_id";
+		$list_blocks = $clsProperty->getAll("for_id='{$project_id}' order by order_no ASC", $field);
+		
+		foreach($list_blocks as $k_block => $v_block) {
+			$list_blocks[$k_block]["block_type"] = !empty($arr_block_type[$v_block['parent_id']]['title']) ? $arr_block_type[$v_block['parent_id']]['title'] : "";
+			$list_blocks[$k_block]["block_type"] = !empty($arr_block_type[$v_block['parent_id']]['title']) ? $arr_block_type[$v_block['parent_id']]['title'] : "";				
+			$more_information_block = $clsISO->to_array_json($v_block['more_information']);
+
+			$price_range = !empty($more_information_block['price_range']) ? $more_information_block['price_range'] : "";
+			$construction_tyle = !empty($more_information_block['construction_tyle']) ? $more_information_block['construction_tyle'] : "";	
+			$lst_construction_tyle = array();
+			if($construction_tyle != ""){
+				$lst_construction_tyle = explode("/",$construction_tyle);
+			}	
+			$list_blocks[$k_block]["price_range"] = $price_range;
+			$list_blocks[$k_block]["lst_construction_tyle"] = $lst_construction_tyle;
+			$list_blocks[$k_block]["more_information"] = $more_information_block;
+			$list_blocks[$k_block]["on_sale"] = !empty($more_information_block['on_sale']) ? $more_information_block['on_sale'] : 0;
+			
+			$list_buildings = $clsProperty->getAll("`is_trash`=0 and `property_type`='_BUILDING' and `for_id`='{$v_block["property_id"]}' order by `reg_date` ASC", $clsProperty->pkey.",title,slug,more_information");
+			foreach($list_buildings as $k_building => $v_building) {
+				$more_information_building = $clsISO->to_array_json($v_building['more_information']);
+				$list_buildings[$k_building]["more_information"] = $more_information_building;
+				$list_buildings[$k_building]["on_sale"] = !empty($more_information_building['on_sale']) ? $more_information_building['on_sale'] : 0;
+			}
+			$order_no_arrs = @array_column($list_buildings, 'on_sale');
+			@array_multisort($order_no_arrs, SORT_DESC, $list_buildings);
+			$list_blocks[$k_block]["list_buildings"] = $list_buildings;
+		}
+		$order_no_arrs = @array_column($list_blocks, 'on_sale');
+		@array_multisort($order_no_arrs, SORT_DESC, $list_blocks);
+		$assign_list["list_blocks"] = $list_blocks;
+		###
+		$list_props = $clsProjectMeta->getAll("`type`='{$show}' and `for_id`='{$for_id}' order by `order_no` ASC");
+		if(!empty($list_props)){
+			foreach($list_props as $key => $val){
+				$is_driver = $clsISO->checkContainer($val['content'],"drive.google.com","") ? 1 : 0;
+				$list_props[$key]['is_driver'] = $is_driver;
+				$list_props[$key]['link'] = $clsISO->getIframeUrl($val['content']);
+				$list_props[$key]['reg_date_f'] = $clsISO->getTimeAgo($val['reg_date']);
+			}
+		}	
+	}
+	$assign_list["list_props"] = $list_props;
+	
+<!-- End -->
+
+{if !empty($list_category_docs) && 1==2}
+					<div class="w-100 overflow-x-auto mb-4">
+						<ul class="nav nav-tabs" role="tablist">
+							{foreach from=$list_category_docs item=_oCatDocs key=key name=i}
+							<li class="nav-item" role="presentation">
+								<a href="{$clsProject->getLinkInfo($project_id, $block_id, $building_id, $_oCatDocs.property_id, $_oCatDocs.title)}" class="btn btn_tab rounded-pill{if $root_id eq $_oCatDocs.property_id} active{/if}" role="tab" >{$_oCatDocs.title}</a>
+							</li>
+							{/foreach}
+						</ul>
+					</div>
+					{/if}
+					
+					
+	
+	
+	
+<div class="d-flex align-items-start justify-content-between mb-2 gap-2">
+{if !empty($more_information.attrs)}
+<div class="box_info {if $deviceType eq 'phone'}mb-3{else}mb-4{/if}">
+	<div class="dqbGyrlVzN" id="lst_info">
+		<div class="tinyContentx tinyContentProject">
+			{foreach from=$more_information.attrs item = _oAttr}
+			<div class="item_info mb-1">
+				<label for="" class="lbl_item">{$_oAttr.title}</label>
+				<span class="content_item text-dark fw-semibold">{$_oAttr.content}</span>
+			</div>
+			{/foreach}
+		</div>
+	</div>
+</div>
+{/if}
+<div class="dropdown">
+	<button data-toggle="ripple" class="btn btn-outline-default dropdown-toggle{if $deviceType eq 'phone'} btn-sm{/if}" type="button" data-bs-toggle="dropdown" data-bs-auto-close="inside" aria-haspopup="true" aria-expanded="false">Bảng hàng</button>
+	{if !empty($list_projects)}
+	<div class="dropdown-menu dropdown-menu-end dropdown-menu-stock dropdown-menu-stock_project">
+		<div class="p-3">
+			<div class="row">
+				{foreach from=$list_projects item=_oProject key=key}
+				{if $_oProject.project_id eq $project_id}
+					{assign var = lstblocks value = $_oProject.list_blocks}
+					<div class="col-12 mb-3">
+						<div class="d-flex gap-2 align-items-center justify-content-center">
+							<img src="{$_oProject.logo}" class="h-px-30" />
+							<h3 class="fs-6 mb-0 text-upper">{$_oProject.title}</h3>
+						</div>
+						{foreach from=$lstblocks item=_oBlock key=k_block name=n_block}
+						{assign var = list_menu_buildings value = $_oBlock.list_menu_buildings}
+						{if !empty($list_menu_buildings)}
+						<div class="block-one mt-3">
+							<div class="divider my-2">
+								<div class="divider-text">Phân khu {$_oBlock.title}</div>
+							</div>
+							<ul class="mb-0 list-unstyled d-flex flex-wrap gap-2">
+								{foreach from=$list_menu_buildings item=_oBuilding}
+								<li class="flex-fill">
+									<a data-toggle="ripple" title="{$_oBuilding.title}" class="btn btn-sm btn-outline-primary w-100" href="{$clsProject->getLinkDetail($project_id,$_oBlock.property_id,$_oBuilding.building_id,$oneProject)}">{$_oBuilding.title}</a>
+								</li>
+								{/foreach}
+							</ul>
+						</div>
+						{/if}
+						{/foreach}
+					</div>
+				{/if}
+				{/foreach}
+			</div>
+		</div>
+	</div>
+	{/if}
+</div>		
+{if $block_type eq $smarty.const._BLOCK_TYPE_HIGHLEVEL_SALE}{/if}
+</div>
+<!-- End thông tin -->

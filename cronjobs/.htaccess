@@ -1,0 +1,22 @@
+<IfModule mod_headers.c>
+	# CORS Mobile API — GỠ header kế thừa từ root .htaccess (Allow-Headers "Range", media)
+	Header unset Access-Control-Allow-Origin
+	Header unset Access-Control-Allow-Headers
+	Header unset Access-Control-Expose-Headers
+	# Đặt lại đúng cho API. "always" để áp cả 401/404/500 (browser cần đọc được lỗi).
+	Header always set Access-Control-Allow-Origin  "*"
+	Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+	Header always set Access-Control-Allow-Headers "Content-Type, x-api-key, x-platform, Authorization"
+	Header always set Access-Control-Max-Age "86400"
+</IfModule>
+
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+	RewriteBase /cronjobs
+	# Preflight OPTIONS → 204 ngay, KHÔNG đẩy xuống PHP (Slim). Header CORS do mod_headers "always" thêm.
+	RewriteCond %{REQUEST_METHOD} =OPTIONS
+	RewriteRule ^ - [R=204,L]
+	# Bơm Authorization vào env (Apache/CGI/FastCGI hay strip header này) → PHP đọc qua HTTP_AUTHORIZATION.
+	RewriteCond %{HTTP:Authorization} .
+	RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>

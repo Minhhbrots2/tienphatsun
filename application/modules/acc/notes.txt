@@ -1,0 +1,73 @@
+foreach($list_fields as $field){
+		$more[$field] = $clsISO->formatPrice(${'total'.$field});
+	}
+	$html_briefs = "";
+	$arr_briefs = array('TOTAL','SALE','COMPANY','k','g');
+	foreach($arr_briefs as $val){
+		if($val == 'SALE'){
+			$total_paid = $dbconn->getOne("SELECT count(1) AS `total_paid` 
+				FROM {$clsCommission->tbl} AS `t1` 
+				INNER JOIN {$clsBilling->tbl} AS t2 ON t1.billing_id=t2.billing_id 
+				WHERE {$cond} AND `t1`.`status_sale_id`='"._COMMISSION_PAID_STATUS_ID."'");
+			$total_unpaid = $dbconn->getOne("SELECT count(1) AS `total_unpaid` 
+				FROM {$clsCommission->tbl} AS `t1` 
+				INNER JOIN {$clsBilling->tbl} AS t2 ON t1.billing_id=t2.billing_id 
+				WHERE {$cond} AND `t1`.`status_sale_id`='"._COMMISSION_UNPAID_STATUS_ID."'");
+			$html_briefs.= '<div class="brief-item bg-white">
+				<p class="fs-16 mb-2 text-nowrap text-dark">Tình trạng</p>
+				<div class="form-row">
+					<div class="col-6 text-dark">
+						<small>Đã thanh toán</small>
+						<p class="mb-0 fs-18 fw-bold">'.$total_paid.'</p>
+					</div>
+					<div class="col-6 text-dark">
+						<small>Chưa thanh toán</small>
+						<p class="mb-0 fs-18 fw-bold">'.$total_unpaid.'</p>
+					</div>
+				</div>
+			</div>';
+		} else if($val == 'COMPANY'){
+			$total_paid = $dbconn->getOne("SELECT count(1) AS `total_paid` 
+				FROM {$clsCommission->tbl} AS `t1` 
+				INNER JOIN {$clsBilling->tbl} AS t2 ON t1.billing_id=t2.billing_id 
+				WHERE {$cond} AND `t1`.`status_company_id`='"._COMMISSION_PAID_STATUS_ID."'");
+			$total_unpaid = $dbconn->getOne("SELECT count(1) AS `total_unpaid` 
+				FROM {$clsCommission->tbl} AS `t1` 
+				INNER JOIN {$clsBilling->tbl} AS t2 ON t1.billing_id=t2.billing_id 
+				WHERE {$cond} AND `t1`.`status_company_id`='"._COMMISSION_UNPAID_STATUS_ID."'");
+			$html_briefs.= '<div class="brief-item bg-white">
+				<p class="fs-16 mb-2 text-nowrap text-dark">Tổng</p>
+				<div class="form-row">
+					<div class="col-6 text-dark">
+						<small>Đã thanh toán</small>
+						<p class="mb-0 fs-18 fw-bold">'.$total_paid.'</p>
+					</div>
+					<div class="col-6 text-dark">
+						<small>Chưa thanh toán</small>
+						<p class="mb-0 fs-18 fw-bold">'.$total_unpaid.'</p>
+					</div>
+				</div>
+			</div>';
+		} else if($val=='TOTAL'){
+			$html_briefs.= '<div class="brief-item bg-white">
+				<p class="fs-16 mb-2 text-nowrap text-dark">Tình trạng</p>
+				<div class="form-row">
+					<div class="col-6 text-dark">
+						<small>Đã thanh toán</small>
+						<p class="mb-0 fs-18 fw-bold">'.$total_record.'</p>
+					</div>
+					<div class="col-6 text-dark">
+						<small>Chưa thanh toán</small>
+						<p class="mb-0 fs-18 fw-bold">120.000.000</p>
+					</div>
+				</div>
+			</div>';
+		} else {
+			$html_briefs.= '<div class="brief-item bg-white">
+				<p class="fs-16 mb-2 text-nowrap text-dark">Tổng thu(₫)</p>
+				<h3 class="fs-18 mb-0">
+					<span class="total_income">100.000.000</span>
+				</h3>
+			</div>';
+		}
+	}

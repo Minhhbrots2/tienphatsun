@@ -1,0 +1,40 @@
+{
+  "magic": 1111,
+  "conn_errno": 0,
+  "results": [
+    {
+      "errno": 0,
+      "affected_rows": 2,
+      "insert_id": 0,
+      "num_fields": 6,
+      "num_rows": 2,
+      "columns": [
+        "adminbutton_id",
+        "parent_id",
+        "title_page",
+        "mod_page",
+        "order_no",
+        "is_active"
+      ],
+      "rows": [
+        [
+          "228",
+          "120",
+          "Hỏi đáp",
+          "faqs",
+          "1010",
+          "1"
+        ],
+        [
+          "236",
+          "120",
+          "Tài liệu",
+          "download",
+          "1017",
+          "1"
+        ]
+      ],
+      "_sep": 0
+    }
+  ]
+}

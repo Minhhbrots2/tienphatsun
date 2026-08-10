@@ -1,0 +1,3996 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>/* Chat nội bộ — widget float (block chat). Scope #fhchat + tiền tố fhc-* để không đụng CSS app. */
+#fhchat {
+	--fhc-fh: #9f223a;
+	--fhc-fh-d: #bb141a;
+	--fhc-accent: #4f46e5;
+	--fhc-accent-soft: #eef0ff;
+	--fhc-ink: #0f172a;
+	--fhc-sub: #64748b;
+	--fhc-muted: #94a3b8;
+	--fhc-line: #eef1f5;
+	--fhc-line2: #e6eaf0;
+	--fhc-bg: #f7f8fa;
+	--fhc-ok: #16a34a;
+	--fhc-ok-soft: #e9f7ef;
+	--fhc-warn: #d97706;
+	--fhc-warn-soft: #fff5e8;
+	--fhc-bad: #dc2626;
+	--fhc-bad-soft: #fdecec;
+}
+
+#fhchat * {
+	box-sizing: border-box
+}
+
+/* FAB */
+.fhc-fab {
+	position: fixed;
+	right: 22px;
+	bottom: 90px;
+	width: 58px;
+	height: 58px;
+	border-radius: 18px;
+	background: var(--fhc-fh);
+	color: var(--bs-white);
+	border: 0;
+	box-shadow: 0 10px 26px rgba(225, 27, 34, .4), 0 2px 6px rgba(225, 27, 34, .3);
+	cursor: pointer;
+	z-index: 99980;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: transform .2s;
+}
+
+.fhc-fab:hover {
+	transform: translateY(-3px);
+	background: var(--fhc-fh-d)
+}
+
+.fhc-fab.fhc-hide {
+	transform: scale(.3);
+	opacity: 0;
+	pointer-events: none
+}
+
+.fhc-fab .fhc-badge {
+	position: fixed;
+	display: none
+}
+
+.fhc-fab>.fhc-badge {
+	position: absolute;
+	top: -5px;
+	right: -5px;
+	background: var(--bs-white);
+	color: var(--fhc-fh);
+	font-size: 11px;
+	font-weight: 800;
+	border-radius: 20px;
+	min-width: 21px;
+	height: 21px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 6px;
+	box-shadow: 0 2px 6px rgba(15, 23, 42, .18)
+}
+
+/* panel */
+.fhc-panel {
+	position: fixed;
+	top: 0;
+	right: 0;
+	height: 100vh;
+	width: 480px;
+	max-width: 100vw;
+	background: var(--fhc-bg);
+	z-index: 99981;
+	border-radius: 6px 0 0 6px;
+	-moz-border-radius: 6px 0 0 6px;
+	-webkit-border-radius: 6px 0 0 6px;
+	-khtml-border-radius: 6px 0 0 6px;
+	overflow: hidden;
+	box-shadow: -16px 0 46px rgba(15, 23, 42, .16);
+	display: flex;
+	flex-direction: column;
+	transform: translateX(100%);
+	transition: transform .3s cubic-bezier(.32, .72, 0, 1)
+}
+
+.fhc-panel.fhc-open {
+	transform: translateX(0)
+}
+
+.fhc-head {
+	background: linear-gradient(135deg, #7a1a2e 0%, #9f223a 50%, #b82e48 100%);
+	border-bottom: none;
+	padding: 12px 16px;
+	display: flex;
+	align-items: center;
+	gap: 8px
+}
+
+.fhc-logo {
+	width: 34px;
+	height: 34px;
+	border: 2.5px solid var(--fhc-fh);
+	color: var(--fhc-fh);
+	font-weight: 800;
+	font-size: 11px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transform: rotate(45deg);
+	border-radius: 7px;
+	flex-shrink: 0
+}
+
+.fhc-logo b {
+	transform: rotate(-45deg)
+}
+
+.fhc-logo-img {
+	width: 34px;
+	height: 34px;
+	object-fit: contain;
+	flex-shrink: 0;
+	filter: brightness(0) invert(1);
+}
+
+.fhc-ti {
+	flex: 1;
+	min-width: 0
+}
+
+.fhc-ti .fhc-t {
+	font-weight: 800;
+	font-size: 15.5px;
+	color: var(--bs-white)
+}
+
+.fhc-ti .fhc-s {
+	color: rgba(255, 255, 255, .7);
+	font-size: 12px;
+	margin-top: 1px
+}
+
+.fhc-x {
+	width: 34px;
+	height: 34px;
+	border: 0;
+	background: rgba(255, 255, 255, .15);
+	border-radius: 25px;
+	color: rgba(255, 255, 255, .85);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background .2s
+}
+
+.fhc-x:hover {
+	background: rgba(255, 255, 255, .28);
+	color: var(--bs-white)
+}
+
+.fhc-tabs {
+	display: flex;
+	gap: 4px;
+	padding: 4px;
+	background: #eef1f6;
+	border-radius: 12px;
+	margin: 12px 16px 8px;
+	border-bottom: 0;
+	overflow: hidden;
+}
+
+.fhc-tab {
+	flex: 1;
+	white-space: nowrap;
+	border: 0;
+	background: transparent;
+	border-radius: 8px;
+	padding: 8px 12px;
+	font-size: 13px;
+	color: var(--fhc-sub);
+	font-weight: 600;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	transition: all 0.2s ease;
+}
+
+.fhc-tab.active {
+	background: var(--bs-white);
+	color: var(--fhc-ink);
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.fhc-body {
+	flex: 1;
+	overflow-y: auto;
+	padding: 14px
+}
+
+.fhc-body::-webkit-scrollbar {
+	width: 7px
+}
+
+.fhc-body::-webkit-scrollbar-thumb {
+	background: #dde3ec;
+	border-radius: 10px
+}
+
+/* info card */
+.fhc-info {
+	background: var(--bs-white);
+	border: 1px solid var(--fhc-line);
+	border-radius: 14px;
+	padding: 14px;
+	margin-bottom: 13px
+}
+
+.fhc-info .fhc-top {
+	display: flex;
+	gap: 11px
+}
+
+.fhc-clock {
+	width: 42px;
+	height: 42px;
+	border-radius: 12px;
+	background: var(--fhc-accent-soft);
+	color: var(--fhc-accent);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0
+}
+
+.fhc-info h2 {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 800;
+	color: var(--fhc-ink)
+}
+
+.fhc-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: var(--fhc-ok-soft);
+	color: var(--fhc-ok);
+	font-weight: 700;
+	font-size: 11.5px;
+	border-radius: 999px;
+	padding: 3px 10px;
+	margin-top: 6px
+}
+
+.fhc-chip .fhc-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--fhc-ok)
+}
+
+.fhc-info p {
+	margin: 7px 0 0;
+	color: var(--fhc-sub);
+	font-size: 12px;
+	line-height: 1.45
+}
+
+.fhc-prog {
+	margin-top: 12px
+}
+
+.fhc-prog .fhc-pt {
+	display: flex;
+	justify-content: space-between;
+	font-size: 12px;
+	margin-bottom: 6px;
+	color: var(--fhc-sub)
+}
+
+.fhc-prog .fhc-pt b {
+	font-weight: 800;
+	color: var(--fhc-ink)
+}
+
+.fhc-bar {
+	height: 8px;
+	background: #eef1f5;
+	border-radius: 999px;
+	overflow: hidden
+}
+
+.fhc-bar>i {
+	display: block;
+	height: 100%;
+	background: linear-gradient(90deg, #22c55e, #16a34a);
+	border-radius: 999px;
+	transition: width .4s
+}
+
+/* my-status */
+.fhc-my {
+	border-radius: 14px;
+	padding: 15px;
+	margin-bottom: 14px;
+	border: 1px solid var(--fhc-line);
+	background: var(--bs-white)
+}
+
+.fhc-my.done {
+	background: linear-gradient(180deg, #f3fbf6, var(--bs-white));
+	border-color: #cdeed8
+}
+
+.fhc-my.bad {
+	background: var(--fhc-bad-soft);
+	border-color: #f3cfcf
+}
+
+.fhc-my .fhc-h {
+	font-weight: 800;
+	font-size: 14.5px;
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	color: var(--fhc-ink)
+}
+
+.fhc-my .fhc-ico {
+	width: 30px;
+	height: 30px;
+	border-radius: 9px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0
+}
+
+.fhc-my.idle .fhc-ico {
+	background: var(--fhc-bad-soft);
+	color: var(--fhc-fh)
+}
+
+.fhc-my.locating .fhc-ico {
+	background: var(--fhc-accent-soft);
+	color: var(--fhc-accent)
+}
+
+.fhc-my.done .fhc-ico {
+	background: var(--fhc-ok-soft);
+	color: var(--fhc-ok)
+}
+
+.fhc-my.retry {
+	background: var(--fhc-bad-soft);
+	border-color: #f3cfcf
+}
+
+.fhc-my.retry .fhc-ico {
+	background: var(--fhc-bad-soft);
+	color: var(--fhc-fh)
+}
+
+.fhc-my .fhc-stxt {
+	font-size: 12px;
+	color: var(--fhc-sub);
+	margin-top: 6px;
+	line-height: 1.5
+}
+
+.fhc-my .fhc-stxt .fhc-geo-good {
+	color: var(--fhc-ok);
+	font-weight: 800
+}
+
+.fhc-my .fhc-stxt .fhc-geo-bad {
+	color: var(--fhc-warn);
+	font-weight: 800
+}
+
+.fhc-cta {
+	margin-top: 12px;
+	width: 100%;
+	border: 0;
+	border-radius: 12px;
+	padding: 13px;
+	font-size: 14.5px;
+	font-weight: 700;
+	color: var(--bs-white);
+	background: var(--fhc-fh);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 9px;
+	cursor: pointer
+}
+
+.fhc-cta:hover {
+	background: var(--fhc-fh-d)
+}
+
+.fhc-cta:disabled {
+	background: #bcc2d4;
+	cursor: default
+}
+
+.fhc-thumb {
+	width: 100%;
+	height: 150px;
+	border-radius: 12px;
+	margin-top: 12px;
+	object-fit: cover;
+	border: 1px solid var(--fhc-line2)
+}
+
+.fhc-spin {
+	animation: fhc-sp 1s linear infinite
+}
+
+@keyframes fhc-sp {
+	to {
+		transform: rotate(360deg)
+	}
+}
+
+/* feed */
+.fhc-feedh {
+	font-size: 11px;
+	font-weight: 800;
+	color: var(--fhc-muted);
+	letter-spacing: .6px;
+	margin: 4px 2px 10px;
+	text-transform: uppercase;
+	display: flex;
+	justify-content: space-between
+}
+
+.fhc-feedh .fhc-cnt {
+	background: #eef1f5;
+	color: var(--fhc-sub);
+	border-radius: 999px;
+	padding: 2px 8px
+}
+
+.fhc-row {
+	background: var(--bs-white);
+	border: 1px solid var(--fhc-line);
+	border-radius: 13px;
+	padding: 10px;
+	margin-bottom: 9px;
+	display: flex;
+	align-items: center;
+	gap: 10px
+}
+
+.fhc-av {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	-moz-border-radius: 50%;
+	-webkit-border-radius: 50%;
+	-khtml-border-radius: 50%;
+	flex-shrink: 0;
+	object-fit: cover;
+	background: #eef0ff
+}
+
+.fhc-who {
+	flex: 1;
+	min-width: 0
+}
+
+.fhc-who .fhc-nm {
+	font-weight: 700;
+	font-size: 13.5px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	color: var(--fhc-ink)
+}
+
+.fhc-who .fhc-tm {
+	color: var(--fhc-muted);
+	font-size: 11.5px;
+	margin-top: 2px
+}
+
+.fhc-cap {
+	width: 54px;
+	height: 42px;
+	border-radius: 9px;
+	flex-shrink: 0;
+	object-fit: cover;
+	border: 1px solid var(--fhc-line2);
+	background: #e7edf4
+}
+
+.fhc-pill {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 11px;
+	font-weight: 700;
+	border-radius: 999px;
+	padding: 4px 9px;
+	background: var(--fhc-ok-soft);
+	color: #15803d
+}
+
+.fhc-empty {
+	text-align: center;
+	color: var(--fhc-muted);
+	font-size: 12.5px;
+	padding: 18px 0
+}
+
+/* empty-state feed check-in */
+.fhc-feedempty {
+	text-align: center;
+	background: var(--bs-white);
+	border: 1px dashed var(--fhc-line2);
+	border-radius: 14px;
+	padding: 26px 18px 22px
+}
+
+.fhc-feedempty .fhc-fe-ic {
+	width: 54px;
+	height: 54px;
+	margin: 0 auto 12px;
+	border-radius: 16px;
+	background: var(--fhc-warn-soft);
+	color: var(--fhc-warn);
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+
+.fhc-feedempty .fhc-fe-t {
+	font-weight: 800;
+	font-size: 14px;
+	color: var(--fhc-ink)
+}
+
+.fhc-feedempty .fhc-fe-s {
+	margin-top: 4px;
+	font-size: 12px;
+	color: var(--fhc-sub);
+	line-height: 1.5
+}
+
+/* ===== Form xác nhận check-in (ảnh + vị trí + ghi chú) ===== */
+.fhc-review {
+	border: 1px solid var(--fhc-line);
+	background: var(--bs-white);
+	border-radius: 14px;
+	padding: 15px;
+	margin-bottom: 14px
+}
+
+.fhc-rvh {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 14px
+}
+
+.fhc-rvt {
+	font-weight: 800;
+	font-size: 15.5px;
+	color: var(--fhc-ink)
+}
+
+.fhc-rvx {
+	width: 30px;
+	height: 30px;
+	border: 0;
+	border-radius: 50%;
+	background: var(--fhc-bg);
+	color: var(--fhc-sub);
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+	flex-shrink: 0
+}
+
+.fhc-rvx:hover {
+	background: var(--fhc-line2)
+}
+
+.fhc-fld {
+	margin-bottom: 13px
+}
+
+.fhc-flbl {
+	display: block;
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--fhc-sub);
+	margin-bottom: 6px
+}
+
+.fhc-loc {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	border: 1px solid var(--fhc-line2);
+	border-radius: 11px;
+	padding: 11px 12px;
+	background: var(--fhc-bg);
+	font-size: 13px;
+	color: var(--fhc-ink);
+	line-height: 1.45
+}
+
+.fhc-loc.ready {
+	border-color: #cdeed8;
+	background: var(--fhc-ok-soft)
+}
+
+.fhc-loc.bad {
+	border-color: #f3cfcf;
+	background: var(--fhc-bad-soft)
+}
+
+.fhc-loc .fhc-locico {
+	flex-shrink: 0;
+	color: var(--fhc-fh)
+}
+
+.fhc-loc.ready .fhc-locico {
+	color: var(--fhc-ok)
+}
+
+.fhc-loc .fhc-loctxt {
+	flex: 1;
+	min-width: 0;
+	word-break: break-word
+}
+
+.fhc-loc .fhc-locwait {
+	color: var(--fhc-sub)
+}
+
+.fhc-loc .fhc-locok {
+	flex-shrink: 0;
+	color: var(--fhc-ok)
+}
+
+.fhc-rvlink {
+	color: var(--fhc-fh);
+	font-weight: 700;
+	cursor: pointer;
+	white-space: nowrap
+}
+
+.fhc-shot {
+	border-radius: 12px;
+	overflow: hidden;
+	border: 1px solid var(--fhc-line2);
+	background: #e7edf4
+}
+
+.fhc-shot img {
+	display: block;
+	width: 100%;
+	max-height: 220px;
+	object-fit: cover
+}
+
+#fhchat .fhc-noteinp {
+	width: 100%;
+	border: 1px solid var(--fhc-line2);
+	border-radius: 11px;
+	padding: 11px 12px;
+	font-size: 13.5px;
+	color: var(--fhc-ink);
+	background: var(--bs-white);
+	outline: none;
+	box-shadow: none
+}
+
+#fhchat .fhc-noteinp:focus {
+	border-color: var(--fhc-fh)
+}
+
+#fhchat .fhc-noteinp::placeholder {
+	color: var(--fhc-muted)
+}
+
+.fhc-suberr {
+	font-size: 12.5px;
+	font-weight: 700;
+	color: var(--fhc-bad);
+	margin-top: 4px
+}
+
+.fhc-who .fhc-rnote {
+	font-size: 12px;
+	color: var(--fhc-sub);
+	margin-top: 3px;
+	line-height: 1.45;
+	word-break: break-word
+}
+
+/* ===== Chat thread + composer (kênh Toàn công ty / Phòng ban) ===== */
+.fhc-tab .fhc-ub {
+	background: var(--fhc-fh);
+	color: var(--bs-white);
+	font-size: 10px;
+	font-weight: 800;
+	border-radius: 999px;
+	min-width: 17px;
+	height: 17px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 5px;
+	margin-left: 2px
+}
+
+.fhc-tab.active .fhc-ub {
+	background: var(--fhc-fh);
+	color: var(--bs-white)
+}
+
+.fhc-thread {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding-bottom: 12px
+		/* chừa chỗ cho badge cảm xúc nhô dưới bóng tin CUỐI (chống #fhc-body overflow cắt) */
+}
+
+.fhc-daydiv {
+	align-self: center;
+	background: #e9edf3;
+	color: var(--fhc-sub);
+	font-size: 11px;
+	font-weight: 700;
+	border-radius: 999px;
+	padding: 4px 12px;
+	margin: 8px 0
+}
+
+.fhc-unread {
+	align-self: stretch;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	color: var(--fhc-fh);
+	font-size: 11px;
+	font-weight: 800;
+	margin: 8px 2px;
+	letter-spacing: .4px
+}
+
+.fhc-unread:before,
+.fhc-unread:after {
+	content: "";
+	height: 1px;
+	background: var(--fhc-fh);
+	opacity: .35;
+	flex: 1
+}
+
+.fhc-msg {
+	display: flex;
+	gap: 9px;
+	align-items: flex-end;
+	max-width: 85%;
+	margin-top: 6px
+}
+
+.fhc-msg.me {
+	margin-left: auto;
+	flex-direction: row-reverse
+}
+
+.fhc-mav {
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	align-self: flex-end;
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 800;
+	font-size: 12.5px
+}
+
+.fhc-mav img {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover
+}
+
+.fhc-mwrap {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	max-width: 100%;
+	position: relative;
+}
+
+.fhc-msg.me .fhc-mwrap {
+	align-items: flex-end
+}
+
+.fhc-mname {
+	font-size: 11.5px;
+	font-weight: 800;
+	color: var(--fhc-accent);
+	margin: 0 0 3px
+}
+
+.fhc-bub-img .fhc-mname {
+	padding: 3px 6px 1px
+}
+
+.fhc-bub {
+	background: var(--bs-white);
+	border: 1px solid var(--fhc-line);
+	border-radius: 10px;
+	border-bottom-left-radius: 5px;
+	padding: 8px 10px;
+	font-size: 13px;
+	line-height: 1.45;
+	color: var(--fhc-ink);
+	/* KHÔNG pre-wrap ở container: template xuống dòng/thụt lề giữa các div con (mname/quote/album/bcap/btx/mtime)
+	   sẽ bị render thành dòng trống → bóng cao bất thường. Giữ pre-wrap RIÊNG ở .fhc-btx/.fhc-bcap (chữ tin). */
+	word-break: break-word;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, .05)
+}
+
+.fhc-btx {
+	white-space: pre-wrap;
+	word-break: break-word
+}
+
+/* ===== Quote / trả lời ===== */
+/* Hộp quote TRẮNG đồng nhất cho cả người gửi (bóng indigo) lẫn người nhận (bóng trắng);
+   phân biệt người gửi bằng vị trí trái/phải, KHÔNG đổi màu quote. */
+.fhc-quote {
+	background: #F5F5F5;
+	border-left: 3px solid var(--fhc-accent);
+	padding: 4px 8px;
+	margin-bottom: 5px;
+	font-size: 12px;
+	line-height: 1.35;
+	cursor: pointer;
+	max-width: 100%
+}
+
+.fhc-quote b {
+	display: block;
+	color: var(--fhc-accent);
+	font-weight: 700;
+	font-size: 11px;
+	margin-bottom: 1px
+}
+
+.fhc-quote .fhc-q-prev {
+	display: block;
+	color: var(--fhc-sub);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+
+.fhc-bub-img .fhc-quote {
+	margin: 2px 2px 4px
+}
+
+.fhc-reply {
+	flex-shrink: 0;
+	align-self: center;
+	width: 26px;
+	height: 26px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-muted);
+	opacity: 0;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: opacity .12s
+}
+
+.fhc-msg:hover .fhc-reply {
+	opacity: 1
+}
+
+.fhc-reply:hover {
+	background: #eef1f5;
+	color: var(--fhc-accent)
+}
+
+@media (max-width:560px) {
+	.fhc-reply {
+		display: none
+	}
+}
+
+/* Thu hồi: nút (desktop hover-reveal như reply; mobile LUÔN hiện vì hover không có) + placeholder tin đã thu hồi */
+.fhc-recall {
+	flex-shrink: 0;
+	align-self: center;
+	width: 26px;
+	height: 26px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-muted);
+	opacity: 0;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: opacity .12s
+}
+
+.fhc-msg:hover .fhc-recall {
+	opacity: 1
+}
+
+.fhc-recall:hover {
+	background: var(--fhc-bad-soft);
+	color: var(--fhc-bad)
+}
+
+@media (max-width:560px) {
+	.fhc-recall {
+		display: flex;
+		opacity: 1
+	}
+}
+
+.fhc-recalled {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-style: italic;
+	font-size: 13px;
+	color: var(--fhc-muted)
+}
+
+.fhc-recalled svg {
+	flex-shrink: 0;
+	opacity: .8
+}
+
+.fhc-bub-recalled {
+	background: transparent;
+	border: 1px dashed var(--fhc-line2);
+	box-shadow: none
+}
+
+/* Ghim hội thoại: nút (desktop hover-reveal; ghim rồi LUÔN hiện crimson; mobile luôn hiện) */
+.fhc-conv-pin {
+	flex-shrink: 0;
+	width: 28px;
+	height: 28px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-muted);
+	opacity: 0;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: opacity .12s
+}
+
+.fhc-conv:hover .fhc-conv-pin {
+	opacity: 1
+}
+
+.fhc-conv-pin.on {
+	opacity: 1;
+	color: var(--fhc-fh)
+}
+
+.fhc-conv-pin:hover {
+	background: #eef1f5
+}
+
+@media (max-width:560px) {
+	.fhc-conv-pin {
+		opacity: 1
+	}
+}
+
+/* Ghim tin: banner sticky đầu thread + nút ghim mỗi tin (desktop hover) */
+.fhc-pinbar {
+	position: sticky;
+	top: 0;
+	z-index: 5;
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	padding: 9px 12px;
+	background: var(--fhc-warn-soft);
+	border-bottom: 1px solid #f0e2c8;
+	cursor: pointer
+}
+
+.fhc-pinbar .fhc-pb-ic {
+	flex-shrink: 0;
+	color: var(--fhc-warn)
+}
+
+.fhc-pb-body {
+	flex: 1;
+	min-width: 0
+}
+
+.fhc-pb-lbl {
+	font-size: 11px;
+	font-weight: 800;
+	color: var(--fhc-warn);
+	text-transform: uppercase;
+	letter-spacing: .4px
+}
+
+.fhc-pb-prev {
+	font-size: 12.5px;
+	color: var(--fhc-ink);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+
+.fhc-pb-x {
+	flex-shrink: 0;
+	width: 26px;
+	height: 26px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+
+.fhc-pb-x:hover {
+	background: rgba(0, 0, 0, .06)
+}
+
+.fhc-pb-toggle {
+	flex-shrink: 0;
+	width: 26px;
+	height: 26px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.2s;
+}
+
+.fhc-pb-toggle:hover {
+	background: rgba(0, 0, 0, .06);
+}
+
+.fhc-pin-list {
+	background: var(--fhc-bg);
+	border-bottom: 1px solid var(--fhc-line2);
+	max-height: 180px;
+	overflow-y: auto;
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.fhc-pin-item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 12px;
+	border-bottom: 1px solid var(--fhc-line);
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.fhc-pin-item:last-child {
+	border-bottom: 0;
+}
+
+.fhc-pin-item:hover {
+	background: rgba(0, 0, 0, 0.03);
+}
+
+.fhc-pin-item-body {
+	flex: 1;
+	font-size: 12.5px;
+	color: var(--fhc-ink);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.fhc-pin-item-x {
+	flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+}
+
+.fhc-pin-item-x:hover {
+	background: rgba(0, 0, 0, 0.06);
+	color: var(--fhc-bad);
+}
+
+.fhc-pinmsg {
+	flex-shrink: 0;
+	align-self: center;
+	width: 26px;
+	height: 26px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-muted);
+	opacity: 0;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: opacity .12s
+}
+
+.fhc-msg:hover .fhc-pinmsg {
+	opacity: 1
+}
+
+.fhc-pinmsg:hover {
+	background: #eef1f5;
+	color: var(--fhc-warn)
+}
+
+@media (max-width:560px) {
+	.fhc-pinmsg {
+		display: none
+	}
+}
+
+/* Nút bật thông báo trình duyệt (hiện khi chưa cấp quyền) — vàng gold nổi trên nền header tối */
+.fhc-bell {
+	color: #fbbf24 !important;
+	animation: fhc-bellpulse 2s ease-in-out infinite;
+}
+
+@keyframes fhc-bellpulse {
+	0%, 100% { transform: scale(1); }
+	50% { transform: scale(1.15); }
+}
+
+/* Action gọn: nút ⋮ + dropdown (mở rộng nhiều chức năng) — giữ Trả lời đứng riêng */
+.fhc-act {
+	position: relative;
+	align-self: center;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center
+}
+
+.fhc-more {
+	width: 26px;
+	height: 26px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-muted);
+	opacity: 0;
+	cursor: pointer;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: opacity .12s
+}
+
+.fhc-msg:hover .fhc-more,
+.fhc-more.active {
+	opacity: 1
+}
+
+.fhc-more:hover,
+.fhc-more.active {
+	background: #eef1f5;
+	color: var(--fhc-accent)
+}
+
+.fhc-menu {
+	position: absolute;
+	top: calc(100% + 4px);
+	right: 0;
+	min-width: 156px;
+	background: var(--bs-white);
+	border: 1px solid var(--fhc-line2);
+	border-radius: 12px;
+	box-shadow: 0 6px 24px rgba(15, 23, 42, .16);
+	padding: 5px;
+	z-index: 40
+}
+
+.fhc-msg.me .fhc-menu {
+	right: auto;
+	left: 0
+}
+
+.fhc-menu-item {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	width: 100%;
+	border: 0;
+	background: transparent;
+	padding: 8px 10px;
+	border-radius: 8px;
+	font-size: 13px;
+	color: var(--fhc-ink);
+	cursor: pointer;
+	white-space: nowrap;
+	text-align: left
+}
+
+.fhc-menu-item:hover {
+	background: var(--fhc-bg)
+}
+
+.fhc-menu-item svg {
+	flex-shrink: 0;
+	color: var(--fhc-sub)
+}
+
+.fhc-menu-danger {
+	color: var(--fhc-bad)
+}
+
+.fhc-menu-danger svg {
+	color: var(--fhc-bad)
+}
+
+@media (max-width:560px) {
+	.fhc-reply,
+	.fhc-more {
+		display: flex;
+		opacity: 1
+	}
+}
+
+/* Dropdown ⋮ trên hàng hội thoại (Ghim nhóm + Tắt/Bật thông báo) + chỉ báo 🔕 muted */
+.fhc-conv-act {
+	position: relative;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center
+}
+
+.fhc-conv-more {
+	width: 28px;
+	height: 28px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-muted);
+	opacity: 0;
+	cursor: pointer;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: opacity .12s
+}
+
+.fhc-conv:hover .fhc-conv-more {
+	opacity: 1
+}
+
+.fhc-conv-more:hover {
+	background: #eef1f5;
+	color: var(--fhc-accent)
+}
+
+@media (max-width:560px) {
+	.fhc-conv-more {
+		opacity: 1
+	}
+}
+
+.fhc-conv-menu {
+	position: absolute;
+	top: calc(100% + 2px);
+	right: 0;
+	min-width: 170px;
+	background: var(--bs-white);
+	border: 1px solid var(--fhc-line2);
+	border-radius: 12px;
+	box-shadow: 0 6px 24px rgba(15, 23, 42, .16);
+	padding: 5px;
+	z-index: 40
+}
+
+.fhc-conv-muteic {
+	flex-shrink: 0;
+	color: var(--fhc-muted)
+}
+
+/* Popup ai-đã-reaction (chạm badge cảm xúc) — vị trí như picker */
+.fhc-rlist {
+	position: absolute;
+	bottom: 100%;
+	right: 0;
+	margin-bottom: 6px;
+	z-index: 6;
+	min-width: 180px;
+	max-width: 240px;
+	max-height: 220px;
+	overflow-y: auto;
+	background: var(--bs-white);
+	border: 1px solid var(--fhc-line2);
+	border-radius: 12px;
+	box-shadow: 0 6px 24px rgba(15, 23, 42, .18);
+	padding: 5px
+}
+
+.fhc-rl-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 8px;
+	border-radius: 8px
+}
+
+.fhc-rl-item:hover {
+	background: var(--fhc-bg)
+}
+
+.fhc-rl-av {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	object-fit: cover;
+	background: #eef0ff
+}
+
+.fhc-rl-nm {
+	flex: 1;
+	min-width: 0;
+	font-size: 13px;
+	color: var(--fhc-ink);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+
+.fhc-rl-emo {
+	flex-shrink: 0;
+	font-size: 15px
+}
+
+.fhc-rl-empty {
+	padding: 8px 10px;
+	font-size: 12.5px;
+	color: var(--fhc-muted)
+}
+
+/* Đã xem bởi ai (read receipt) — bar nhỏ trên composer */
+.fhc-seen {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 4px;
+	padding: 2px 14px 5px
+}
+
+.fhc-seen-lbl {
+	font-size: 11px;
+	color: var(--fhc-muted);
+	margin-right: 2px
+}
+
+.fhc-seen-av {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	object-fit: cover;
+	background: #eef0ff;
+	border: 1.5px solid var(--bs-white);
+	margin-left: -6px
+}
+
+.fhc-seen-more {
+	font-size: 11px;
+	color: var(--fhc-muted);
+	margin-left: 2px
+}
+
+/* @mention: highlight trong tin + bóng nhắc-mình + picker @ */
+.fhc-composer {
+	position: relative
+}
+
+.fhc-men {
+	color: var(--fhc-accent);
+	font-weight: 700
+}
+
+.fhc-bub-men {
+	background: var(--fhc-accent-soft) !important;
+	box-shadow: inset 2.5px 0 0 var(--fhc-accent)
+}
+
+.fhc-at {
+	position: absolute;
+	bottom: 100%;
+	left: 0;
+	right: 0;
+	margin-bottom: 6px;
+	max-height: 220px;
+	overflow-y: auto;
+	background: var(--bs-white);
+	border: 1px solid var(--fhc-line2);
+	border-radius: 12px;
+	box-shadow: 0 6px 24px rgba(15, 23, 42, .18);
+	padding: 5px;
+	z-index: 20
+}
+
+.fhc-at-item {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	width: 100%;
+	border: 0;
+	background: transparent;
+	padding: 7px 9px;
+	border-radius: 8px;
+	cursor: pointer;
+	text-align: left
+}
+
+.fhc-at-item:hover {
+	background: var(--fhc-bg)
+}
+
+.fhc-at-av {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	object-fit: cover;
+	background: #eef0ff
+}
+
+.fhc-at-nm {
+	flex: 1;
+	min-width: 0;
+	font-size: 13.5px;
+	color: var(--fhc-ink);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+
+.fhc-flash {
+	animation: fhc-flash 1.2s ease
+}
+
+@keyframes fhc-flash {
+
+	0%,
+	100% {
+		background: transparent
+	}
+
+	25% {
+		background: rgba(79, 70, 229, .12)
+	}
+}
+
+/* thanh quote ở composer */
+.fhc-reply-bar {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	padding: 8px 14px;
+	background: var(--bs-white);
+	border-top: 1px solid var(--fhc-line)
+}
+
+.fhc-reply-bar .fhc-rb-ic {
+	color: var(--fhc-accent);
+	flex-shrink: 0
+}
+
+.fhc-reply-bar .fhc-rb-body {
+	flex: 1;
+	min-width: 0;
+	border-left: 2px solid var(--fhc-accent);
+	padding-left: 9px
+}
+
+.fhc-reply-bar .fhc-rb-name {
+	font-size: 11.5px;
+	font-weight: 800;
+	color: var(--fhc-accent)
+}
+
+.fhc-reply-bar .fhc-rb-prev {
+	font-size: 12px;
+	color: var(--fhc-sub);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+
+.fhc-reply-bar .fhc-rb-x {
+	flex-shrink: 0;
+	width: 28px;
+	height: 28px;
+	border: 0;
+	background: #f4f6f9;
+	border-radius: 50%;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+
+.fhc-reply-bar .fhc-rb-x:hover {
+	background: #e9edf3;
+	color: var(--fhc-ink)
+}
+
+/* Bong bóng "mình" — tông hồng nhạt thương hiệu để phân biệt rõ với người gửi */
+.fhc-msg.me .fhc-bub {
+	background: linear-gradient(135deg, #fdf2f4 0%, #fce8ec 100%);
+	border-color: #f5d0d8;
+	border-bottom-left-radius: 14px;
+	border-bottom-right-radius: 5px
+}
+
+/* bong bóng tin ẢNH */
+.fhc-bub-img {
+	padding: 4px;
+	overflow: hidden
+}
+
+.fhc-bimg {
+	display: block;
+	width: 210px;
+	max-width: 100%;
+	border-radius: 9px;
+	border: 1px solid var(--fhc-line2);
+	cursor: pointer
+}
+
+.fhc-bcap {
+	padding: 5px 7px 2px;
+	font-size: 13px;
+	line-height: 1.4;
+	white-space: pre-wrap;
+	word-break: break-word
+}
+
+/* ===== Album nhiều ảnh (grid kiểu Zalo) ===== */
+.fhc-album {
+	display: grid;
+	gap: 2px;
+	width: 222px;
+	max-width: 100%;
+	border-radius: 9px;
+	overflow: hidden
+}
+
+.fhc-acell {
+	position: relative;
+	overflow: hidden;
+	cursor: pointer;
+	background: #e7edf4
+}
+
+.fhc-acell img {
+	width: 100%;
+	height: 100%;
+	display: block;
+	object-fit: cover
+}
+
+.fhc-album.album-1 {
+	width: auto;
+	grid-template-columns: 1fr
+}
+
+.fhc-album.album-1 .fhc-acell {
+	background: none
+}
+
+.fhc-album.album-1 .fhc-acell img {
+	width: auto;
+	height: auto;
+	max-width: 222px;
+	max-height: 260px;
+	object-fit: contain
+}
+
+.fhc-album.album-2 {
+	grid-template-columns: 1fr 1fr
+}
+
+.fhc-album.album-2 .fhc-acell {
+	aspect-ratio: 1 / 1
+}
+
+.fhc-album.album-3 {
+	grid-template-columns: 2fr 1fr;
+	grid-template-rows: 1fr 1fr;
+	aspect-ratio: 1 / 1
+}
+
+.fhc-album.album-3 .fhc-acell:nth-child(1) {
+	grid-row: 1 / 3
+}
+
+.fhc-album.album-4 {
+	grid-template-columns: 1fr 1fr
+}
+
+.fhc-album.album-4 .fhc-acell {
+	aspect-ratio: 1 / 1
+}
+
+.fhc-album.album-more {
+	grid-template-columns: 1fr 1fr
+}
+
+.fhc-album.album-more .fhc-acell {
+	aspect-ratio: 1 / 1
+}
+
+.fhc-album.album-more .fhc-acell:nth-child(n+5) {
+	display: none
+}
+
+.fhc-amore {
+	position: absolute;
+	inset: 0;
+	background: rgba(15, 23, 42, .52);
+	color: var(--bs-white);
+	font-size: 22px;
+	font-weight: 800;
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+
+/* ===== Lightbox ===== */
+.fhc-lb {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	background: rgba(8, 10, 16, .94);
+	display: none;
+	align-items: center;
+	justify-content: center
+}
+
+.fhc-lb.fhc-open {
+	display: flex
+}
+
+.fhc-lb-bar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 52px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 14px;
+	z-index: 2
+}
+
+.fhc-lb-count {
+	color: var(--bs-white);
+	font-size: 13.5px;
+	font-weight: 700;
+	text-shadow: 0 1px 3px rgba(0, 0, 0, .5)
+}
+
+.fhc-lb-x {
+	width: 38px;
+	height: 38px;
+	border: 0;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, .14);
+	color: var(--bs-white);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer
+}
+
+.fhc-lb-x:hover {
+	background: rgba(255, 255, 255, .26)
+}
+
+.fhc-lb-stage {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden
+}
+
+.fhc-lb-img {
+	max-width: 100vw;
+	max-height: 100vh;
+	object-fit: contain;
+	transition: transform .15s ease;
+	user-select: none;
+	-webkit-user-drag: none;
+	touch-action: none
+}
+
+.fhc-lb-nav {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 44px;
+	height: 44px;
+	border: 0;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, .14);
+	color: var(--bs-white);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	z-index: 2
+}
+
+.fhc-lb-nav:hover {
+	background: rgba(255, 255, 255, .26)
+}
+
+.fhc-lb-prev {
+	left: 12px
+}
+
+.fhc-lb-next {
+	right: 12px
+}
+
+@media (max-width:560px) {
+	.fhc-lb-nav {
+		width: 38px;
+		height: 38px
+	}
+
+	.fhc-lb-prev {
+		left: 6px
+	}
+
+	.fhc-lb-next {
+		right: 6px
+	}
+}
+
+.fhc-mtime {
+	font-size: 8px;
+	color: var(--fhc-muted);
+	margin-top: 4px;
+	text-align: left
+}
+
+/* Tin GỬI: đẩy giờ về phải (tránh badge cảm xúc mirror góc dưới-trái đè lên giờ) */
+.fhc-msg.me .fhc-mtime {
+	text-align: right
+}
+
+.fhc-bub-img .fhc-mtime {
+	padding: 2px 6px 1px
+}
+
+.fhc-typing {
+	padding: 4px 14px 0;
+	font-size: 11.5px;
+	font-style: italic;
+	color: var(--fhc-muted);
+	background: var(--bs-white)
+}
+
+.fhc-composer {
+	padding: 10px 14px 10px;
+	background: var(--bs-white);
+	border-top: 1px solid var(--fhc-line)
+}
+
+/* Pill nhập tin: 1 khối bo tròn chứa icon đính kèm + ô gõ + gửi; dòng gợi ý phím bên dưới. */
+.fhc-cbar {
+	display: flex;
+	align-items: flex-end;
+	gap: 4px;
+	background: #f4f6f9;
+	border: 1px solid var(--fhc-line2);
+	border-radius: 24px;
+	padding: 4px 6px
+}
+
+.fhc-cbar:focus-within {
+	border-color: var(--fhc-fh);
+	box-shadow: 0 0 0 2px rgba(159, 34, 58, .1);
+	background: var(--bs-white)
+}
+
+#fhc-input {
+	flex: 1;
+	min-width: 0;
+	resize: none;
+	border: 0;
+	background: transparent;
+	outline: none;
+	padding: 8px 4px;
+	font-size: 14px;
+	line-height: 1.4;
+	max-height: 96px;
+	overflow-y: auto;
+	font-family: inherit;
+	color: var(--fhc-ink)
+}
+
+.fhc-attach {
+	flex-shrink: 0;
+	width: 36px;
+	height: 36px;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--fhc-muted);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer
+}
+
+.fhc-attach:hover {
+	background: rgba(15, 23, 42, .05);
+	color: var(--fhc-accent)
+}
+
+.fhc-attach:disabled {
+	opacity: .5;
+	cursor: default
+}
+
+.fhc-send {
+	flex-shrink: 0;
+	width: 36px;
+	height: 36px;
+	border: 0;
+	border-radius: 50%;
+	background: var(--fhc-fh);
+	color: var(--bs-white);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: background .2s, box-shadow .2s
+}
+
+.fhc-send:hover {
+	background: #7a1a2e;
+	box-shadow: 0 2px 8px rgba(159, 34, 58, .35)
+}
+
+.fhc-send:disabled {
+	background: #bcc2d4;
+	box-shadow: none;
+	cursor: default
+}
+
+.fhc-hint {
+	text-align: center;
+	font-size: 11px;
+	color: var(--fhc-muted);
+	margin-top: 3px
+}
+
+.fhc-hint b {
+	font-weight: 700;
+	color: var(--fhc-sub)
+}
+
+/* mobile */
+@media (max-width:560px) {
+	.fhc-panel {
+		width: 100vw
+	}
+
+	.fhc-fab {
+		left: 16px;
+		bottom: 74px
+	}
+}
+
+/* ===== Thả cảm xúc (6 emoji) ===== */
+.fhc-react {
+	flex-shrink: 0;
+	align-self: center;
+	width: 26px;
+	height: 26px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-muted);
+	opacity: 0;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	transition: opacity .12s
+}
+
+.fhc-msg:hover .fhc-react {
+	opacity: 1
+}
+
+.fhc-react:hover {
+	background: #eef1f5;
+	color: var(--fhc-accent)
+}
+
+@media (max-width:560px) {
+	.fhc-react {
+		display: none
+	}
+}
+
+/* popup chọn cảm xúc (nổi trên bóng kiểu Zalo, dùng chung 1 instance).
+   z-index PHẢI > .fhc-panel (99981) vì picker là anh em của panel trong #fhchat —
+   thấp hơn sẽ bị panel che khuất (picker mở ra nhưng nằm sau panel → như không bấm được). */
+.fhc-picker {
+	position: fixed;
+	z-index: 99990;
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	padding: 5px 7px;
+	background: var(--bs-white);
+	border: 1px solid var(--fhc-line2);
+	border-radius: 22px;
+	box-shadow: 0 6px 24px rgba(15, 23, 42, .18);
+	transform-origin: center bottom;
+	animation: fhcPkIn .12s ease
+}
+
+@keyframes fhcPkIn {
+	from {
+		opacity: 0;
+		transform: translateY(4px) scale(.92)
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1)
+	}
+}
+
+.fhc-pk-emo {
+	width: 34px;
+	height: 34px;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+	font-size: 22px;
+	line-height: 1;
+	border-radius: 50%;
+	transition: transform .1s, background .1s
+}
+
+.fhc-pk-emo:hover {
+	transform: scale(1.25);
+	background: #f1f3f7
+}
+
+.fhc-pk-emo.on {
+	background: var(--fhc-accent-soft)
+}
+
+.fhc-pk-sep {
+	width: 1px;
+	height: 22px;
+	margin: 0 3px;
+	background: var(--fhc-line2)
+}
+
+.fhc-pk-reply {
+	width: 32px;
+	height: 32px;
+	border: 0;
+	background: transparent;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%
+}
+
+.fhc-pk-reply:hover {
+	background: #eef1f5;
+	color: var(--fhc-accent)
+}
+
+/* ===== Badge cảm xúc kiểu ZALO — pill nhỏ ĐÈ ~nửa chip lên GÓC DƯỚI bóng =====
+   .fhc-mwrap có position:relative → badge absolute neo theo wrap (bao cả .fhc-bub / .fhc-bub-img).
+   Tin NHẬN → góc dưới-PHẢI bóng; tin GỬI (.me) → mirror dưới-TRÁI. Không dùng :has(). */
+.fhc-reacts {
+	position: absolute;
+	bottom: -9px;
+	/* đè ~nửa chip (cao 19px) lên mép dưới bóng — overlap, KHÔNG tách rời */
+	right: 8px;
+	/* TIN NHẬN: bám góc dưới-PHẢI */
+	left: auto;
+	z-index: 2;
+	/* nổi trên bóng & giờ; dưới picker fixed (99990) */
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	margin: 0;
+	padding: 1px 6px;
+	height: 19px;
+	box-sizing: border-box;
+	background: var(--bs-white);
+	border-radius: 999px;
+	box-shadow: 0 1px 3px rgba(15, 23, 42, .14);
+	cursor: pointer;
+	white-space: nowrap;
+	line-height: 1
+}
+
+/* TIN GỬI của mình: MIRROR sang góc dưới-TRÁI bóng */
+.fhc-msg.me .fhc-reacts {
+	right: auto;
+	left: 8px
+}
+
+.fhc-reacts .fhc-rc {
+	font-size: 13px;
+	line-height: 1
+}
+
+/* Số tổng: JS chỉ render khi total>1 (1 cảm xúc → chỉ emoji, kiểu Zalo) */
+.fhc-reacts .fhc-rn {
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--fhc-sub);
+	margin-left: 2px;
+	line-height: 1
+}
+
+.fhc-reacts.mine .fhc-rn {
+	color: var(--fhc-accent)
+}
+
+@media (max-width: 560px) {
+	.fhc-reacts {
+		height: 18px;
+		padding: 1px 5px;
+		bottom: -8px;
+		right: 6px
+	}
+
+	.fhc-msg.me .fhc-reacts {
+		left: 6px;
+		right: auto
+	}
+
+	.fhc-reacts .fhc-rc {
+		font-size: 12.5px
+	}
+}
+
+/* ===== Tạo nhóm (P2): nút tab + modal + picker ===== */
+.fhc-tab-new {
+	color: var(--fhc-accent);
+	border-color: var(--fhc-accent-soft);
+	font-weight: 700
+}
+
+.fhc-tab-new:hover {
+	background: var(--fhc-accent-soft)
+}
+
+/* Overlay — z-index > .fhc-panel (99981) để nổi trên panel */
+.fhc-cg {
+	position: fixed;
+	inset: 0;
+	z-index: 99990;
+	background: rgba(15, 23, 42, .45);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px
+}
+
+.fhc-cg-box {
+	width: 380px;
+	max-width: 100%;
+	max-height: 86vh;
+	background: var(--bs-white);
+	border-radius: 16px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	box-shadow: 0 18px 50px rgba(15, 23, 42, .3)
+}
+
+.fhc-cg-head {
+	display: flex;
+	align-items: center;
+	padding: 14px 16px;
+	border-bottom: 1px solid var(--fhc-line)
+}
+
+.fhc-cg-title {
+	flex: 1;
+	font-weight: 800;
+	font-size: 15.5px;
+	color: var(--fhc-ink)
+}
+
+.fhc-cg-x {
+	width: 32px;
+	height: 32px;
+	border: 0;
+	background: #f4f6f9;
+	border-radius: 50%;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+
+.fhc-cg-x:hover {
+	background: #e9edf3;
+	color: var(--fhc-ink)
+}
+
+.fhc-cg-top {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 16px
+}
+
+.fhc-cg-ava {
+	width: 52px;
+	height: 52px;
+	flex-shrink: 0;
+	border-radius: 50%;
+	border: 2px dashed var(--fhc-line2);
+	background-size: cover;
+	background-position: center;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+
+.fhc-cg-ava.has {
+	border-style: solid;
+	border-color: var(--fhc-accent)
+}
+
+.fhc-cg-ava-ph {
+	font-size: 22px;
+	color: var(--fhc-muted);
+	line-height: 1
+}
+
+.fhc-cg-name {
+	flex: 1;
+	min-width: 0;
+	border: 1px solid var(--fhc-line2);
+	border-radius: 10px;
+	padding: 10px 12px;
+	font-size: 14px;
+	color: var(--fhc-ink)
+}
+
+.fhc-cg-name:focus {
+	outline: 0;
+	border-color: var(--fhc-accent)
+}
+
+.fhc-cg-filter {
+	display: flex;
+	gap: 8px;
+	padding: 0 16px 10px
+}
+
+.fhc-cg-dept,
+.fhc-cg-q {
+	border: 1px solid var(--fhc-line2);
+	border-radius: 9px;
+	padding: 8px 10px;
+	font-size: 13px;
+	color: var(--fhc-ink);
+	background: var(--bs-white)
+}
+
+.fhc-cg-dept {
+	flex-shrink: 0;
+	max-width: 45%
+}
+
+.fhc-cg-q {
+	flex: 1;
+	min-width: 0
+}
+
+.fhc-cg-list {
+	flex: 1;
+	overflow-y: auto;
+	border-top: 1px solid var(--fhc-line);
+	padding: 6px 8px
+}
+
+.fhc-cg-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 7px 8px;
+	border-radius: 10px;
+	cursor: pointer
+}
+
+.fhc-cg-row:hover {
+	background: var(--fhc-bg)
+}
+
+.fhc-cg-row.on {
+	background: var(--fhc-accent-soft)
+}
+
+.fhc-cg-av {
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	object-fit: cover;
+	background: var(--fhc-line)
+}
+
+.fhc-cg-info {
+	flex: 1;
+	min-width: 0
+}
+
+.fhc-cg-nm {
+	font-size: 13.5px;
+	font-weight: 600;
+	color: var(--fhc-ink);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+
+.fhc-cg-dp {
+	font-size: 11.5px;
+	color: var(--fhc-sub);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+
+.fhc-cg-ck {
+	width: 20px;
+	height: 20px;
+	flex-shrink: 0;
+	border: 2px solid var(--fhc-line2);
+	border-radius: 50%
+}
+
+.fhc-cg-row.on .fhc-cg-ck {
+	border-color: var(--fhc-accent);
+	background: var(--fhc-accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/13px no-repeat
+}
+
+.fhc-cg-empty {
+	text-align: center;
+	color: var(--fhc-muted);
+	font-size: 13px;
+	padding: 22px 10px
+}
+
+.fhc-cg-foot {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 16px;
+	border-top: 1px solid var(--fhc-line)
+}
+
+.fhc-cg-cnt {
+	flex: 1;
+	font-size: 12.5px;
+	color: var(--fhc-sub)
+}
+
+.fhc-cg-btn {
+	border: 0;
+	border-radius: 10px;
+	padding: 10px 18px;
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--bs-white);
+	background: var(--fhc-accent);
+	cursor: pointer
+}
+
+.fhc-cg-btn:disabled {
+	background: #bcc2d4;
+	cursor: default
+}
+
+@media (max-width: 560px) {
+	.fhc-cg-box {
+		width: 100%;
+		max-height: 92vh
+	}
+}
+
+/* Chế độ Thêm-TV: ẩn ô tên + ảnh (tái dùng modal tạo nhóm) */
+.fhc-cg.fhc-cg-addmode .fhc-cg-top {
+	display: none
+}
+
+/* ===== Panel quản trị nhóm (P3) ===== */
+.fhc-mng {
+	position: fixed;
+	inset: 0;
+	z-index: 99990;
+	background: rgba(15, 23, 42, .45);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px
+}
+
+.fhc-mng-box {
+	width: 380px;
+	max-width: 100%;
+	max-height: 86vh;
+	background: var(--bs-white);
+	border-radius: 16px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	box-shadow: 0 18px 50px rgba(15, 23, 42, .3)
+}
+
+.fhc-mng-head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 14px;
+	border-bottom: 1px solid var(--fhc-line)
+}
+
+.fhc-mng-x {
+	width: 32px;
+	height: 32px;
+	border: 0;
+	background: #f4f6f9;
+	border-radius: 50%;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+
+.fhc-mng-x:hover {
+	background: #e9edf3;
+	color: var(--fhc-ink)
+}
+
+.fhc-mng-title {
+	flex: 1;
+	font-weight: 800;
+	font-size: 15px;
+	color: var(--fhc-ink);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+
+.fhc-mng-body {
+	flex: 1;
+	overflow-y: auto;
+	padding: 10px 0
+}
+
+.fhc-mng-load,
+.fhc-mng-sec {
+	padding: 8px 16px;
+	font-size: 12px;
+	color: var(--fhc-sub);
+	font-weight: 700
+}
+
+.fhc-mng-list {
+	padding: 0 8px
+}
+
+.fhc-mng-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 6px 8px;
+	border-radius: 10px
+}
+
+.fhc-mng-row:hover {
+	background: var(--fhc-bg)
+}
+
+.fhc-mng-badge {
+	font-size: 10.5px;
+	font-weight: 700;
+	color: var(--fhc-accent);
+	background: var(--fhc-accent-soft);
+	border-radius: 999px;
+	padding: 1px 7px;
+	margin-left: 4px
+}
+
+.fhc-mng-mini {
+	width: 28px;
+	height: 28px;
+	flex-shrink: 0;
+	border: 1px solid var(--fhc-line2);
+	background: var(--bs-white);
+	border-radius: 8px;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	font-size: 13px;
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+
+.fhc-mng-mini:hover {
+	background: var(--fhc-bg)
+}
+
+.fhc-mng-mini.danger:hover {
+	background: var(--fhc-bad-soft);
+	color: var(--fhc-bad);
+	border-color: #f3cfcf
+}
+
+.fhc-mng-acts {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 12px 16px;
+	border-top: 1px solid var(--fhc-line)
+}
+
+.fhc-mng-btn {
+	display: block;
+	border: 1px solid var(--fhc-line2);
+	background: var(--bs-white);
+	border-radius: 10px;
+	padding: 10px 12px;
+	font-size: 13.5px;
+	font-weight: 600;
+	color: var(--fhc-ink);
+	cursor: pointer;
+	text-align: center
+}
+
+.fhc-mng-btn:hover {
+	background: var(--fhc-bg)
+}
+
+.fhc-mng-btn.danger {
+	color: var(--fhc-bad);
+	border-color: #f3cfcf
+}
+
+.fhc-mng-btn.danger:hover {
+	background: var(--fhc-bad-soft)
+}
+
+@media (max-width: 560px) {
+	.fhc-fab {
+		visibility: hidden;
+	}
+
+	.fhc-mng-box {
+		width: 100%;
+		max-height: 92vh
+	}
+}
+
+/* ===== Vỏ nav P4: header mode (list/thread) + danh sách hội thoại Zalo ===== */
+.fhc-back {
+	width: 34px;
+	height: 34px;
+	border: 0;
+	background: #f4f6f9;
+	border-radius: 25px;
+	color: var(--fhc-sub);
+	cursor: pointer;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0
+}
+
+.fhc-back:hover {
+	background: #e9edf3;
+	color: var(--fhc-ink)
+}
+
+#fhchat.fhc-mode-thread .fhc-back {
+	display: flex
+}
+
+#fhchat.fhc-mode-thread .fhc-logo,
+#fhchat.fhc-mode-thread .fhc-logo-img {
+	display: none
+}
+
+#fhc-manage {
+	display: none
+}
+
+#fhchat.fhc-mode-thread.fhc-has-gmenu #fhc-manage {
+	display: flex
+}
+
+.fhc-conv-top {
+	display: flex;
+	align-items: center;
+	padding: 12px 14px 6px
+}
+
+.fhc-conv-h {
+	flex: 1;
+	font-weight: 800;
+	font-size: 15px;
+	color: var(--fhc-ink)
+}
+
+.fhc-conv-newbtn {
+	border: 1px solid var(--fhc-accent-soft);
+	background: var(--fhc-accent-soft);
+	color: var(--fhc-accent);
+	font-weight: 700;
+	font-size: 12.5px;
+	border-radius: 999px;
+	padding: 6px 12px;
+	cursor: pointer
+}
+
+.fhc-conv-newbtn:hover {
+	background: #e3e6ff
+}
+
+.fhc-conv-sec {
+	padding: 9px 14px 4px;
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--fhc-sub);
+	text-transform: uppercase;
+	letter-spacing: .3px
+}
+
+.fhc-conv-empty {
+	padding: 8px 14px 16px;
+	color: var(--fhc-muted);
+	font-size: 13px
+}
+
+.fhc-conv {
+	display: flex;
+	align-items: center;
+	gap: 11px;
+	padding: 9px 14px;
+	cursor: pointer;
+	transition: background .15s ease;
+	border-radius: 8px;
+	margin: 0 6px
+}
+
+.fhc-conv:hover {
+	background: #fdf2f4
+}
+
+.fhc-conv-av {
+	width: 44px;
+	height: 44px;
+	flex-shrink: 0;
+	border-radius: 50%;
+	position: relative;
+	overflow: hidden
+}
+
+.fhc-conv-gl {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 800;
+	font-size: 17px
+}
+
+.fhc-conv-img {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover
+}
+
+.fhc-conv-main {
+	flex: 1;
+	min-width: 0
+}
+
+.fhc-conv-nm {
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--fhc-ink);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+
+.fhc-conv-last {
+	font-size: 12.5px;
+	color: var(--fhc-sub);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-top: 2px
+}
+
+.fhc-conv-who {
+	font-weight: 600;
+	color: var(--fhc-ink)
+}
+
+/* AngularJS: ẩn template tới khi compile xong (an toàn nếu thiếu style built-in) */
+[ng-cloak] {
+	display: none !important
+}
+
+/* Picker cảm xúc inline (bản Angular) — nổi ngay trên bóng tin */
+.fhc-picker-inline {
+	position: absolute;
+	bottom: 100%;
+	right: 0;
+	margin-bottom: 6px;
+	z-index: 5
+}
+
+#fhchat.fhc-mode-thread .fhc-mwrap {
+	position: relative
+}
+
+.fhc-conv-meta {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 4px;
+	flex-shrink: 0
+}
+
+.fhc-conv-tm {
+	font-size: 11px;
+	color: var(--fhc-muted)
+}
+
+.fhc-conv-ub {
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	border-radius: 999px;
+	background: var(--fhc-fh);
+	color: var(--bs-white);
+	font-size: 11px;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	justify-content: center
+}
+</style>
+<script src="cdn/angular.min.js"></script>
+<script>window.jQuery = window.jQuery || { param: function(o){ var s=[],k; for(k in (o||{})){ if(o.hasOwnProperty(k)){ s.push(encodeURIComponent(k)+'='+encodeURIComponent(o[k])); } } return s.join('&'); } };</script>
+</head><body style="background:#eef">
+
+<div id="fhchat" ng-controller="ChatCtrl as c" ng-cloak
+	ng-class="{'fhc-mode-thread': c.tab==='chat' && c.view==='thread', 'fhc-mode-list': !(c.tab==='chat' && c.view==='thread'), 'fhc-has-gmenu': c.isGroup()}">
+	<script>window.CHAT_BOOT = { profile_id: 7, ajax: '' };</script>
+	<!-- FAB -->
+	<button type="button" class="fhc-fab" ng-class="{'fhc-hide': c.open}" ng-click="c.toggle()" aria-label="Chat nội bộ">
+		<svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a3 3 0 0 1-3 3H8l-5 4V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3Z"/></svg>
+		<span class="fhc-badge" ng-show="c.unreadTotal > 0">{{ c.unreadTotal > 99 ? '99+' : c.unreadTotal }}</span>
+	</button>
+	<!-- Panel -->
+	<div class="fhc-panel" ng-class="{'fhc-open': c.open}">
+		<!-- Header -->
+		<div class="fhc-head">
+			<button type="button" class="fhc-back" ng-click="c.backToList()" aria-label="Quay lại">
+				<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+			</button>
+			<img class="fhc-logo-img" src="{$URL_IMAGES}/logo-icon.png" alt="Future Homes" onerror="this.src='/application/themes/images/logo-icon.png'" />
+			<div class="fhc-ti">
+				<div class="fhc-t">Chat nội bộ</div>
+				<div class="fhc-s">{{ c.view==='thread' ? c.curName() : (c.tab==='checkin' ? 'Kênh Check-in' : 'Trò chuyện') }}</div>
+			</div>
+			<button type="button" class="fhc-x" ng-if="c.tab==='chat' && c.view==='thread' && c.isGroup()" ng-click="c.gAddOpen()" aria-label="Thêm thành viên">
+				<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+					<circle cx="9" cy="7" r="4"/>
+					<line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+				</svg>
+			</button>
+			<button type="button" class="fhc-x" id="fhc-manage" ng-click="c.manageGroup()" aria-label="Cài đặt nhóm">
+				<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+			</button>
+			<button type="button" class="fhc-x fhc-bell" ng-if="c.notifyNeedsEnable()" ng-click="c.askNotify()" aria-label="Bật thông báo">
+					<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+				</button>
+				<button type="button" class="fhc-x" ng-click="c.close()" aria-label="Đóng">
+				<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+			</button>
+		</div>
+		<!-- Tabs -->
+		<div class="fhc-tabs">
+			<div class="fhc-tab" ng-class="{active: c.tab==='chat'}" ng-click="c.setTab('chat')">
+				<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M21 15a3 3 0 0 1-3 3H8l-5 4V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3Z"></path>
+				</svg> Trò chuyện
+			</div>
+			<div class="fhc-tab" ng-class="{active: c.tab==='checkin'}" ng-click="c.setTab('checkin')">
+				<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+					<rect x="3" y="4" width="18" height="18" rx="3"/>
+					<path d="M16 2v4M8 2v4M3 10h18"/>
+				</svg> Check-in
+			</div>
+		</div>
+
+		<!-- Ghim tin nhắn đính liền dưới tabbar (hỗ trợ nhiều tin ghim) -->
+		<div class="fhc-pinbar-container" ng-if="c.tab==='chat' && c.view==='thread' && c.pinnedList.length > 0">
+			<div class="fhc-pinbar" ng-click="c.pinnedList.length === 1 ? c.scrollToMsg(c.pinnedList[0].message_id) : (c.pinOpen = !c.pinOpen)">
+				<svg class="fhc-pb-ic" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6l-1 7 3 3v2H7v-2l3-3-1-7Z"/><line x1="12" y1="16" x2="12" y2="22"/></svg>
+				<div class="fhc-pb-body">
+					<div class="fhc-pb-lbl">Tin đã ghim ({{ c.pinnedList.length }})</div>
+					<div class="fhc-pb-prev"><b ng-if="c.pinnedList[0].name">{{ c.pinnedList[0].name }}:</b> {{ c.pinnedList[0].preview }}</div>
+				</div>
+				<!-- Nút toggle mở rộng nếu có nhiều hơn 1 tin ghim -->
+				<button type="button" class="fhc-pb-toggle" ng-if="c.pinnedList.length > 1" ng-click="c.pinOpen = !c.pinOpen; $event.stopPropagation();" aria-label="Xem thêm ghim">
+					<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ng-style="{transform: c.pinOpen ? 'rotate(180deg)' : 'none'}"><path d="M6 9l6 6 6-6"/></svg>
+				</button>
+				<!-- Nút bỏ ghim nếu chỉ có 1 tin -->
+				<button type="button" class="fhc-pb-x" ng-if="c.pinnedList.length === 1" ng-click="c.unpinOne(c.pinnedList[0].message_id, $event)" aria-label="Bỏ ghim">
+					<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+				</button>
+			</div>
+			
+			<!-- Danh sách chi tiết các tin ghim khi bấm mở rộng -->
+			<div class="fhc-pin-list" ng-if="c.pinnedList.length > 1 && c.pinOpen">
+				<div class="fhc-pin-item" ng-repeat="p in c.pinnedList track by p.message_id" ng-click="c.scrollToMsg(p.message_id)">
+					<svg class="fhc-pb-ic" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; opacity: 0.7;"><path d="M9 4h6l-1 7 3 3v2H7v-2l3-3-1-7Z"/><line x1="12" y1="16" x2="12" y2="22"/></svg>
+					<div class="fhc-pin-item-body"><b ng-if="p.name">{{ p.name }}:</b> {{ p.preview }}</div>
+					<button type="button" class="fhc-pin-item-x" ng-click="c.unpinOne(p.message_id, $event)" aria-label="Bỏ ghim">✕</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Body -->
+		<div class="fhc-body" id="fhc-ng-body">
+			<!-- TAB CHECK-IN (camera + GPS) -->
+			<div ng-if="c.tab==='checkin'">
+				<div class="fhc-empty" ng-if="c.ck.loading">Đang tải…</div>
+				<div ng-if="!c.ck.loading && c.ck.my">
+					<!-- FORM XÁC NHẬN: ảnh + vị trí + ghi chú → bấm "Hoàn tất" mới gửi (chỉ hiện khi state='review') -->
+					<div class="fhc-review" ng-if="c.ck.state==='review'">
+						<div class="fhc-rvh">
+							<span class="fhc-rvt">Thông tin check-in</span>
+							<button type="button" class="fhc-rvx" ng-click="c.ckCancel()" aria-label="Đóng">×</button>
+						</div>
+						<div class="fhc-fld">
+							<label class="fhc-flbl">Vị trí (GPS)</label>
+							<div class="fhc-loc" ng-class="{ready: c.ck.address && !c.ck.geoErr, bad: c.ck.geoErr}">
+								<svg class="fhc-locico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+								<span class="fhc-loctxt">
+									<span ng-if="c.ck.geoErr">{{ c.ck.geoErr }} <a class="fhc-rvlink" ng-click="c.ckRetryGeo()">Thử lại</a></span>
+									<span ng-if="!c.ck.geoErr && c.ck.address">{{ c.ck.address }}</span>
+									<span ng-if="!c.ck.geoErr && !c.ck.address && c.ck.addrLoading" class="fhc-locwait">Đang lấy địa chỉ…</span>
+									<span ng-if="!c.ck.geoErr && !c.ck.address && !c.ck.addrLoading && c.ck.geoReady">Không lấy được địa chỉ <a class="fhc-rvlink" ng-click="c.ckRetryAddr()">Thử lại</a></span>
+									<span ng-if="!c.ck.geoErr && !c.ck.geoReady" class="fhc-locwait">{{ c.ck.geoMsg || 'Đang định vị…' }}</span>
+								</span>
+								<svg class="fhc-locok" ng-if="c.ck.address && !c.ck.geoErr" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+							</div>
+						</div>
+						<div class="fhc-fld">
+							<label class="fhc-flbl">Ảnh chụp</label>
+							<div class="fhc-shot"><img ng-src="{{ c.ck.photo }}" alt=""></div>
+						</div>
+						<div class="fhc-fld">
+							<label class="fhc-flbl">Ghi chú (không bắt buộc)</label>
+							<input type="text" class="fhc-noteinp" ng-model="c.ck.note" maxlength="255" placeholder="Bạn đang làm gì? Gặp ai? …">
+						</div>
+						<div class="fhc-suberr" ng-if="c.ck.subErr">{{ c.ck.subErr }}</div>
+						<button class="fhc-cta" type="button" ng-click="c.ckSubmit()" ng-disabled="!c.ck.address || c.ck.posting">
+							<svg ng-if="c.ck.posting" class="fhc-spin" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.2-8.5"/></svg>
+							{{ c.ck.posting ? 'Đang gửi…' : 'Hoàn tất check-in' }}
+						</button>
+					</div>
+					<!-- Header info + tiến độ -->
+					<div class="fhc-info" ng-if="c.ck.state!=='review'">
+						<div class="fhc-top">
+							<div class="fhc-clock">
+								<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+									<circle cx="12" cy="12" r="9"/>
+									<path d="M12 7v5l3 2"/>
+								</svg>
+							</div>
+							<div>
+								<h2>Check-in</h2>
+								<span class="fhc-chip" ng-if="c.ck.my.count"><span class="fhc-dot"></span> Hôm nay {{ c.ck.my.count }} lần · gần nhất {{ c.ck.my.last_time }}</span>
+								<p>Gửi 1 ảnh kèm vị trí để ghi nhận. Có thể check-in nhiều lần trong ngày.</p>
+							</div>
+						</div>
+					</div>
+					<!-- Thẻ trạng thái: chỉ còn 'idle' (chụp ảnh) — 'review' xử lý ở form xác nhận phía trên -->
+					<div class="fhc-my idle" ng-if="c.ck.state==='idle'">
+						<div ng-if="c.ck.state==='idle'">
+							<div class="fhc-h">
+								<span class="fhc-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z"/><circle cx="12" cy="13" r="4"/></svg></span> Sẵn sàng check-in
+							</div>
+							<div class="fhc-stxt">Chụp 1 ảnh kèm vị trí GPS để ghi nhận.</div>
+							<button class="fhc-cta" type="button" ng-click="c.ckOnCta()">
+								<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z"/><circle cx="12" cy="13" r="4"/></svg>
+								Chụp ảnh check-in
+							</button>
+						</div>
+					</div>
+					<!-- Feed đã check-in hôm nay -->
+					<div class="fhc-feedh" ng-if="c.ck.state!=='review'"><span>Đã check-in hôm nay</span><span class="fhc-cnt">{{ c.ckFeedList().length }}</span></div>
+					<div class="fhc-row" ng-if="c.ck.state!=='review'" ng-repeat="it in c.ckFeedList() track by $index">
+						<img class="fhc-av" ng-src="{{ it.avatar }}" alt="" onerror="this.style.visibility='hidden'">
+						<div class="fhc-who"><div class="fhc-nm">{{ it.name }}</div><div class="fhc-tm"><a ng-if="it.lat || it.lng" ng-href="{{ c.ckMapUrl(it) }}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg> <span ng-if="it.address">{{ it.address }}</span><span ng-if="!it.address">{{ it.lat | number:5 }},{{ it.lng | number:5 }}</span></a> · {{ it.time }}</div><div class="fhc-rnote" ng-if="it.note">{{ it.note }}</div></div>
+						<img class="fhc-cap" ng-if="it.photo" ng-src="{{ it.photo }}" alt="">
+					</div>
+					<div class="fhc-feedempty" ng-if="!c.ckFeedList().length && c.ck.state!=='review'">
+						<div class="fhc-fe-ic"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0M12 2v7M4.2 10.2l1.4 1.4M1 18h2M21 18h2M18.4 11.6l1.4-1.4M23 22H1M8 6l4-3 4 3"/></svg></div>
+						<div class="fhc-fe-t">Chưa có ai check-in</div>
+						<div class="fhc-fe-s">Hãy là người đầu tiên check-in hôm nay.</div>
+					</div>
+				</div>
+				<input type="file" id="fhc-ck-file" accept="image/*" capture="environment" class="d-none" fhc-file="c.ckOnPhoto($input)">
+			</div>
+			<!-- TAB CHAT — LỚP LIST -->
+			<div ng-if="c.tab==='chat' && c.view==='list'">
+				<div class="fhc-conv-top"><span class="fhc-conv-h">Trò chuyện</span>
+					<button type="button" class="fhc-conv-newbtn" ng-click="c.createGroup()">＋ Tạo nhóm</button></div>
+				<div class="fhc-conv-sec">Hệ thống</div>
+				<div class="fhc-conv" ng-repeat="ch in c.sysChans()" ng-click="c.openConv(ch.channel_id)">
+					<div class="fhc-conv-av"><span class="fhc-conv-gl" ng-style="{background: c.tint(ch.channel_id)[0], color: c.tint(ch.channel_id)[1]}">{{ c.initial(ch.name) }}</span><img class="fhc-conv-img" ng-if="ch.image" ng-src="{{ch.image}}" onerror="this.remove()"></div>
+					<div class="fhc-conv-main"><div class="fhc-conv-nm">{{ ch.name }}</div><div class="fhc-conv-last"><b class="fhc-conv-who" ng-if="ch.last_sender">{{ ch.last_sender }}:</b> {{ ch.last_msg || 'Chưa có tin nhắn' }}</div></div>
+					<div class="fhc-conv-meta"><svg class="fhc-conv-muteic" ng-if="ch.muted" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg><div class="fhc-conv-tm">{{ ch.last_at }}</div><span class="fhc-conv-ub" ng-if="ch.unread > 0">{{ ch.unread > 99 ? '99+' : ch.unread }}</span></div>
+					<div class="fhc-conv-act" ng-click="$event.stopPropagation()">
+						<button type="button" class="fhc-conv-more" ng-click="c.openConvMenu(ch, $event)" aria-label="Tuỳ chọn"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button>
+						<div class="fhc-conv-menu" ng-if="ch._cmenu">
+							<button type="button" class="fhc-menu-item" ng-if="ch.type==4" ng-click="c.togglePin(ch, $event); c.closeConvMenu()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6l-1 7 3 3v2H7v-2l3-3-1-7Z"/><line x1="12" y1="16" x2="12" y2="22"/></svg> {{ ch.pinned ? 'Bỏ ghim' : 'Ghim hội thoại' }}</button>
+							<button type="button" class="fhc-menu-item" ng-click="c.toggleMute(ch, $event); c.closeConvMenu()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> {{ ch.muted ? 'Bật thông báo' : 'Tắt thông báo' }}</button>
+						</div>
+					</div>
+				</div>
+				<div class="fhc-conv-sec">Nhóm chat</div>
+				<div class="fhc-conv" ng-repeat="ch in c.grpChans()" ng-click="c.openConv(ch.channel_id)">
+					<div class="fhc-conv-av"><span class="fhc-conv-gl" ng-style="{background: c.tint(ch.channel_id)[0], color: c.tint(ch.channel_id)[1]}">{{ c.initial(ch.name) }}</span><img class="fhc-conv-img" ng-if="ch.image" ng-src="{{ch.image}}" onerror="this.remove()"></div>
+					<div class="fhc-conv-main"><div class="fhc-conv-nm">{{ ch.name }}</div><div class="fhc-conv-last"><b class="fhc-conv-who" ng-if="ch.last_sender">{{ ch.last_sender }}:</b> {{ ch.last_msg || 'Chưa có tin nhắn' }}</div></div>
+					<div class="fhc-conv-meta"><svg class="fhc-conv-muteic" ng-if="ch.muted" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg><div class="fhc-conv-tm">{{ ch.last_at }}</div><span class="fhc-conv-ub" ng-if="ch.unread > 0">{{ ch.unread > 99 ? '99+' : ch.unread }}</span></div>
+					<div class="fhc-conv-act" ng-click="$event.stopPropagation()">
+						<button type="button" class="fhc-conv-more" ng-click="c.openConvMenu(ch, $event)" aria-label="Tuỳ chọn"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button>
+						<div class="fhc-conv-menu" ng-if="ch._cmenu">
+							<button type="button" class="fhc-menu-item" ng-if="ch.type==4" ng-click="c.togglePin(ch, $event); c.closeConvMenu()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6l-1 7 3 3v2H7v-2l3-3-1-7Z"/><line x1="12" y1="16" x2="12" y2="22"/></svg> {{ ch.pinned ? 'Bỏ ghim' : 'Ghim hội thoại' }}</button>
+							<button type="button" class="fhc-menu-item" ng-click="c.toggleMute(ch, $event); c.closeConvMenu()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> {{ ch.muted ? 'Bật thông báo' : 'Tắt thông báo' }}</button>
+						</div>
+					</div>
+				</div>
+				<div class="fhc-conv-empty" ng-if="!c.grpChans().length">Chưa có nhóm. Bấm “＋ Tạo nhóm”.</div>
+			</div>
+			<!-- TAB CHAT — LỚP THREAD -->
+			<div ng-if="c.tab==='chat' && c.view==='thread'" class="fhc-thread">
+				<div class="fhc-empty" ng-if="c.loading">Đang tải…</div>
+				<div class="fhc-empty" ng-if="!c.loading && !c.msgs.length">Chưa có tin nhắn. Bắt đầu trò chuyện 👋</div>
+				<div class="fhc-msg" id="fhc-m-{{ m.message_id }}" ng-class="{me: m.is_me}" ng-repeat="m in c.msgs track by m.message_id" data-mine="{{ m.reactions.mine }}">
+					<div class="fhc-mav" ng-if="!m.is_me" ng-style="{background: c.tint(m.profile_id)[0], color: c.tint(m.profile_id)[1]}">{{ c.initial(m.name) }}<img ng-if="m.avatar" ng-src="{{ m.avatar }}" alt="" onerror="this.remove()"></div>
+					<div class="fhc-mwrap">
+						<div class="fhc-bub" ng-class="{'fhc-bub-img': m.type==2 && c.album(m).length, 'fhc-bub-recalled': m.recalled, 'fhc-bub-men': m._memMe && !m.is_me}">
+							<div class="fhc-mname" ng-if="!m.is_me">{{ m.name }}</div>
+							<div class="fhc-recalled" ng-if="m.recalled"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M3.5 13a9 9 0 1 0 2.6-7.5L3 8"/></svg> Tin nhắn đã được thu hồi</div>
+							<div class="fhc-quote" ng-if="m.reply_to && !m.recalled" ng-click="c.scrollToMsg(m.reply_to.message_id)"><b>{{ m.reply_to.name || 'Tin gốc' }}</b><span class="fhc-q-prev">{{ m.reply_to.preview }}</span></div>
+							<div class="fhc-album album-{{ c.albumLay(m) }}" ng-if="m.type==2 && c.album(m).length && !m.recalled">
+								<div class="fhc-acell" ng-repeat="src in c.album(m) track by $index" ng-click="c.lbOpen(m, $index)"><img ng-src="{{ src }}" alt="" loading="lazy"><span class="fhc-amore" ng-if="c.albumLay(m)=='more' && $index==3">+{{ c.album(m).length - 4 }}</span></div>
+							</div>
+							<div class="fhc-bcap" ng-if="m.type==2 && m.content && !m.recalled">{{ m.content }}</div>
+							<div class="fhc-btx" ng-if="m.type!=2 && !m.recalled"><span ng-repeat="pt in m._parts track by $index" ng-class="{'fhc-men': pt.men}">{{ pt.men ? '@'+pt.name : pt.v }}</span></div>
+							<div class="fhc-mtime">{{ m.time }}</div>
+						</div>
+						<div class="fhc-reacts" ng-class="{mine: m.reactions.mine}" ng-if="m.reactions.total && !m.recalled" ng-click="c.openReactors(m, $event)">
+							<span class="fhc-rc" ng-repeat="e in c.reactCells(m)">{{ e }}</span><span class="fhc-rn" ng-if="m.reactions.total > 1">{{ m.reactions.total }}</span>
+						</div>
+						<div class="fhc-picker fhc-picker-inline" ng-if="m._picker">
+							<button type="button" class="fhc-pk-emo" ng-class="{on: m.reactions.mine===code}" ng-repeat="code in c.REACTS" ng-click="c.react(m, code, $event)">{{ c.EMOJI[code] }}</button>
+						</div>
+						<div class="fhc-rlist" ng-if="m._rlist">
+							<div class="fhc-rl-empty" ng-if="!m._reactors.length">Đang tải…</div>
+							<div class="fhc-rl-item" ng-repeat="rr in m._reactors track by $index">
+								<img class="fhc-rl-av" ng-if="rr.avatar" ng-src="{{ rr.avatar }}" alt="" onerror="this.style.visibility='hidden'">
+								<span class="fhc-rl-nm">{{ rr.name }}</span>
+								<span class="fhc-rl-emo">{{ c.EMOJI[rr.emoji] }}</span>
+							</div>
+						</div>
+					</div>
+					<button type="button" class="fhc-reply" ng-if="!m.recalled" ng-click="c.startReply(m, $event)" aria-label="Trả lời">
+						<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17l-5-5 5-5"/><path d="M4 12h11a5 5 0 0 1 5 5v1"/></svg>
+					</button>
+					<div class="fhc-act" ng-if="!m.recalled">
+						<button type="button" class="fhc-more" ng-class="{active: m._menu}" ng-click="c.openMenu(m, $event)" aria-label="Thêm">
+							<svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+						</button>
+						<div class="fhc-menu" ng-if="m._menu">
+							<button type="button" class="fhc-menu-item" ng-click="c.openPicker(m, $event)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg> Thả cảm xúc</button>
+							<button type="button" class="fhc-menu-item" ng-click="c.pinMessage(m, $event); c.closeMenu()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6l-1 7 3 3v2H7v-2l3-3-1-7Z"/><line x1="12" y1="16" x2="12" y2="22"/></svg> {{ c.isPinned(m.message_id) ? 'Bỏ ghim' : 'Ghim' }}</button>
+							<button type="button" class="fhc-menu-item fhc-menu-danger" ng-if="c.canRecall(m)" ng-click="c.recall(m, $event); c.closeMenu()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M3.5 13a9 9 0 1 0 2.6-7.5L3 8"/></svg> Thu hồi</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="fhc-seen" ng-if="c.seenList.length && c.tab==='chat' && c.view==='thread'">
+				<span class="fhc-seen-lbl">Đã xem</span>
+				<img class="fhc-seen-av" ng-repeat="sv in c.seenList | limitTo:6 track by sv.profile_id" ng-src="{{ sv.avatar }}" alt="" title="{{ sv.name }}" onerror="this.style.visibility='hidden'">
+				<span class="fhc-seen-more" ng-if="c.seenList.length > 6">+{{ c.seenList.length - 6 }}</span>
+			</div>
+			<!-- Composer (chỉ ở thread) -->
+		<div class="fhc-composer d-flex flex-column gap-1" ng-if="c.tab==='chat' && c.view==='thread'">
+			<!-- Thanh trả lời (quote) -->
+			<div class="fhc-reply-bar" ng-if="c.replyTo">
+				<svg class="fhc-rb-ic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17l-5-5 5-5"/><path d="M4 12h11a5 5 0 0 1 5 5v1"/></svg>
+				<div class="fhc-rb-body"><div class="fhc-rb-name">{{ c.replyTo.name }}</div><div class="fhc-rb-prev">{{ c.replyTo.preview }}</div></div>
+				<button type="button" class="fhc-rb-x" ng-click="c.cancelReply()" aria-label="Huỷ trả lời">
+					<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+				</button>
+			</div>
+			<div class="fhc-at" ng-if="c.atOpen && c.atFiltered().length">
+				<button type="button" class="fhc-at-item" ng-repeat="mem in c.atFiltered() track by mem.profile_id" ng-click="c.pickMention(mem)">
+					<img class="fhc-at-av" ng-if="mem.avatar" ng-src="{{ mem.avatar }}" alt="" onerror="this.style.visibility='hidden'">
+					<span class="fhc-at-nm">{{ mem.name }}</span>
+				</button>
+			</div>
+			<div class="fhc-cbar">
+				<label class="fhc-attach" aria-label="Đính kèm ảnh">
+					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+					<input type="file" accept="image/*" multiple class="d-none" fhc-file="c.onPickFiles($input)">
+				</label>
+				<textarea id="fhc-input" rows="1" placeholder="Nhập tin nhắn…" maxlength="2000" ng-model="c.draft" ng-keydown="c.onKey($event)" ng-keyup="c.onCompose($event)" fhc-autogrow></textarea>
+				<button type="button" class="fhc-send" ng-click="c.send()" ng-disabled="c.imgPosting" aria-label="Gửi">
+					<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z"/></svg>
+				</button>
+			</div>
+			<div class="fhc-hint text-center">Enter gửi · <b>Shift</b>+Enter xuống dòng</div>
+		</div>
+	</div>
+	<!-- Lightbox xem ảnh (toàn màn hình) -->
+	<div class="fhc-lb" ng-class="{'fhc-open': c.lb.open}">
+		<div class="fhc-lb-bar">
+			<span class="fhc-lb-count">{{ c.lb.idx + 1 }} / {{ c.lb.srcs.length }}</span>
+			<button type="button" class="fhc-lb-x" ng-click="c.lbClose()" aria-label="Đóng">
+				<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+			</button>
+		</div>
+		<button type="button" class="fhc-lb-nav fhc-lb-prev" ng-if="c.lb.srcs.length > 1" ng-click="c.lbNav(-1, $event)" aria-label="Trước">
+			<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+		</button>
+		<div class="fhc-lb-stage" ng-click="c.lbClose()">
+			<img class="fhc-lb-img" ng-src="{{ c.lb.srcs[c.lb.idx] }}" alt="" ng-style="{transform: c.lb.zoom ? 'scale(2.4)' : 'scale(1)', cursor: c.lb.zoom ? 'zoom-out' : 'zoom-in'}" ng-click="c.lbZoom($event)">
+		</div>
+		<button type="button" class="fhc-lb-nav fhc-lb-next" ng-if="c.lb.srcs.length > 1" ng-click="c.lbNav(1, $event)" aria-label="Sau">
+			<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+		</button>
+	</div>
+	<!-- Modal tạo nhóm / thêm thành viên -->
+	<div class="fhc-cg" ng-class="{'fhc-cg-addmode': c.cg.mode==='add'}" ng-show="c.cg.open">
+		<div class="fhc-cg-box">
+			<div class="fhc-cg-head">
+				<div class="fhc-cg-title">{{ c.cg.mode==='add' ? 'Thêm thành viên' : 'Tạo nhóm chat' }}</div>
+				<button type="button" class="fhc-cg-x" ng-click="c.closeCreate()" aria-label="Đóng">
+					<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+				</button>
+			</div>
+			<div class="fhc-cg-top">
+				<label class="fhc-cg-ava" ng-class="{has: c.cg.img}" ng-style="c.cg.img ? {'background-image': 'url(' + c.cg.img + ')'} : {}" title="Chọn ảnh nhóm">
+					<input type="file" accept="image/*" class="d-none" fhc-file="c.cgPickImage($input)">
+					<span class="fhc-cg-ava-ph" ng-hide="c.cg.img">＋</span>
+				</label>
+				<input type="text" class="fhc-cg-name" placeholder="Tên nhóm…" maxlength="120" ng-model="c.cg.name">
+			</div>
+			<div class="fhc-cg-filter">
+				<select class="fhc-cg-dept" ng-model="c.cg.dept" ng-options="d.id as d.name for d in c.cgDepts()"><option value="">Tất cả phòng</option></select>
+				<input type="text" class="fhc-cg-q" placeholder="Tìm tên…" ng-model="c.cg.q">
+			</div>
+			<div class="fhc-cg-list">
+				<div class="fhc-cg-empty" ng-if="!c.cgFiltered().length">Không có nhân viên phù hợp.</div>
+				<div class="fhc-cg-row" ng-class="{on: c.cgIsPicked(s)}" ng-repeat="s in c.cgFiltered() track by s.id" ng-click="c.cgToggle(s)">
+					<img class="fhc-cg-av" ng-src="{{ s.avatar }}" alt="" onerror="this.style.visibility='hidden'">
+					<div class="fhc-cg-info"><div class="fhc-cg-nm">{{ s.name }}</div><div class="fhc-cg-dp">{{ s.dept_name }}</div></div>
+					<span class="fhc-cg-ck"></span>
+				</div>
+			</div>
+			<div class="fhc-cg-foot">
+				<span class="fhc-cg-cnt">Đã chọn {{ c.cgCount() }}</span>
+				<button type="button" class="fhc-cg-btn" ng-click="c.cgSubmit()" ng-disabled="c.cg.submitting">{{ c.cg.mode==='add' ? 'Thêm' : 'Tạo nhóm' }}</button>
+			</div>
+		</div>
+	</div>
+	<!-- Panel quản trị nhóm -->
+	<div class="fhc-mng" ng-show="c.mng.open">
+		<div class="fhc-mng-load" ng-if="c.mng.loading">Đang tải…</div>
+		<div class="fhc-mng-box" ng-if="!c.mng.loading && c.mng.info">
+			<div class="fhc-mng-head">
+				<button type="button" class="fhc-mng-x" ng-click="c.closeManage()" aria-label="Đóng">
+					<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+				</button>
+				<div class="fhc-mng-title">{{ c.mng.info.name || 'Nhóm' }}</div>
+			</div>
+			<div class="fhc-mng-body">
+				<div class="fhc-mng-sec">Thành viên ({{ c.mngMembers().length }})</div>
+				<div class="fhc-mng-list">
+					<div class="fhc-mng-row" ng-repeat="m in c.mngMembers() track by m.profile_id">
+						<img class="fhc-cg-av" ng-src="{{ m.avatar }}" alt="" onerror="this.style.visibility='hidden'">
+						<div class="fhc-cg-info"><div class="fhc-cg-nm">{{ m.name }} <span class="fhc-mng-badge" ng-if="c.mngIsRoleOwner(m)">Chủ</span></div></div>
+						<button type="button" class="fhc-mng-mini" ng-if="c.mngIsOwner() && !c.mngIsRoleOwner(m)" ng-click="c.mngTransfer(m)" title="Chuyển quyền chủ">★</button>
+						<button type="button" class="fhc-mng-mini danger" ng-if="c.mngIsOwner() && !c.mngIsRoleOwner(m)" ng-click="c.mngRemove(m)" title="Xoá khỏi nhóm">✕</button>
+					</div>
+				</div>
+				<div class="fhc-mng-acts">
+					<button type="button" class="fhc-mng-btn" ng-click="c.mngAddOpen()">＋ Thêm thành viên</button>
+					<button type="button" class="fhc-mng-btn" ng-if="c.mngIsOwner()" ng-click="c.mngRename()">Đổi tên nhóm</button>
+					<label class="fhc-mng-btn" ng-if="c.mngIsOwner()">Đổi ảnh nhóm<input type="file" accept="image/*" class="d-none" fhc-file="c.mngPickImage($input)"></label>
+					<button type="button" class="fhc-mng-btn danger" ng-if="c.mngIsOwner()" ng-click="c.mngDisband()">Giải tán nhóm</button>
+					<button type="button" class="fhc-mng-btn danger" ng-if="!c.mngIsOwner()" ng-click="c.mngLeave()">Rời nhóm</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script>/* =========================================================================
+   chat.ng.js — AngularJS 1.8 chat nội bộ (THAY jquery.chat.js).
+   Module fhChat · ChatCtrl as c. Backend tái dùng 100%: mod=chat&act=*
+   (channels, history, send, react, group_..., staff). Realtime: $Core.socket.
+   Bootstrap: window.CHAT_BOOT (profile_id, name, ajax). Template: blocks/chat/index.tpl ({literal}).
+   Đã port ĐẦY ĐỦ từ jquery.chat.js: widget/tab · danh sách hội thoại · thread · gửi tin
+   · thả cảm xúc · realtime · ảnh/album + lightbox · quote/reply · tạo+quản trị nhóm · check-in (camera+GPS).
+   ========================================================================= */
+(function () {
+	"use strict";
+	var $j = window.jQuery;
+	var FORM = { headers: { "Content-Type": "application/x-www-form-urlencoded", "X-Requested-With": "XMLHttpRequest" } };
+	var EMOJI = { love: "❤️", like: "👍", haha: "😆", wow: "😮", sad: "😢", angry: "😡" };
+	var REACTS = ["love", "like", "haha", "wow", "sad", "angry"];
+	var AV_TINTS = [["#eef0ff", "#4f46e5"], ["#fdeee1", "#c2410c"], ["#e3f6f6", "#0f766e"], ["#fdeaf1", "#be185d"], ["#e8f1fd", "#1d4ed8"], ["#eef6e3", "#4d7c0f"], ["#fbeae7", "#b91c1c"], ["#eceaf9", "#5b21b6"]];
+
+	/* Định nghĩa module + bootstrap chạy ở DOMContentLoaded → angular nạp Ở CHỖ KHÁC cũng được
+	   (miễn là <script> angular đồng bộ chạy TRƯỚC khi DOM sẵn sàng). KHÔNG bail sớm lúc load. */
+	function boot() {
+		if (typeof angular === "undefined") { return; }	// angular chưa có → bỏ qua êm (không vỡ trang)
+		if (boot._done) { return; }
+		boot._done = true;
+		var app = angular.module("fhChat", []);
+
+		app.controller("ChatCtrl", ["$scope", "$http", "$timeout", "$interval", function ($scope, $http, $timeout, $interval) {
+		var c = this;
+		// Đọc bootstrap TRONG controller (CHAT_BOOT do block set ở footer — sau khi chat.ng.js load).
+		var BOOT = window.CHAT_BOOT || {};
+		var ME = parseInt(BOOT.profile_id, 10) || 0;
+		var BASE = (BOOT.ajax || "") + "/index.php?mod=chat&act=";
+		c.open = false;
+		c.tab = "chat";			// 'chat' | 'checkin'
+		c.view = "list";		// 'list' | 'thread'
+		c.chans = [];
+		c.curCh = 0;
+		c.msgs = [];
+		c.draft = "";
+		c.me = ME;
+		c.unreadTotal = 0;
+		c.loading = false;
+		c.EMOJI = EMOJI;
+		c.REACTS = REACTS;
+		c.replyTo = null;		// tin đang trả lời {message_id,name,preview}
+		c.pinnedList = [];	// các tin đang GHIM của kênh (mảng snippet, mới ghim trước)
+		c.pinOpen = false;	// mở/thu danh sách ghim trong banner
+		c.seenList = [];	// ai đã xem tin mới nhất của kênh {profile_id,name,avatar} (chỉ nhóm)
+		c.mentions = [];	// @mention đã chọn trong tin đang soạn [{name,pid}]
+		c.atOpen = false; c.atQuery = ""; c.atMembers = null;	// picker @
+		c.imgPosting = false;	// khoá gửi khi đang upload ảnh
+		c.lb = { open: false, srcs: [], idx: 0, zoom: false };	// lightbox xem ảnh
+		c.cg = { open: false, mode: "create", name: "", q: "", dept: null, img: null, picked: {}, addCid: 0, staff: [], submitting: false };	// modal tạo nhóm / thêm TV (dept null = khớp option "Tất cả phòng")
+		c.mng = { open: false, cid: 0, info: null, loading: false };	// panel quản trị nhóm
+		c.ck = { loading: false, my: null, feed: null, state: "idle", geoMsg: "", geoGood: false, geoReady: false, addrLoading: false, geoErr: "", subErr: "", posting: false, photo: "", note: "", address: "", gpsLat: 0, gpsLng: 0, gpsAcc: 0 };	// tab Check-in: idle (chụp) → review (xác nhận + ghi chú) → gửi
+
+		function url(act) { return BASE + act; }
+		function post(act, data) { return $http.post(url(act), $j.param(data || {}), FORM); }
+		/* socket fire ngoài digest → đẩy vào digest an toàn (tránh $apply lồng). */
+		function apply(fn) { $timeout(fn, 0); }
+
+		/* ---------- avatar fallback (glyph tint theo id) ---------- */
+		c.tint = function (id) { return AV_TINTS[(parseInt(id, 10) || 0) % AV_TINTS.length]; };
+		c.initial = function (name) { return (name || "?").charAt(0).toUpperCase(); };
+
+		/* ---------- danh sách hội thoại ---------- */
+		c.togglePin = function (ch, $event) {		// ghim/bỏ ghim hội thoại (per-user) — optimistic + rollback nếu lỗi
+			if ($event) { $event.stopPropagation(); }
+			var np = (parseInt(ch.pinned, 10) || 0) ? 0 : 1;
+			ch.pinned = np;
+			post("pin_channel", { channel_id: ch.channel_id, pin: np }).then(function (r) {
+				if (!r.data || r.data.error) { ch.pinned = np ? 0 : 1; }
+			}, function () { ch.pinned = np ? 0 : 1; });
+		};
+		c.toggleMute = function (ch, $event) {		// tắt/bật thông báo hội thoại (per-user) — optimistic + rollback
+			if ($event) { $event.stopPropagation(); }
+			var nm = (parseInt(ch.muted, 10) || 0) ? 0 : 1;
+			ch.muted = nm;
+			post("mute", { channel_id: ch.channel_id, mute: nm }).then(function (r) {
+				if (!r.data || r.data.error) { ch.muted = nm ? 0 : 1; }
+			}, function () { ch.muted = nm ? 0 : 1; });
+		};
+		function chanMuted(cid) { var ch = findChan(cid); return (ch && parseInt(ch.muted, 10)) ? 1 : 0; }
+		function closeConvMenus() { for (var i = 0; i < c.chans.length; i++) { c.chans[i]._cmenu = false; } }
+		c.openConvMenu = function (ch, $event) { if ($event) { $event.stopPropagation(); } var was = ch._cmenu; closeConvMenus(); ch._cmenu = !was; };	// toggle ⋮ hội thoại
+		c.closeConvMenu = function () { closeConvMenus(); };
+		c.sysChans = function () { return c.chans.filter(function (x) { return parseInt(x.type, 10) !== 4; }); };
+		c.grpChans = function () {
+			return c.chans.filter(function (x) { return parseInt(x.type, 10) === 4; })
+				.sort(function (a, b) {
+					var pa = parseInt(a.pinned, 10) || 0, pb = parseInt(b.pinned, 10) || 0;
+					if (pa !== pb) { return pb - pa; }	// hội thoại ghim lên đầu
+					return (parseInt(b.last_ts, 10) || 0) - (parseInt(a.last_ts, 10) || 0);
+				});
+		};
+		c.curChan = function () {
+			for (var i = 0; i < c.chans.length; i++) { if (c.chans[i].channel_id == c.curCh) { return c.chans[i]; } }
+			return null;
+		};
+		c.curName = function () { var ch = c.curChan(); return ch ? ch.name : ""; };
+		c.refreshBadge = function () {
+			var n = 0;
+			for (var i = 0; i < c.chans.length; i++) { n += parseInt(c.chans[i].unread, 10) || 0; }
+			c.unreadTotal = n;
+		};
+
+		c.loadChannels = function () {
+			$http.get(url("channels")).then(function (r) {
+				if (r.data && !r.data.error) { c.chans = r.data.channels || []; c.refreshBadge(); subscribe(); }
+			});
+		};
+
+		/* ---------- widget ---------- */
+		c.toggle = function () { c.open = !c.open; if (c.open) { ensureAudio(); ensureNotifyPerm(); c.reloadActive(); } };
+		c.close = function () { c.open = false; stopGeo(); };	// đóng widget → dừng GPS (tránh watch chạy ngầm)
+		c.setTab = function (t) {
+			if (t === c.tab && c.view === "list") { return; }
+			stopGeo();		// rời tab (đặc biệt rời check-in) → dừng watch/timer GPS (idempotent)
+			c.tab = t; c.view = "list"; c.curCh = 0; c.msgs = []; c.cancelReply(); c.pinnedList = []; c.pinOpen = false; c.seenList = [];
+			if (t === "checkin") { c.loadCheckin(); } else { c.loadChannels(); }	// chat → nạp list tươi; checkin → nạp feed
+		};
+		c.reloadActive = function () {
+			if (c.tab === "checkin") { c.loadCheckin(); }
+			else if (c.tab === "chat" && c.view === "list") { c.loadChannels(); }
+			else if (c.view === "thread" && c.curCh > 0) { c.loadHistory(c.curCh); }
+		};
+
+		/* ---------- mở/đóng thread ---------- */
+		c.openConv = function (cid) {
+			c.curCh = parseInt(cid, 10) || 0; if (!c.curCh) { return; }
+			c.view = "thread"; c.draft = ""; c.cancelReply(); c.loadHistory(c.curCh);	// reset quote → không treo reply_to_id sang kênh khác
+		};
+		c.backToList = function () { c.curCh = 0; c.view = "list"; c.msgs = []; c.cancelReply(); c.pinnedList = []; c.pinOpen = false; c.seenList = []; c.loadChannels(); };
+		c.isGroup = function () { var ch = c.curChan(); return !!(ch && parseInt(ch.type, 10) === 4); };
+
+		/* ---------- Tạo nhóm / thêm thành viên (modal picker dùng chung) ---------- */
+		function openCg(mode, addCid) {
+			c.cg = { open: true, mode: mode, name: "", q: "", dept: null, img: null, picked: {}, addCid: addCid || 0, staff: [], submitting: false };
+			loadStaff();
+		}
+		c.createGroup = function () { openCg("create", 0); };
+		c.mngAddOpen = function () { openCg("add", c.mng.cid || c.curCh); };
+		c.closeCreate = function () { c.cg.open = false; };
+		function loadStaff() {
+			c.cg.staff = [];
+			$http.get(url("staff")).then(function (r) { if (r.data && !r.data.error) { c.cg.staff = r.data.list || []; } });
+		}
+		c.cgDepts = function () {		// danh sách phòng distinct cho dropdown — MEMOIZE theo identity staff
+			if (c._deptsFor === c.cg.staff) { return c._depts; }	// trả ref ổn định → tránh infdig ng-options
+			var seen = {}, out = [];
+			for (var i = 0; i < c.cg.staff.length; i++) {
+				var d = parseInt(c.cg.staff[i].dept_id, 10) || 0;
+				if (d > 0 && !seen[d]) { seen[d] = 1; out.push({ id: d, name: c.cg.staff[i].dept_name || ("Phòng " + d) }); }
+			}
+			c._deptsFor = c.cg.staff; c._depts = out;
+			return out;
+		};
+		c.cgFiltered = function () {		// lọc theo phòng + từ khoá
+			var dept = parseInt(c.cg.dept, 10) || 0, q = (c.cg.q || "").toLowerCase(), out = [];
+			for (var i = 0; i < c.cg.staff.length; i++) {
+				var s = c.cg.staff[i];
+				if (dept > 0 && (parseInt(s.dept_id, 10) || 0) !== dept) { continue; }
+				if (q !== "" && (s.name || "").toLowerCase().indexOf(q) === -1) { continue; }
+				out.push(s);
+			}
+			return out;
+		};
+		c.cgToggle = function (s) {
+			var id = parseInt(s.id, 10) || 0; if (!id) { return; }
+			if (c.cg.picked[id]) { delete c.cg.picked[id]; } else { c.cg.picked[id] = 1; }
+		};
+		c.cgIsPicked = function (s) { return !!c.cg.picked[parseInt(s.id, 10) || 0]; };
+		c.cgCount = function () { var n = 0; for (var k in c.cg.picked) { if (c.cg.picked.hasOwnProperty(k)) { n++; } } return n; };
+		c.cgPickImage = function (input) {		// nén ảnh nhóm ≤256 → data URL preview
+			if (!input.files || !input.files[0]) { return; }
+			imgResize(input.files[0], 256, function (data) { if (!data) { return; } apply(function () { c.cg.img = data; }); });
+			input.value = "";
+		};
+		function pickedIds() { var ids = []; for (var k in c.cg.picked) { if (c.cg.picked.hasOwnProperty(k)) { ids.push(parseInt(k, 10) || 0); } } return ids; }
+		c.cgSubmit = function () {
+			if (c.cg.submitting) { return; }
+			if (c.cg.mode === "add") { return cgSubmitAdd(); }
+			var name = (c.cg.name || "").trim();
+			if (name === "") { window.alert("Nhập tên nhóm"); return; }
+			c.cg.submitting = true;
+			post("create_group", { name: name, image: c.cg.img || "", members: pickedIds() }).then(function (r) {
+				c.cg.submitting = false;
+				if (!r.data || r.data.error) { window.alert(r.data && r.data.message ? r.data.message : "Tạo nhóm thất bại"); return; }
+				addCreatedChannel(r.data.channel);
+			}, function () { c.cg.submitting = false; window.alert("Lỗi kết nối"); });
+		};
+		function cgSubmitAdd() {
+			var cid = c.cg.addCid, ids = pickedIds();
+			if (!ids.length) { window.alert("Chưa chọn thành viên"); return; }
+			c.cg.submitting = true;
+			post("group_members", { channel_id: cid, op: "add", member_ids: ids }).then(function (r) {
+				c.cg.submitting = false;
+				if (!r.data || r.data.error) { window.alert(r.data && r.data.message ? r.data.message : "Lỗi"); return; }
+				c.cg.open = false; c.openGroupManage(cid);
+			}, function () { c.cg.submitting = false; window.alert("Lỗi kết nối"); });
+		}
+		function addCreatedChannel(ch) {
+			if (!ch || !ch.channel_id) { c.cg.open = false; return; }
+			c.chans.unshift(ch); subscribe(); c.cg.open = false;
+			c.openConv(parseInt(ch.channel_id, 10));		// mở thread nhóm vừa tạo
+		}
+
+		/* ---------- Quản trị nhóm (panel ⋮) ---------- */
+		c.manageGroup = function () { if (c.isGroup()) { c.openGroupManage(c.curCh); } };
+		c.openGroupManage = function (cid) {
+			cid = parseInt(cid, 10) || c.curCh; if (!cid) { return; }
+			c.mng = { open: true, cid: cid, info: null, loading: true };
+			post("group_info", { channel_id: cid }).then(function (r) {
+				c.mng.loading = false;
+				if (!r.data || r.data.error) { window.alert(r.data && r.data.message ? r.data.message : "Lỗi"); c.mng.open = false; return; }
+				c.mng.info = r.data;
+			}, function () { c.mng.loading = false; c.mng.open = false; window.alert("Lỗi kết nối"); });
+		};
+		c.closeManage = function () { c.mng.open = false; };
+		c.mngIsOwner = function () { return !!(c.mng.info && parseInt(c.mng.info.is_owner, 10)); };
+		c.mngMembers = function () { return (c.mng.info && c.mng.info.members) ? c.mng.info.members : []; };
+		c.mngIsRoleOwner = function (m) { return parseInt(m.role, 10) === 1; };
+		c.mngRemove = function (m) {
+			var pid = parseInt(m.profile_id, 10) || 0, cid = c.mng.cid;
+			if (!window.confirm("Xoá thành viên này khỏi nhóm?")) { return; }
+			post("group_members", { channel_id: cid, op: "remove", member_id: pid }).then(function (r) {
+				if (!r.data || r.data.error) { window.alert(r.data && r.data.message ? r.data.message : "Lỗi"); return; }
+				c.openGroupManage(cid);
+			});
+		};
+		c.mngTransfer = function (m) {
+			var pid = parseInt(m.profile_id, 10) || 0, cid = c.mng.cid;
+			if (!window.confirm("Chuyển quyền chủ nhóm cho người này? Bạn sẽ trở thành thành viên.")) { return; }
+			post("group_transfer", { channel_id: cid, to_id: pid }).then(function (r) {
+				if (!r.data || r.data.error) { window.alert(r.data && r.data.message ? r.data.message : "Lỗi"); return; }
+				c.openGroupManage(cid);
+			});
+		};
+		/* Đổi tên / đổi ảnh nhóm — DÙNG CHUNG cho panel quản trị (mng*) lẫn thanh nút header (g*).
+		   cid + tên hiện hành truyền vào → chạy được cả khi panel chưa nạp (từ header dùng c.curCh/c.curName). */
+		function groupRename(cid, curName, after) {
+			var nv = window.prompt("Tên nhóm mới:", curName || ""); if (nv === null) { return; }
+			nv = nv.trim(); if (nv === "") { return; }
+			post("group_update", { channel_id: cid, name: nv }).then(function (r) {
+				if (!r.data || r.data.error) { window.alert(r.data && r.data.message ? r.data.message : "Lỗi"); return; }
+				var ch = findChan(cid); if (ch) { ch.name = nv; }	// header title (c.curName) + list tự cập nhật
+				if (after) { after(); }
+			}, function () { window.alert("Lỗi kết nối, thử lại"); });	// reject $http (4xx/5xx/mạng) → báo, không im lặng
+		}
+		function groupPickImage(cid, input, after) {
+			if (!input.files || !input.files[0]) { return; }
+			imgResize(input.files[0], 256, function (data) {
+				if (!data) { window.alert("Ảnh lỗi, chọn ảnh khác"); return; }
+				post("group_update", { channel_id: cid, image: data }).then(function (r) {
+					if (!r.data || r.data.error) { window.alert(r.data && r.data.message ? r.data.message : "Lỗi"); return; }
+					var ch = findChan(cid); if (ch) { ch.image = data; }
+					if (after) { after(); }
+				}, function () { window.alert("Lỗi kết nối, thử lại"); });
+			});
+			input.value = "";
+		}
+		c.mngRename = function () { groupRename(c.mng.cid, (c.mng.info && c.mng.info.name) ? c.mng.info.name : "", function () { c.openGroupManage(c.mng.cid); }); };
+		c.mngPickImage = function (input) { groupPickImage(c.mng.cid, input, function () { c.openGroupManage(c.mng.cid); }); };
+
+		/* ---------- Nút nhóm trên header (thread nhóm): ＋ thêm TV (MỌI thành viên, kiểu Zalo) + ⚙ cài đặt nhóm (=manageGroup) ---------- */
+		c.gAddOpen = function () { openCg("add", c.curCh); };		// ＋ mở modal thêm TV cho kênh hiện tại (backend: chat_access gate thành viên)
+		c.mngLeave = function () {
+			var cid = c.mng.cid;
+			if (!window.confirm("Rời khỏi nhóm này?")) { return; }
+			post("group_leave", { channel_id: cid }).then(function (r) {
+				if (!r.data || r.data.error) { window.alert(r.data && r.data.message ? r.data.message : "Lỗi"); return; }
+				exitGroup(cid);
+			});
+		};
+		c.mngDisband = function () {
+			var cid = c.mng.cid;
+			if (!window.confirm("Giải tán nhóm? Hành động không thể hoàn tác.")) { return; }
+			post("group_disband", { channel_id: cid }).then(function (r) {
+				if (!r.data || r.data.error) { window.alert(r.data && r.data.message ? r.data.message : "Lỗi"); return; }
+				exitGroup(cid);
+			});
+		};
+		function exitGroup(cid) {
+			c.mng.open = false;
+			if (c.curCh === parseInt(cid, 10)) { c.curCh = 0; c.view = "list"; c.msgs = []; }
+			c.loadChannels();
+		}
+		/* ---------- Tab Check-in (chụp ảnh + GPS → mod=chat&act=checkin) ---------- */
+		// GEO_TARGET_M = ngưỡng HỘI TỤ (dừng đo sớm khi đủ tốt) — KHÔNG còn là gate cứng chặn gửi.
+		// Gate chân lý cuối là SERVER (max_accuracy_m theo từng văn phòng): client gửi fix tốt nhất lấy được,
+		// server chấp/từ chối → hết kẹt khi GPS trong nhà >100m (nếu VP cấu hình nới hơn vẫn check-in được).
+		var GEO_TARGET_M = 100, GEO_MAX_WAIT_MS = 15000, GEO_TTL_MS = 90000;
+		var geoWatch = null, geoTimer = null, bestFix = null, bestFixT = 0, pendingPhoto = null, geoReady = false, posting = false, geoErr = "", photoGen = 0, addrGen = 0;
+		c.loadCheckin = function () {
+			stopGeo(); bestFix = null; pendingPhoto = null; geoReady = false; posting = false;
+			c.ck.loading = true; c.ck.my = null; c.ck.feed = null;
+			c.ck.posting = false; c.ck.geoReady = false; c.ck.geoErr = ""; c.ck.subErr = ""; c.ck.photo = ""; c.ck.note = ""; c.ck.address = ""; c.ck.addrLoading = false;
+			$http.get(url("my")).then(function (a) {
+				$http.get(url("feed")).then(function (b) {
+					c.ck.loading = false;
+					c.ck.my = (a.data && !a.data.error) ? a.data : {};
+					c.ck.feed = (b.data && !b.data.error) ? b.data : {};
+					setState("idle");		// KHÔNG khoá "done" — check-in nhiều lần/ngày, luôn cho chụp tiếp
+				}, function () { c.ck.loading = false; });
+			}, function () { c.ck.loading = false; });
+		};
+		function setState(s) { c.ck.state = s; }
+		c.ckMapUrl = function (it) { return "https://www.google.com/maps?q=" + it.lat + "," + it.lng; };	// mở Google Maps tại toạ độ
+		c.ckFeedList = function () { return (c.ck.feed && c.ck.feed.list) ? c.ck.feed.list : []; };
+		c.ckOnCta = function () {		// bấm "Chụp ảnh check-in": MỞ MÁY ẢNH trước; GPS đo SAU khi có ảnh
+			stopGeo(); bestFix = null; bestFixT = 0; pendingPhoto = null; geoReady = false; posting = false; geoErr = ""; photoGen++; addrGen++;
+			var f = document.getElementById("fhc-ck-file"); if (f) { f.click(); }
+			// KHÔNG startGeo / KHÔNG đổi state ở đây: máy ảnh chiếm màn (page bị treo → GPS không hội tụ);
+			// đo định vị trong ckOnPhoto (sau khi đóng máy ảnh, page foreground). Huỷ chụp → vẫn ở 'idle'.
+		};
+		c.ckRetryGeo = function () {		// định vị lỗi trong form xác nhận → đo lại (GIỮ ảnh đã chụp)
+			c.ck.geoErr = ""; c.ck.geoReady = false; geoReady = false; c.ck.geoMsg = "Đang định vị…"; c.ck.geoGood = false; startGeo();
+		};
+		c.ckOnPhoto = function (input) {		// CÓ ảnh → mở form XÁC NHẬN (ảnh + định vị + ghi chú), KHÔNG auto-gửi
+			if (!input.files || !input.files[0]) { return; }
+			var gen = ++photoGen;		// thế hệ ảnh: kết quả resize của lần cũ (đã bị thay) sẽ bị bỏ
+			c.ck.geoErr = ""; c.ck.subErr = ""; c.ck.geoReady = false; c.ck.addrLoading = false; c.ck.address = ""; c.ck.note = ""; c.ck.geoMsg = "Đang định vị…"; c.ck.geoGood = false;
+			setState("review");
+			startGeo();		// GPS chạy KHI page foreground (máy ảnh đã đóng) → không bị máy ảnh treo
+			imgResize(input.files[0], 1280, function (data) {
+				if (gen !== photoGen) { return; }		// đã có lần chụp/mở mới → bỏ kết quả cũ (chống latch ảnh stale)
+				if (!data) { apply(function () { c.ck.subErr = "Ảnh lỗi, chụp lại"; setState("idle"); }); return; }
+				pendingPhoto = data;
+				apply(function () { c.ck.photo = data; });		// ảnh xem trước trong form
+			});
+			input.value = "";
+		};
+		function startGeo() {
+			if (!window.isSecureContext) { geoBad("Trang không chạy HTTPS nên trình duyệt chặn định vị. Mở bằng địa chỉ https://… rồi thử lại."); return; }
+			if (!navigator.geolocation) { geoBad("Trình duyệt không hỗ trợ định vị. Hãy mở bằng Chrome/Safari."); return; }
+			stopGeo(); bestFix = null; bestFixT = 0; geoReady = false; geoErr = "";
+			geoTimer = setTimeout(function () { onGeoTimeout(); }, GEO_MAX_WAIT_MS);
+			geoWatch = navigator.geolocation.watchPosition(
+				function (p) { onGeoFix(p); },
+				function (e) { onGeoErr(e); },
+				{ enableHighAccuracy: true, maximumAge: 0, timeout: 12000 }
+			);
+		}
+		function onGeoFix(p) {
+			if (posting) { return; }
+			var acc = Math.round((p.coords && p.coords.accuracy) || 0);
+			if (acc <= 0) { return; }
+			geoErr = "";
+			if (!bestFix || acc < bestFix.acc) { bestFix = { lat: p.coords.latitude, lng: p.coords.longitude, acc: acc }; bestFixT = Date.now(); }
+			var best = bestFix.acc, good = best <= GEO_TARGET_M;
+			apply(function () { c.ck.geoGood = good; c.ck.geoMsg = "Định vị ±" + best + "m" + (good ? " ✓ đủ chính xác." : " · đang cải thiện, đứng yên/ra chỗ thoáng…"); });
+			if (good) { stopGeo(); onGeoResolved(); }	// hội tụ đủ chính xác → chốt vị trí, lấy địa chỉ, bật nút Hoàn tất
+		}
+		function onGeoErr(e) {
+			if (posting) { return; }
+			if (e && e.code === 1) { geoBad("Chưa bật quyền vị trí. Mở khoá trên thanh địa chỉ → Quyền → Vị trí → Cho phép, rồi thử lại."); return; }	// từ chối quyền = lỗi cuối
+			// code 2 (vị trí không khả dụng) / 3 (quá lâu) = tạm thời → ghi lý do, để timeout 15s quyết (watch có thể vẫn ra fix)
+			geoErr = (e && e.code === 2) ? "tín hiệu vị trí chưa khả dụng" : (e && e.code === 3) ? "định vị hơi lâu" : "lỗi định vị";
+			apply(function () { if (!bestFix) { c.ck.geoMsg = "Đang định vị… (" + geoErr + ")"; } });
+		}
+		function onGeoTimeout() {
+			if (posting) { return; }
+			stopGeo();
+			if (!bestFix) { geoBad("Chưa lấy được vị trí" + (geoErr ? (" — " + geoErr) : "") + ". Kiểm tra GPS/định vị đã bật, ra chỗ thoáng rồi thử lại."); return; }
+			onGeoResolved();	// CÓ fix (BẤT KỂ độ chính xác) → chốt; độ chính xác do SERVER quyết khi gửi
+		}
+		/* Có fix GPS → chốt vị trí vào form, bật nút Hoàn tất, lấy địa chỉ (best-effort, không chặn nút). */
+		function onGeoResolved() {
+			if (posting) { return; }
+			if (!c.open || c.tab !== "checkin") { return; }		// đã rời/đóng → bỏ
+			if (!bestFix) { return; }
+			if (Date.now() - bestFixT > GEO_TTL_MS) { startGeo(); return; }		// mẫu quá cũ → đo lại
+			var fix = bestFix;
+			geoReady = true;
+			apply(function () {
+				c.ck.gpsLat = fix.lat; c.ck.gpsLng = fix.lng; c.ck.gpsAcc = fix.acc;
+				c.ck.geoReady = true; c.ck.geoErr = ""; c.ck.address = "";
+				c.ck.geoMsg = "Đã định vị ±" + fix.acc + "m";
+			});
+			fetchAddress();		// BẮT BUỘC có địa chỉ mới cho gửi → lấy địa chỉ ngay
+		}
+		/* Reverse-geocode (server) → c.ck.address. Nút Hoàn tất chỉ bật khi CÓ địa chỉ (user yêu cầu). */
+		function fetchAddress() {
+			if (!bestFix) { return; }
+			var fix = bestFix, gen = ++addrGen;	// token chống latch: geocode cũ (chậm) không ghi đè lần Thử lại mới
+			apply(function () { c.ck.addrLoading = true; c.ck.address = ""; });
+			post("geocode", { lat: fix.lat, lng: fix.lng }).then(function (r) {
+				if (gen !== addrGen) { return; }
+				c.ck.addrLoading = false;
+				c.ck.address = (r.data && !r.data.error && r.data.address) ? r.data.address : "";
+			}, function () { if (gen !== addrGen) { return; } c.ck.addrLoading = false; c.ck.address = ""; });	// lỗi → trống → UI hiện "Không lấy được địa chỉ · Thử lại"
+		}
+		c.ckRetryAddr = function () { fetchAddress(); };		// lấy lại địa chỉ khi geocode lỗi (GIỮ GPS, không đo lại)
+		c.ckSubmit = function () {		// bấm "Hoàn tất check-in" → gửi ảnh + GPS + ghi chú + địa chỉ
+			if (c.ck.posting || !geoReady || !c.ck.address || !pendingPhoto || !bestFix) { return; }	// BẮT BUỘC có địa chỉ
+			if (!c.open || c.tab !== "checkin") { return; }
+			c.ck.posting = true; posting = true; c.ck.subErr = "";
+			var fix = bestFix;
+			post("checkin", { photo: pendingPhoto, lat: fix.lat, lng: fix.lng, accuracy: fix.acc, note: c.ck.note || "", address: c.ck.address || "" }).then(function (r) {
+				c.ck.posting = false; posting = false;
+				if (!r.data || r.data.error) { c.ck.subErr = (r.data && r.data.message) ? r.data.message : "Check-in thất bại, thử lại"; return; }	// GIỮ form để gửi lại
+				pendingPhoto = null; c.loadCheckin();		// xong → reset + về idle + nạp lại feed
+			}, function () { c.ck.posting = false; posting = false; c.ck.subErr = "Lỗi kết nối, thử lại"; });
+		};
+		c.ckCancel = function () {		// huỷ form xác nhận → bỏ ảnh/định vị đang dở, về idle
+			stopGeo(); pendingPhoto = null; geoReady = false; posting = false; photoGen++; addrGen++;
+			c.ck.posting = false; c.ck.geoReady = false; c.ck.photo = ""; c.ck.note = ""; c.ck.address = ""; c.ck.geoErr = ""; c.ck.subErr = ""; c.ck.addrLoading = false;
+			setState("idle");
+		};
+		function stopGeo() {
+			if (geoWatch !== null && navigator.geolocation) { navigator.geolocation.clearWatch(geoWatch); }
+			geoWatch = null;
+			if (geoTimer) { clearTimeout(geoTimer); geoTimer = null; }
+		}
+		function geoBad(msg) {		// GPS lỗi → GIỮ ảnh, hiện lý do ở ô Vị trí trong form + cho "thử lại" định vị
+			stopGeo(); geoReady = false; posting = false;
+			apply(function () { c.ck.geoErr = msg; c.ck.geoReady = false; });
+		}
+
+		/* Nén ảnh (cạnh dài ≤ max) → data URL jpeg. Dùng chung cho ảnh nhóm tạo/đổi + check-in.
+		   Lỗi đọc/giải mã ảnh (ảnh hỏng) → cb(null) để caller thoát (KHÔNG treo). */
+		function imgResize(file, max, cb) {
+			var reader = new FileReader();
+			reader.onload = function (e) {
+				var img = new Image();
+				img.onload = function () {
+					var w = img.width, h = img.height;
+					if (w > h && w > max) { h = Math.round(h * max / w); w = max; }
+					else if (h >= w && h > max) { w = Math.round(w * max / h); h = max; }
+					var cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+					cv.getContext("2d").drawImage(img, 0, 0, w, h);
+					cb(cv.toDataURL("image/jpeg", 0.82));
+				};
+				img.onerror = function () { cb(null); };		// ảnh không giải mã được → thoát
+				img.src = e.target.result;
+			};
+			reader.onerror = function () { cb(null); };
+			reader.readAsDataURL(file);
+		}
+
+		c.loadHistory = function (cid) {
+			c.loading = true; c.msgs = []; c.pinnedList = []; c.pinOpen = false; c.seenList = [];
+			post("history", { channel_id: cid, since: 0 }).then(function (r) {
+				c.loading = false;
+				if (r.data && !r.data.error) {
+					c.msgs = (r.data.list || []).map(decorate);
+					c.pinnedList = r.data.pinned || [];
+					c.seenList = r.data.seen || [];
+					markRead(cid);
+					$timeout(scrollBottom, 30);
+				}
+			}, function () { c.loading = false; });
+		};
+		function parseMentions(content) {
+			content = content || ""; var parts = [], re = /@\[([^\]]+)\]\((\d+)\)/g, last = 0, mm, memMe = false;
+			while ((mm = re.exec(content)) !== null) {
+				if (mm.index > last) { parts.push({ men: 0, v: content.slice(last, mm.index) }); }
+				var pid = parseInt(mm[2], 10); parts.push({ men: 1, name: mm[1], pid: pid });
+				if (pid === ME) { memMe = true; } last = re.lastIndex;
+			}
+			if (last < content.length) { parts.push({ men: 0, v: content.slice(last) }); }
+			return { parts: parts.length ? parts : [{ men: 0, v: content }], memMe: memMe };
+		}
+		function decorate(m) {
+			m.is_me = (parseInt(m.profile_id, 10) === ME) ? 1 : 0;
+			var pm = parseMentions(m.content || ""); m._parts = pm.parts; m._memMe = pm.memMe ? 1 : 0;
+			return m;
+		}
+		function curGroup() { var ch = c.curChan(); return !!(ch && parseInt(ch.type, 10) === 4); }
+		function loadMentionMembers() {
+			if (c._atMemCid === c.curCh && c.atMembers) { return; }
+			c._atMemCid = c.curCh; c.atMembers = [];
+			post("group_info", { channel_id: c.curCh }).then(function (r) {
+				if (r.data && !r.data.error) { c.atMembers = (r.data.members || []).filter(function (mm) { return parseInt(mm.profile_id, 10) !== ME; }); }
+			}, function () {});
+		}
+		c.onCompose = function ($event) {		// gõ @ trong NHÓM → mở picker thành viên
+			var ta = $event.target, pos = ta.selectionStart, txt = (c.draft || "").slice(0, pos), mt = txt.match(/@(\S*)$/);
+			if (mt && curGroup()) { c.atQuery = mt[1]; c.atStart = pos - mt[0].length; c.atOpen = true; loadMentionMembers(); }
+			else { c.atOpen = false; }
+		};
+		c.atFiltered = function () {		// stable element refs (như cgFiltered) → KHÔNG infdig
+			var q = (c.atQuery || "").toLowerCase(), out = [], list = c.atMembers || [], i;
+			for (i = 0; i < list.length && out.length < 8; i++) { if (!q || (list[i].name || "").toLowerCase().indexOf(q) >= 0) { out.push(list[i]); } }
+			return out;
+		};
+		c.pickMention = function (mem) {
+			var d = c.draft || "", after = d.slice(c.atStart + 1 + (c.atQuery || "").length);
+			c.draft = d.slice(0, c.atStart) + "@" + mem.name + " " + after;
+			var dup = false, i; for (i = 0; i < c.mentions.length; i++) { if (c.mentions[i].pid === mem.profile_id) { dup = true; break; } }
+			if (!dup) { c.mentions.push({ name: mem.name, pid: mem.profile_id }); }
+			c.atOpen = false; c.atQuery = "";
+			$timeout(function () { var ta = document.getElementById("fhc-input"); if (ta) { ta.focus(); } }, 0);
+		};
+		function markRead(cid) {
+			var last = 0; for (var i = 0; i < c.msgs.length; i++) { last = Math.max(last, parseInt(c.msgs[i].message_id, 10) || 0); }
+			post("read", { channel_id: cid, last_id: last });
+			var ch = c.curChan(); if (ch) { ch.unread = 0; c.refreshBadge(); }
+		}
+		function scrollBottom() { var b = document.getElementById("fhc-ng-body"); if (b) { b.scrollTop = b.scrollHeight; } }
+
+		/* ---------- gửi tin ---------- */
+		c.send = function () {
+			var t = (c.draft || "").trim(); if (t === "" || !c.curCh) { return; }
+			var content = t, i; for (i = 0; i < c.mentions.length; i++) { content = content.split("@" + c.mentions[i].name).join("@[" + c.mentions[i].name + "](" + c.mentions[i].pid + ")"); }
+			c.draft = ""; c.mentions = []; c.atOpen = false;
+			post("send", { channel_id: c.curCh, content: content, reply_to_id: c.replyTo ? c.replyTo.message_id : 0 }).then(function (r) {
+				if (r.data && r.data.message) { c.msgs.push(decorate(r.data.message)); $timeout(scrollBottom, 20); }
+			});
+			c.cancelReply();
+		};
+		c.onKey = function ($event) {
+			if (c.atOpen) {
+				if ($event.which === 13 || $event.which === 9) { var f = c.atFiltered(); if (f.length) { $event.preventDefault(); c.pickMention(f[0]); return; } }
+				if ($event.which === 27) { c.atOpen = false; return; }
+			}
+			if ($event.which === 13 && !$event.shiftKey) { $event.preventDefault(); c.send(); }
+		};
+
+		/* ---------- ảnh / album ---------- */
+		c.album = function (m) { return (m.images && m.images.length) ? m.images : (m.image ? [m.image] : []); };
+		c.albumLay = function (m) { var n = c.album(m).length; return n <= 1 ? "1" : (n === 2 ? "2" : (n === 3 ? "3" : (n === 4 ? "4" : "more"))); };
+		c.onPickFiles = function (input) {
+			if (!c.curCh || !input.files || !input.files.length) { input.value = ""; return; }
+			var files = Array.prototype.slice.call(input.files, 0, 9); input.value = "";
+			var out = new Array(files.length), done = 0, n = files.length;
+			function finish() { if (++done === n) { apply(function () { c.sendImages(out.filter(Boolean)); }); } }	// vào digest
+			files.forEach(function (file, idx) {
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					var img = new Image();
+					img.onload = function () {
+						var max = 1280, w = img.width, h = img.height;
+						if (w > max) { h = Math.round(h * max / w); w = max; }
+						var cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+						cv.getContext("2d").drawImage(img, 0, 0, w, h);
+						out[idx] = cv.toDataURL("image/jpeg", 0.82); finish();
+					};
+					img.onerror = finish; img.src = e.target.result;
+				};
+				reader.onerror = finish; reader.readAsDataURL(file);
+			});
+		};
+		c.sendImages = function (dataUrls) {
+			if (c.imgPosting || !dataUrls || !dataUrls.length || !c.curCh) { return; }
+			c.imgPosting = true;
+			var cap = (c.draft || "").trim();
+			post("send_image", { channel_id: c.curCh, images: dataUrls, content: cap, reply_to_id: c.replyTo ? c.replyTo.message_id : 0 }).then(function (r) {
+				c.imgPosting = false;
+				if (r.data && r.data.message) { c.draft = ""; c.msgs.push(decorate(r.data.message)); $timeout(scrollBottom, 20); }
+			}, function () { c.imgPosting = false; });
+			c.cancelReply();
+		};
+
+		/* ---------- quote / trả lời ---------- */
+		c.startReply = function (m, $event) {
+			if ($event) { $event.stopPropagation(); }
+			var prev = (parseInt(m.type, 10) === 2) ? "[Hình ảnh]" : (m.content || "");
+			c.replyTo = { message_id: m.message_id, name: m.name || "Tin gốc", preview: prev.length > 80 ? prev.slice(0, 80) : prev };
+		};
+		c.cancelReply = function () { c.replyTo = null; };
+		c.scrollToMsg = function (mid) {		// bấm quote → nhảy tới tin gốc + nháy
+			var el = document.getElementById("fhc-m-" + (parseInt(mid, 10) || 0));
+			if (!el) { return; }
+			el.scrollIntoView({ block: "center", behavior: "smooth" });
+			el.classList.add("fhc-flash");
+			$timeout(function () { el.classList.remove("fhc-flash"); }, 1200);
+		};
+
+		/* ---------- lightbox xem ảnh ---------- */
+		c.lbOpen = function (m, i) { c.lb = { open: true, srcs: c.album(m), idx: parseInt(i, 10) || 0, zoom: false }; };
+		c.lbClose = function () { c.lb.open = false; };
+		c.lbNav = function (d, $event) { if ($event) { $event.stopPropagation(); } var n = c.lb.srcs.length; if (n) { c.lb.idx = (c.lb.idx + d + n) % n; c.lb.zoom = false; } };
+		c.lbZoom = function ($event) { if ($event) { $event.stopPropagation(); } c.lb.zoom = !c.lb.zoom; };
+
+		/* ---------- cảm xúc ---------- */
+		c.reactCells = function (m) {		// các emoji đang có (thứ tự REACTS) cho badge
+			var out = [], r = m.reactions; if (!r || !r.total) { return out; }
+			for (var i = 0; i < REACTS.length; i++) { var k = REACTS[i]; if (r.counts && r.counts[k] > 0) { out.push(EMOJI[k]); } }
+			return out;
+		};
+		c.openPicker = function (m, $event) { if ($event) { $event.stopPropagation(); } closePickers(); m._picker = true; };
+		c.openMenu = function (m, $event) { if ($event) { $event.stopPropagation(); } var was = m._menu; closePickers(); m._menu = !was; };	// toggle dropdown ⋮
+		c.closeMenu = function () { closePickers(); };
+		c.openReactors = function (m, $event) {		// chạm badge cảm xúc → ai đã thả (channel-scope, server-gated)
+			if ($event) { $event.stopPropagation(); }
+			if (!m.reactions || !m.reactions.total || !c.curCh) { return; }
+			closePickers(); m._reactors = []; m._rlist = true;
+			post("reactors", { channel_id: c.curCh, message_id: m.message_id }).then(function (r) {
+				m._reactors = (r.data && !r.data.error && r.data.list) ? r.data.list : [];
+			}, function () { m._reactors = []; });
+		};
+		c.react = function (m, code, $event) {
+			if ($event) { $event.stopPropagation(); }
+			m._picker = false;
+			post("react", { channel_id: c.curCh, message_id: m.message_id, emoji: code }).then(function (r) {
+				if (r.data && !r.data.error) { m.reactions = r.data.reactions; }
+			});
+		};
+		function closePickers() { for (var i = 0; i < c.msgs.length; i++) { c.msgs[i]._picker = false; c.msgs[i]._menu = false; c.msgs[i]._rlist = false; } }
+		/* ---------- Thu hồi (gỡ tin với MỌI người, 24h, người gửi) ---------- */
+		function markRecalled(m) { m.recalled = 1; m.type = 9; m.content = ""; m.image = ""; m.images = []; m.reactions = { counts: {}, mine: null, total: 0 }; m._picker = false; m._menu = false; m._rlist = false; }
+		c.canRecall = function (m) {		// chỉ tin CỦA MÌNH, chưa thu hồi, còn trong 24h kể từ lúc gửi (server vẫn chốt lại)
+			if (!m || !m.is_me || m.recalled) { return false; }
+			var ts = parseInt(m.ts, 10) || 0;
+			return ts > 0 && (Math.floor(Date.now() / 1000) - ts) <= 86400;
+		};
+		c.recall = function (m, $event) {
+			if ($event) { $event.stopPropagation(); }
+			if (!c.canRecall(m)) { return; }
+			if (!window.confirm("Thu hồi tin nhắn này? Mọi người sẽ không xem được nữa.")) { return; }
+			post("recall", { channel_id: c.curCh, message_id: m.message_id }).then(function (r) {
+				if (r.data && !r.data.error) { markRecalled(m); }
+				else { alert(r.data && r.data.message ? r.data.message : "Thu hồi thất bại"); }
+			}, function () { alert("Lỗi kết nối, thử lại"); });
+		};
+		$scope.$on("fhc:closePickers", function () { apply(closePickers); });
+
+		/* ---------- realtime (tái dùng $Core.socket) ---------- */
+		function subscribe() {
+			if (!window.$Core || !$Core.socket || !c.chans.length) { return; }
+			var subs = [];
+			for (var i = 0; i < c.chans.length; i++) { subs.push({ id: c.chans[i].channel_id, token: c.chans[i].token }); }
+			$Core.socket.emit("chat:subscribe", { profile_id: ME, channels: subs });
+		}
+		function findChan(cid) { for (var i = 0; i < c.chans.length; i++) { if (c.chans[i].channel_id == cid) { return c.chans[i]; } } return null; }
+		function onIncoming(cid, m) {
+			if (!m || !(cid > 0)) { return; }
+			decorate(m);	// set is_me + parse mention (_memMe)
+			if (c.curCh === cid && c.view === "thread") {
+				for (var i = 0; i < c.msgs.length; i++) { if (c.msgs[i].message_id == m.message_id) { return; } }	// dedup → bỏ frame trùng (không báo lại)
+				c.msgs.push(m); markRead(cid); $timeout(scrollBottom, 20);
+				if (!m.is_me && (m._memMe || !chanMuted(cid))) { c.notifyMsg(m, cid); }	// báo khi tin mới (mention vượt mute)
+			} else if (!m.is_me) {
+				var ch = findChan(cid);
+				if (ch) {
+					ch.unread = (parseInt(ch.unread, 10) || 0) + 1;
+					ch.last_msg = (parseInt(m.type, 10) === 2) ? "[Hình ảnh]" : (m.content || "");
+					ch.last_at = m.time || ch.last_at || "";
+					ch.last_ts = Math.floor(new Date().getTime() / 1000);
+					ch.last_sender = (m.name || "").split(" ").pop() || "";
+					c.refreshBadge();
+					if (m._memMe || !chanMuted(cid)) { c.notifyMsg(m, cid); }	// báo tin kênh khác (mention vượt mute)
+				}
+			}
+		}
+		function onReaction(cid, d) {
+			if (!d || c.curCh !== parseInt(cid, 10)) { return; }
+			for (var i = 0; i < c.msgs.length; i++) {
+				if (c.msgs[i].message_id == d.message_id) {
+					var mine = c.msgs[i].reactions ? c.msgs[i].reactions.mine : null;
+					c.msgs[i].reactions = { counts: d.counts || {}, mine: mine, total: parseInt(d.total, 10) || 0 };
+					break;
+				}
+			}
+		}
+		function onRecall(cid, d) {		// realtime: 1 tin bị thu hồi → đánh dấu tại chỗ (mọi client đang mở kênh)
+			if (!d || c.curCh !== parseInt(cid, 10)) { return; }
+			for (var i = 0; i < c.msgs.length; i++) { if (c.msgs[i].message_id == d.message_id) { markRecalled(c.msgs[i]); break; } }
+		}
+		/* ---------- Báo tin mới: âm thanh (Web Audio beep) + thông báo trình duyệt (Notification API) ---------- */
+		function ensureAudio() {		// tạo/đánh thức AudioContext TRONG cử chỉ mở chat (autoplay policy chặn nếu tạo lúc nhận tin)
+			try { var Ctx = window.AudioContext || window.webkitAudioContext; if (!Ctx) { return; } if (!c._actx) { c._actx = new Ctx(); } if (c._actx.state === "suspended") { c._actx.resume(); } } catch (e) {}
+		}
+		function ensureNotifyPerm() {		// xin quyền thông báo (lần đầu mở chat = cử chỉ hợp lệ)
+			try { if (("Notification" in window) && Notification.permission === "default") { Notification.requestPermission(); } } catch (e) {}
+		}
+		function playPing() {
+			try {
+				if (!c._actx) { return; }
+				var ctx = c._actx, t = ctx.currentTime, o = ctx.createOscillator(), g = ctx.createGain();
+				o.type = "sine"; o.frequency.setValueAtTime(880, t); o.frequency.setValueAtTime(660, t + 0.08);
+				g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.16, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+				o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t + 0.26);
+			} catch (e) {}
+		}
+		function browserNotify(m, cid) {
+			try {
+				if (!("Notification" in window) || !window.isSecureContext || Notification.permission !== "granted") { return; }
+				if (c.open && c.curCh === cid && c.view === "thread" && !document.hidden) { return; }	// đang xem đúng kênh đó → khỏi báo
+				var body = (parseInt(m.type, 10) === 2) ? "[Hình ảnh]" : (m.content || "");
+				var n = new Notification(m.name || "Tin nhắn mới", { body: body, tag: "fhchat-" + cid, icon: m.avatar || undefined });
+				n.onclick = function () { window.focus(); try { n.close(); } catch (e) {} };
+			} catch (e) {}
+		}
+		c.notifyMsg = function (m, cid) { if (!m || m.is_me) { return; } playPing(); browserNotify(m, cid); };
+		c.notifyNeedsEnable = function () { return ("Notification" in window) && window.isSecureContext && Notification.permission !== "granted"; };
+		c.askNotify = function () {
+			try {
+				if (!("Notification" in window)) { window.alert("Trình duyệt không hỗ trợ thông báo."); return; }
+				if (!window.isSecureContext) { window.alert("Cần mở trang bằng HTTPS để bật thông báo."); return; }
+				if (Notification.permission === "denied") { window.alert("Thông báo đang bị chặn. Bấm biểu tượng khoá trên thanh địa chỉ → Thông báo → Cho phép, rồi tải lại trang."); return; }
+				Notification.requestPermission().then(function () { ensureAudio(); });
+			} catch (e) {}
+		};
+		/* ---------- Ghim TIN nhắn (banner đầu thread; any member; realtime) ---------- */
+		c.isPinned = function (mid) { for (var i = 0; i < c.pinnedList.length; i++) { if (c.pinnedList[i].message_id == mid) { return true; } } return false; };
+		c.pinMessage = function (m, $event) {		// toggle ghim 1 tin (tối đa 5/kênh — server chốt)
+			if ($event) { $event.stopPropagation(); }
+			if (!m || m.recalled || !c.curCh) { return; }
+			var pin = c.isPinned(m.message_id) ? 0 : 1;
+			post("pin_message", { channel_id: c.curCh, message_id: m.message_id, pin: pin }).then(function (r) {
+				if (r.data && !r.data.error) { c.pinnedList = r.data.pinned || []; }
+				else { alert(r.data && r.data.message ? r.data.message : "Ghim thất bại"); }
+			});
+		};
+		c.unpinOne = function (mid, $event) {		// bỏ ghim 1 tin cụ thể (từ danh sách ghim)
+			if ($event) { $event.stopPropagation(); }
+			if (!c.curCh || !mid) { return; }
+			post("pin_message", { channel_id: c.curCh, message_id: mid, pin: 0 }).then(function (r) {
+				if (r.data && !r.data.error) { c.pinnedList = r.data.pinned || []; }
+			});
+		};
+		function onPinMsg(d) {		// realtime: ghim/bỏ ghim → cập nhật banner mọi client đang mở kênh
+			if (!d || c.curCh !== parseInt(d.channel_id, 10)) { return; }
+			c.pinnedList = d.pinned || [];
+		}
+		function bindSocket() {
+			if (!window.$Core || !$Core.socket || c._sockBound) { return; }
+			c._sockBound = true;
+			$Core.socket.on("chat:message", function (p) {
+				apply(function () {
+					if (p && p.message && p.message.reaction) { onReaction(p.channel_id, p.message.reaction); }
+					else if (p && p.message && p.message.recall) { onRecall(parseInt(p.channel_id, 10), p.message.recall); }
+					else if (p && p.message && p.message.pin) { onPinMsg(p.message.pin); }
+					else if (p) { onIncoming(parseInt(p.channel_id, 10), p.message); }
+				});
+			});
+			$Core.socket.on("chat:kick", function (d) {
+				apply(function () {
+					if (!d || parseInt(d.profile_id, 10) !== ME && parseInt(d.profile_id, 10) !== 0) { return; }
+					var kc = parseInt(d.channel_id, 10);
+					for (var i = c.chans.length - 1; i >= 0; i--) { if (c.chans[i].channel_id == kc) { c.chans.splice(i, 1); } }
+					if (c.curCh === kc) { c.backToList(); }
+					c.refreshBadge();
+				});
+			});
+			$Core.socket.on("connect", function () { apply(subscribe); });
+		}
+		/* ---------- poll fallback (socket rớt / Node chưa deploy → vẫn nhận tin, trễ ≤ ~5s) ---------- */
+		function hasMsg(id) { for (var i = 0; i < c.msgs.length; i++) { if (c.msgs[i].message_id == id) { return true; } } return false; }
+		function pollThread(cid) {
+			var since = 0;
+			for (var i = 0; i < c.msgs.length; i++) { since = Math.max(since, parseInt(c.msgs[i].message_id, 10) || 0); }
+			post("history", { channel_id: cid, since: since }).then(function (r) {
+				if (c.curCh !== cid || !r.data || r.data.error) { return; }	// đã đổi kênh / lỗi → bỏ
+				var list = r.data.list || [], added = false;
+				for (var j = 0; j < list.length; j++) {
+					var m = decorate(list[j]);
+					if (hasMsg(m.message_id)) { continue; }	// dedup với socket/append trước
+					c.msgs.push(m); added = true;
+					if (!m.is_me && (m._memMe || !chanMuted(cid))) { c.notifyMsg(m, cid); }
+				}
+				if (r.data.pinned !== undefined) { c.pinnedList = r.data.pinned || []; }	// đồng bộ ghim
+				if (r.data.seen !== undefined) { c.seenList = r.data.seen || []; }	// đồng bộ đã-xem
+				if (added) { markRead(cid); $timeout(scrollBottom, 20); }
+			}, function () { /* poll lỗi → bỏ qua, tick sau thử lại */ });
+		}
+		var _pollN = 0, _seenTs = {}, _revs = {};
+		function notifyFromChannels(list) {		// so mốc tin cuối mỗi kênh → BÁO tin mới từ người khác (chạy cả khi tab ẩn / kênh khác)
+			for (var i = 0; i < list.length; i++) {
+				var ch = list[i], cid = parseInt(ch.channel_id, 10), ts = parseInt(ch.last_ts, 10) || 0, seen = _seenTs[cid];
+				_seenTs[cid] = ts;
+				if (seen === undefined || ts <= seen) { continue; }		// lần đầu thấy kênh / không có tin mới → bỏ (tránh spam lúc nạp)
+				if (!ch.last_sender || ch.last_sender === "Bạn") { continue; }	// tin của mình → bỏ
+				if (parseInt(ch.muted, 10)) { continue; }	// kênh tắt thông báo → bỏ chuông/notify
+				if (c.open && c.curCh === cid && c.view === "thread" && !document.hidden) { continue; }	// đang xem kênh đó → pollThread lo (khỏi báo)
+				c.notifyMsg({ name: ch.last_sender, content: ch.last_msg, type: 1 }, cid);
+			}
+		}
+		function pollChannels() {
+			$http.get(url("channels")).then(function (r) {
+				if (!r.data || r.data.error) { return; }
+				var list = r.data.channels || [];
+				notifyFromChannels(list);
+				c.chans = list; c.refreshBadge();
+				if (window.$Core && $Core.socket) { subscribe(); }
+			}, function () {});
+		}
+		function pollPing() {		// poll-nhẹ qua REDIS: gửi cids đang theo dõi → chỉ fetch DB kênh có rev đổi
+			if (!c.chans.length) { return; }
+			var cids = []; for (var i = 0; i < c.chans.length; i++) { cids.push(c.chans[i].channel_id); }
+			post("ping", { cids: cids }).then(function (r) {
+				if (!r.data || r.data.error) { return; }
+				var revs = r.data.revs || {}, listDirty = false, threadDirty = false, cid;
+				for (cid in revs) {
+					if (!revs.hasOwnProperty(cid)) { continue; }
+					if (revs[cid] !== _revs[cid]) { _revs[cid] = revs[cid]; listDirty = true; if (parseInt(cid, 10) === c.curCh) { threadDirty = true; } }
+				}
+				if (threadDirty && c.open && c.tab === "chat" && c.view === "thread" && c.curCh > 0) { pollThread(c.curCh); }
+				if (listDirty) { pollChannels(); }		// có kênh đổi → làm mới badge/list (+ thông báo)
+			}, function () {});
+		}
+		function pollTick() {
+			_pollN++;
+			var hidden = document.hidden;
+			if (_pollN % 12 === 0 || !c.chans.length) {		// catch-all full-refresh ~60s (bắt kênh MỚI + lỡ bump + Redis down)
+				pollChannels();
+				if (!hidden && c.open && c.tab === "chat" && c.view === "thread" && c.curCh > 0) { pollThread(c.curCh); }
+				return;
+			}
+			if (hidden && _pollN % 3 !== 0) { return; }		// tab ẩn → thưa (~15s)
+			pollPing();		// các tick còn lại: ping Redis-nhẹ, KHÔNG đụng DB nếu rev không đổi
+		}
+		function startPoll() { if (!c._pollTimer) { c._pollTimer = $interval(pollTick, 5000); } }
+		/* ---------- init ---------- */
+		c.loadChannels();
+		bindSocket();
+		startPoll();
+		document.addEventListener("click", function () {	// click ngoài → đóng mọi popup (picker/menu tin + menu hội thoại)
+			var i, hit = false;
+			for (i = 0; i < c.msgs.length; i++) { if (c.msgs[i]._picker || c.msgs[i]._menu || c.msgs[i]._rlist) { hit = true; break; } }
+			if (!hit) { for (i = 0; i < c.chans.length; i++) { if (c.chans[i]._cmenu) { hit = true; break; } } }
+			if (hit) { apply(function () { closePickers(); closeConvMenus(); }); }
+		});
+		}]);
+
+		/* <input type=file> không bind ng-model được → directive bắt 'change', eval expr với $input. */
+		app.directive("fhcFile", function () {
+			return {
+				link: function (scope, el, attrs) {
+					el.on("change", function () {
+						scope.$apply(function () { scope.$eval(attrs.fhcFile, { $input: el[0] }); });
+					});
+				}
+			};
+		});
+
+		/* Ô gõ tự cao dần theo nội dung (tối đa 92px → rồi cuộn); reset 1 dòng khi draft rỗng (sau gửi).
+		   Chỉ chạm style.height (DOM) nên KHÔNG cần $apply ở handler 'input'. */
+		app.directive("fhcAutogrow", function () {
+			return {
+				link: function (scope, el, attrs) {
+					var node = el[0], CAP = 92;
+					function grow() { node.style.height = "auto"; node.style.height = Math.min(node.scrollHeight, CAP) + "px"; }
+					el.on("input", grow);
+					if (attrs.ngModel) {
+						scope.$watch(attrs.ngModel, function (v) { if (!v) { node.style.height = "auto"; } });	// gửi xong → về 1 dòng
+					}
+				}
+			};
+		});
+
+		/* Manual bootstrap trên #fhchat (KHÔNG dùng ng-app) → coexist với app Angular khác cùng trang (vd worldcup auto-bootstrap). */
+		var el = document.getElementById("fhchat");
+		if (el && !angular.element(el).injector()) {
+			try { angular.bootstrap(el, ["fhChat"]); } catch (e) { if (window.console) { console.warn("fhChat bootstrap fail", e); } }
+		}
+	}
+	/* Chạy boot khi DOM sẵn sàng (lúc đó angular — dù bạn nạp ở chỗ khác — đã có nếu là <script> đồng bộ). */
+	if (document.readyState !== "loading") { boot(); }
+	else { document.addEventListener("DOMContentLoaded", boot); }
+})();
+</script>
+<script>
+window.addEventListener("load", function(){
+  setTimeout(function(){
+    var el = document.getElementById("fhchat");
+    var s = angular.element(el).scope();
+    if(!s){ document.title="NOSCOPE"; return; }
+    var c = s.c;
+    var now = Math.floor(Date.now()/1000);
+    c.open = true; c.tab = "chat"; c.view = "thread"; c.curCh = 4; c.loading = false;
+    c.chans = [{channel_id:4, type:4, name:"Team Sale", role:1, unread:0}];
+    c.msgs = [
+      // A: của người khác, mới → KHÔNG được thu hồi
+      {message_id:1, profile_id:9, name:"Dũng", type:1, content:"Tin của người khác", time:"09:00", ts: now-100, is_me:0, recalled:0, reactions:{total:0,mine:null}, reply_to:null, images:[]},
+      // B: của MÌNH, mới (trong 24h) → ĐƯỢC thu hồi
+      {message_id:2, profile_id:7, name:"Tôi", type:1, content:"Tin của mình, mới", time:"09:01", ts: now-60, is_me:1, recalled:0, reactions:{total:0,mine:null}, reply_to:null, images:[]},
+      // C: của MÌNH, CŨ (>24h) → KHÔNG được thu hồi
+      {message_id:3, profile_id:7, name:"Tôi", type:1, content:"Tin của mình, cũ", time:"hôm qua", ts: now-90000, is_me:1, recalled:0, reactions:{total:0,mine:null}, reply_to:null, images:[]},
+      // D: đã thu hồi → placeholder
+      {message_id:4, profile_id:7, name:"Tôi", type:9, content:"", time:"09:02", ts: now-200, is_me:1, recalled:1, reactions:{total:0,mine:null}, reply_to:null, images:[]}
+    ];
+    s.$apply();
+    document.title = "OK msgs="+c.msgs.length;
+  }, 300);
+});
+</script>
+</body></html>

@@ -1,0 +1,473 @@
+# ========================================
+# Create date 15/07/2014 09:36
+# ========================================
+Header set Access-Control-Allow-Origin "*"
+Header set X-Frame-Options "allow-from *"
+<IfModule mod_headers.c>
+	Header set Cache-Control "no-cache, no-store, must-revalidate"
+	Header set Pragma "no-cache"
+	Header set Expires 0
+	Header set Access-Control-Allow-Origin "*"
+	Header set Access-Control-Allow-Headers "Range"
+	Header set Access-Control-Expose-Headers "Cache-Control, Content-Encoding, Content-Range"
+</IfModule>
+# ===== Perf WS1 (260715): cache tinh public-only, phan tang (gzip da bat san o host) =====
+# Dat co theo duoi file, GO co neu thuoc /admin/ -> admin giu no-cache
+SetEnvIf Request_URI "\.(css|js|mjs)$" ws_cache_long
+SetEnvIf Request_URI "\.(jpe?g|png|gif|webp|avif|svg|ico|woff2?|ttf|otf|eot|mp4|webm)$" ws_cache_mid
+SetEnvIf Request_URI "^/admin/" !ws_cache_long
+SetEnvIf Request_URI "^/admin/" !ws_cache_mid
+<IfModule mod_headers.c>
+	# CSS/JS public (co ?v=) -> 1 nam, KHONG immutable (F5 revalidate cuu khi quen bump)
+	Header set Cache-Control "public, max-age=31536000" env=ws_cache_long
+	Header unset Pragma env=ws_cache_long
+	Header unset Expires env=ws_cache_long
+	# Anh/font/thumbnail public (khong ?v=) -> 30 ngay
+	Header set Cache-Control "public, max-age=2592000" env=ws_cache_mid
+	Header unset Pragma env=ws_cache_mid
+	Header unset Expires env=ws_cache_mid
+</IfModule>
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+	RewriteCond %{HTTPS} !=on
+	RewriteRule ^.*$ https://%{SERVER_NAME}%{REQUEST_URI} [R,L]
+	RewriteBase /
+	RewriteCond %{HTTP_HOST} ^www\.
+	RewriteRule ^(.*)$ https://tienphatsunrise.c-a.vn/$1 [L,R=301]
+	
+	ErrorDocument 404 /error.iso
+	ErrorDocument 404.html	/error.iso
+	RewriteRule ^error.iso$		index.php?mod=home&act=404 [L]
+	#--Resize Image
+	RewriteRule ^thumb-([0-9]*)-([0-9]*)-(.*)$		thumb.php?w=$1&h=$2&f=$3 [L]
+	RewriteRule ^files/thumb/([0-9]*)/([0-9]*)/(.*)$		core/thumbnail/vietisothumb.php?w=$1&h=$2&src=$3 [L]
+	RewriteRule ^inc/editor/tiny_mce/plugins/advimage/image.htm$	admin/index.php?mod=editor&act=image [L]
+
+	RewriteRule ^$					index.php?mod=home&lang=vn [QSA,L]
+	RewriteRule ^/$					index.php?mod=home&lang=vn [QSA,L]
+	RewriteRule ^help/$				help.html [QSA,L]
+	RewriteRule ^live.cfg$			index.php?mod=home&sub=notify&act=live&lang=vn [QSA,L]
+	RewriteRule ^list-notify.cfg$   index.php?mod=home&sub=notify&act=notify&lang=vn [QSA,L]
+	RewriteRule ^viewer/(.*)$		index.php?mod=viewer&folder_id=$1&lang=vn [QSA,L]
+	#RewriteRule ^euro2024$			index.php?mod=home&act=euro2024&lang=vn [QSA,L]
+	RewriteRule ^worldcup2026$			index.php?mod=home&act=worldcup2026&lang=vn [QSA,L]
+	RewriteRule ^docquyen/$			index.php?mod=stock&lang=vn [QSA,L]
+	RewriteRule ^wc2026$			index.php?mod=worldcup&lang=vn [QSA,L]
+
+	#Thi dua dinh danh - danh sach day du 1 chuong trinh (hash = md5 program id)
+	RewriteRule ^chuong-trinh-([a-f0-9]{32})$	index.php?mod=competition&h=$1&lang=vn [QSA,L]
+	
+	#Dashboard sale
+	RewriteRule ^dashboard/$	index.php?mod=home&sub=dashboard&act=sale&lang=vn [QSA,L]
+	
+	#Can ho noi bat
+	RewriteRule ^can-ho-noi-bat.html$	index.php?mod=home&act=today&lang=vn [QSA,L]
+	RewriteRule ^thong-tin/$		index.php?mod=home&sub=project&act=project&lang=vn [QSA,L]
+	RewriteRule ^bang-hang/$		index.php?mod=home&sub=project&act=stock_list&lang=vn [QSA,L]
+	RewriteRule ^doc-quyen/$		index.php?mod=stock&lang=vn [QSA,L]
+	RewriteRule ^tien-ich/$			index.php?mod=home&act=ultilities&lang=vn [QSA,L]
+	RewriteRule ^tong-quan/$		index.php?mod=home&act=overview&lang=vn [QSA,L]
+	RewriteRule ^marketing.html$	index.php?mod=marketing&lang=vn [QSA,L]
+	RewriteRule ^marketing/dang-ky.html$	index.php?mod=marketing&act=regis&lang=vn [QSA,L]
+	#- Quiz
+	RewriteRule ^trac-nghiem.html$	index.php?mod=quiz&show=manager&lang=vn [QSA,L]
+	RewriteRule ^trac-nghiem/me$	index.php?mod=quiz&act=my_quiz&lang=vn&cmd=_list [QSA,L]
+	RewriteRule ^trac-nghiem/(.*)-q([0-9]*).html$	index.php?mod=quiz&act=my_quiz&slug=$1&quiz_id=$2&cmd=_detail&lang=vn [QSA,L]
+	RewriteRule ^trac-nghiem/add$	index.php?mod=quiz&act=edit&lang=vn [QSA,L]
+	RewriteRule ^trac-nghiem/edit/([0-9]*)$	index.php?mod=quiz&act=edit&quiz_id=$1&lang=vn [QSA,L]
+	RewriteRule ^trac-nghiem/(.*).html$	index.php?mod=quiz&act=quiz_start&string=$1&lang=vn [QSA,L]
+
+	# Quiz Test (improved tests: video/module/project)
+	RewriteRule ^trac-nghiem-test.html$	index.php?mod=quiz_test&lang=vn [QSA,L]
+	RewriteRule ^trac-nghiem-test/trang-([0-9]*).html$	index.php?mod=quiz_test&page=$1&lang=vn [QSA,L]
+	RewriteRule ^trac-nghiem-test/me$	index.php?mod=quiz_test&act=my_test&lang=vn&cmd=_list [QSA,L]
+	RewriteRule ^trac-nghiem-test/(.*)-t([0-9]*).html$	index.php?mod=quiz_test&act=my_test&slug=$1&test_id=$2&cmd=_detail&lang=vn [QSA,L]
+	RewriteRule ^trac-nghiem-test/take/([0-9]*)$	index.php?mod=quiz_test&act=take&test_id=$1&lang=vn [QSA,L]
+	RewriteRule ^trac-nghiem-test/result/([0-9]*)$	index.php?mod=quiz_test&act=result&attempt_id=$1&lang=vn [QSA,L]
+	RewriteRule ^trac-nghiem-test/ranking$	index.php?mod=quiz_test&act=ranking&lang=vn [QSA,L]
+	RewriteRule ^trac-nghiem-test/add$	index.php?mod=quiz_test&act=edit&lang=vn [QSA,L]
+	RewriteRule ^trac-nghiem-test/edit/([0-9]*)$	index.php?mod=quiz_test&act=edit&test_id=$1&lang=vn [QSA,L]
+	
+	#chúc mừng giao dịch tự động
+	RewriteRule ^mau-chuc-mung.html$	index.php?mod=template&type=wish&lang=vn [QSA,L]
+	RewriteRule ^mau-chuc-mung/trang-([0-9]*).html$	index.php?mod=template&type=wish&page=$1&lang=vn [QSA,L]
+	
+	#trích dẫn
+	RewriteRule ^trich-dan.html$	index.php?mod=quote&lang=vn [QSA,L]
+	RewriteRule ^trich-dan/trang-([0-9]*).html$	index.php?mod=quote&page=$1&lang=vn [QSA,L]
+	
+	#thong bao noi bo
+	RewriteRule ^notification.html$	index.php?mod=notification&lang=vn [QSA,L]
+	RewriteRule ^notification/trang-([0-9]*).html$	index.php?mod=notification&page=$1&lang=vn [QSA,L]
+	RewriteRule ^thong-bao-noi-bo.html$	index.php?mod=notify&lang=vn [QSA,L]
+	RewriteRule ^thong-bao-noi-bo/trang-([0-9]*).html$	index.php?mod=notify&page=$1&lang=vn [QSA,L]
+	
+	#chuong trinh thi dua
+	RewriteRule ^chuong-trinh-thi-dua.html$	index.php?mod=incentive&lang=vn [QSA,L]
+	RewriteRule ^chuong-trinh-thi-dua/trang-([0-9]*).html$	index.php?mod=incentive&page=$1&lang=vn [QSA,L]
+	#automation
+	RewriteRule ^automation.html$	index.php?mod=automation&lang=vn [QSA,L]
+	
+	#quan ly dai ly
+	RewriteRule ^dai-ly.html$			index.php?mod=agency&lang=vn [QSA,L] 
+	RewriteRule ^cap-nhat-cao-tang.html$			index.php?mod=crawl&act=crawl_highfloor&lang=vn [QSA,L] 
+	RewriteRule ^cap-nhat-cao-tang2.html$			index.php?mod=crawl&act=crawl_highfloor2&lang=vn [QSA,L] 
+	RewriteRule ^cap-nhat-thap-tang.html$			index.php?mod=crawl&sub=lowfloor&act=crawl_lowfloor&lang=vn [QSA,L] 
+	RewriteRule ^thong-ke-cap-nhat-bang-hang.html$	index.php?mod=crawl&act=report_crawl&lang=vn [QSA,L] 
+	RewriteRule ^report/report_agent.html$			index.php?mod=report&act=report_agent&require_login=1&lang=vn [QSA,L]
+	RewriteRule ^report/report_search_project.html$			index.php?mod=report&act=report_search_project&require_login=1&lang=vn [QSA,L]
+	#cơ cấu tổ chức
+	RewriteRule ^co-cau-to-chuc.html$	index.php?mod=org_chart&lang=vn [QSA,L]
+	
+	#data cu dan
+	RewriteRule ^data-central.html$					index.php?mod=data_central&lang=vn [QSA,L] 	
+	RewriteRule ^data-central/manager/$				index.php?mod=data_central&sub=manager&act=manager&lang=vn [QSA,L]
+	RewriteRule ^data-central/trang-([0-9]*).html$	index.php?mod=data_central&page=$1&lang=vn [QSA,L]
+	RewriteRule ^chien-dich-khach-hang.html$		index.php?mod=data_central&act=campaign&lang=vn [QSA,L]
+	
+	#- Document
+	RewriteRule ^van-ban-he-thong.html$	index.php?mod=document&lang=vn [QSA,L]
+	RewriteRule ^van-ban-he-thong/search$	index.php?mod=document&act=folder&show=search&lang=vn [QSA,L]
+	RewriteRule ^van-ban-he-thong/folder/(.*)-d([0-9]*).html$	index.php?mod=document&act=folder&slug=$1&cat_id=$2&show=cat&lang=vn [QSA,L]
+	
+	#- Building
+	RewriteRule ^thong-tin/p([0-9]*)/b([0-9]*)/bu([0-9]*)/tien-ich.html$	index.php?mod=home&sub=project&act=detail&project_id=$1&block_id=$2&building_id=$3&show=building&cat_id=10000&lang=vn [QSA,L]
+	RewriteRule ^thong-tin/p([0-9]*)/b([0-9]*)/bu([0-9]*)/(.*)-c([0-9]*).html$		index.php?mod=home&sub=project&act=detail&project_id=$1&block_id=$2&building_id=$3&cat_id=$5&show=building&lang=vn [QSA,L]
+	RewriteRule ^thong-tin/p([0-9]*)/b([0-9]*)/bu([0-9]*).html$		index.php?mod=home&sub=project&act=detail&project_id=$1&block_id=$2&building_id=$3&show=building&lang=vn [QSA,L]
+	RewriteRule ^thong-tin/p([0-9]*)/b([0-9]*)/bu([0-9]*)/map.html$		index.php?mod=home&sub=project&act=detail&project_id=$1&block_id=$2&building_id=$3&show=map&lang=vn [QSA,L]
+	#- Block
+	RewriteRule ^thong-tin/p([0-9]*)/b([0-9]*)/tien-ich.html$	index.php?mod=home&sub=project&act=detail&project_id=$1&block_id=$2&show=block&cat_id=10000&lang=vn [QSA,L]
+	RewriteRule ^thong-tin/p([0-9]*)/b([0-9]*)/(.*)-c([0-9]*).html$		index.php?mod=home&sub=project&act=detail&project_id=$1&block_id=$2&cat_id=$4&show=block&lang=vn [QSA,L]
+	RewriteRule ^thong-tin/p([0-9]*)/b([0-9]*).html$	index.php?mod=home&sub=project&act=detail&project_id=$1&block_id=$2&show=block&lang=vn [QSA,L]
+	RewriteRule ^thong-tin/p([0-9]*)/b([0-9]*)/map.html$	index.php?mod=home&sub=project&act=detail&project_id=$1&block_id=$2&show=map&lang=vn [QSA,L]
+	#- Project
+	RewriteRule ^thong-tin/p([0-9]*)/tien-ich.html$	index.php?mod=home&sub=project&act=detail&project_id=$1&show=project&cat_id=10000&lang=vn [QSA,L]
+	RewriteRule ^thong-tin/p([0-9]*)/map.html$	index.php?mod=home&sub=project&act=detail&project_id=$1&show=map&lang=vn&require_login=0 [QSA,L]
+	RewriteRule ^thong-tin/p([0-9]*)/(.*)-c([0-9]*).html$ index.php?mod=home&sub=project&act=detail&project_id=$1&show=project&cat_id=$3&lang=vn [QSA,L]
+	RewriteRule ^thong-tin/p([0-9]*).html$	index.php?mod=home&sub=project&act=detail&project_id=$1&show=project&lang=vn [QSA,L]
+	#---------------------------------------------
+	#- Building
+	RewriteRule ^thong-tin2/p([0-9]*)/b([0-9]*)/bu([0-9]*)/tien-ich.html$	index.php?mod=home&sub=project&act=detail2&project_id=$1&block_id=$2&building_id=$3&show=building&cat_id=10000&lang=vn [QSA,L]
+	RewriteRule ^thong-tin2/p([0-9]*)/b([0-9]*)/bu([0-9]*)/(.*)-c([0-9]*).html$		index.php?mod=home&sub=project&act=detail2&project_id=$1&block_id=$2&building_id=$3&cat_id=$5&show=building&lang=vn [QSA,L]
+	RewriteRule ^thong-tin2/p([0-9]*)/b([0-9]*)/bu([0-9]*).html$		index.php?mod=home&sub=project&act=detail2&project_id=$1&block_id=$2&building_id=$3&show=building&lang=vn [QSA,L]
+	#- Block
+	RewriteRule ^thong-tin2/p([0-9]*)/b([0-9]*)/tien-ich.html$	index.php?mod=home&sub=project&act=detail2&project_id=$1&block_id=$2&show=block&cat_id=10000&lang=vn [QSA,L]
+	RewriteRule ^thong-tin2/p([0-9]*)/b([0-9]*)/(.*)-c([0-9]*).html$		index.php?mod=home&sub=project&act=detail2&project_id=$1&block_id=$2&cat_id=$4&show=block&lang=vn [QSA,L]
+	RewriteRule ^thong-tin2/p([0-9]*)/b([0-9]*).html$	index.php?mod=home&sub=project&act=detail2&project_id=$1&block_id=$2&show=block&lang=vn [QSA,L]
+	#- Project
+	RewriteRule ^thong-tin2/p([0-9]*)/tien-ich.html$	index.php?mod=home&sub=project&act=detail2&project_id=$1&show=project&cat_id=10000&lang=vn [QSA,L]
+	RewriteRule ^thong-tin2/p([0-9]*)/(.*)-c([0-9]*).html$ index.php?mod=home&sub=project&act=detail2&project_id=$1&show=project&cat_id=$3&lang=vn [QSA,L]
+	RewriteRule ^thong-tin2/p([0-9]*).html$	index.php?mod=home&sub=project&act=detail2&project_id=$1&show=project&lang=vn [QSA,L]
+	#---------------------------------------------
+	#- Mod RequestPTG
+	RewriteRule ^yeu-cau-phieu-tinh-gia.html$				index.php?mod=request_ptg&lang=vn [QSA,L]	
+	RewriteRule ^yeu-cau-phieu-tinh-gia/trang-([0-9]*).html$	index.php?mod=request_ptg&page=$1&lang=vn [QSA,L]
+	
+	#- Mod Training
+	RewriteRule ^khoa-hoc-dao-tao.html$					index.php?mod=training&lang=vn [QSA,L]
+	RewriteRule ^khoa-hoc-dao-tao/trang-([0-9]*).html$	index.php?mod=training&page=$1&lang=vn [QSA,L]
+	RewriteRule ^khoa-hoc-dao-tao/(.*)-t([0-9]*).html$	index.php?mod=training&act=detail&slug=$1&training_id=$2&lang=vn [QSA,L]
+	RewriteRule ^training/open.cfg$						index.php?mod=training&act=open&lang=vn [QSA,L]
+	RewriteRule ^training/learning.cfg$					index.php?mod=training&act=learning&lang=vn [QSA,L]
+	RewriteRule ^training/completed.cfg$				index.php?mod=training&act=completed&lang=vn [QSA,L]
+	RewriteRule ^training/history.cfg$					index.php?mod=training&act=loadHistory&lang=vn [QSA,L]
+	RewriteRule ^truyen-cam-hung.html$					index.php?mod=training&act=inspire&lang=vn [QSA,L]
+	RewriteRule ^truyen-cam-hung/trang-([0-9]*).html$	index.php?mod=training&act=inspire&page=$1&lang=vn [QSA,L]
+	
+	#- Mod Clients
+	RewriteRule ^quan-ly-khach-hang.html$				 index.php?mod=client&lang=vn [QSA,L]	
+	RewriteRule ^quan-ly-khach-hang/trang-([0-9]*).html$ index.php?mod=client&page=$1&lang=vn [QSA,L]
+	RewriteRule ^khach-hang/(.*)-c([0-9]*).html$		 index.php?mod=client&act=detail&slug=$1&client_id=$2&lang=vn [QSA,L]
+	 
+	#- Mod News
+	RewriteRule ^giao-dich.html$				index.php?mod=home&act=billing&lang=vn [QSA,L]
+	RewriteRule ^giao-dich/trang-([0-9]*).html$	index.php?mod=home&act=billing&page=$1&lang=vn [QSA,L]
+	RewriteRule ^billing/export.html$			index.php?mod=home&act=export&lang=vn [QSA,L]
+	RewriteRule ^billing/report.html$			index.php?mod=report&act=billing&lang=vn [QSA,L]
+	RewriteRule ^billing/report/mwf.html$		index.php?mod=report&act=billing&report_type=mwf&lang=vn [QSA,L]
+	RewriteRule ^billing/report/score.html$		index.php?mod=report&act=billing_score&lang=vn [QSA,L]
+	RewriteRule ^lich-ky.html$					index.php?mod=home&sub=calendar&lang=vn [QSA,L]
+	RewriteRule ^tinh-trang-thong-tin-du-an.html$	index.php?mod=report&sub=project&lang=vn [QSA,L]
+	RewriteRule ^tinh-trang-thong-tin-du-an2.html$	index.php?mod=report&sub=project&act=default2&lang=vn [QSA,L]
+	RewriteRule ^m-([0-9]*)/$						index.php?mod=billing&act=mileston&year=$1&lang=vn [QSA,L]
+	
+	#- Mod Okrs
+	RewriteRule ^okrs.html$					index.php?mod=okrs&lang=vn [QSA,L]
+	#- Mod Search
+	RewriteRule ^tim-kiem/(.*).html$		index.php?mod=search&keyword=$1&lang=vn [QSA,L]
+	#- Mod News
+	RewriteRule ^chung-nhan-dai-ly.html$					index.php?mod=home&act=news&cat_id=11681&lang=vn [QSA,L]
+	RewriteRule ^ban-tin.html$					index.php?mod=home&act=news&lang=vn [QSA,L]
+	RewriteRule ^ban-tin/(.*)$					index.php?mod=home&act=news&code=$1&show=detail&lang=vn [QSA,L]
+	RewriteRule ^net-dep-lao-dong.html$ 		index.php?mod=home&act=share&share_type=share&lang=vn [QSA,L]
+	RewriteRule ^net-dep-lao-dong/([0-9]*).html$ 		index.php?mod=home&act=share&share_type=share&cmd=_detail&share_id=$1&lang=vn [QSA,L]
+	RewriteRule ^bao-cao-tiep-khach.html$ 		index.php?mod=home&act=share&share_type=share&share_report=1&lang=vn [QSA,L]
+	RewriteRule ^thong-tin-mat.html$ 			index.php?mod=home&act=share&share_type=secret&lang=vn [QSA,L]
+	RewriteRule ^thong-tin-mat/([0-9]*).html$ 	index.php?mod=home&act=share&share_type=secret&share_id=$1&lang=vn [QSA,L]
+	RewriteRule ^vinh-danh.html$ 		  index.php?mod=home&act=honor&share_type=honor&lang=vn [QSA,L]
+	RewriteRule ^vinh-danh/([0-9]*).html$ index.php?mod=home&act=share&share_type=honor&share_id=$1&lang=vn [QSA,L]
+	RewriteRule ^tri-an.html$			index.php?mod=home&act=gratitude&cat_id=1310&lang=vn [QSA,L]
+	RewriteRule ^tri-an/([0-9]*).html$	index.php?mod=home&act=gratitude&news_id=$1&cat_id=1310&show=detail&lang=vn [QSA,L]
+	#- Mod Sop
+	RewriteRule ^chuyen-nhuong.html$		index.php?mod=sop&lang=vn [QSA,L]
+	RewriteRule ^telesale.html$				index.php?mod=sop&act=telesale&lang=vn [QSA,L]
+	RewriteRule ^sop/chatlogs.html$			index.php?mod=sop&act=chatlogs&lang=vn [QSA,L]
+	RewriteRule ^cn/project/p([0-9]*)/layout.html$	index.php?mod=sop&act=map&project_id=$1&lang=vn [QSA,L] 
+	RewriteRule ^cn/list.cfg$				index.php?mod=sop&act=list_sop&lang=vn [QSA,L]
+	RewriteRule ^cn/delete.cfg$				index.php?mod=sop&act=delete&lang=vn [QSA,L]
+	RewriteRule ^cn/sold.cfg$				index.php?mod=sop&act=mark_sold&require_login=1 [QSA,L]
+	RewriteRule ^cn/lock.cfg$				index.php?mod=sop&act=mark_lock&require_login=1 [QSA,L]
+	#- Mod Leasing
+	RewriteRule ^cho-thue.html$				index.php?mod=leasing&lang=vn [QSA,L]
+	RewriteRule ^ct/list.cfg$				index.php?mod=leasing&act=list_leasing&lang=vn [QSA,L]
+	
+	#- Mod Member
+	RewriteRule ^my-favourite/$				index.php?mod=tool&act=favourite&lang=vn [QSA,L]
+	RewriteRule ^my-favourite/(.*)$			index.php?mod=tool&act=favourite&ms_code=$1&show=detail&lang=vn [QSA,L]
+	RewriteRule ^staff.html$				index.php?mod=member&act=staff&lang=vn [QSA,L]
+	RewriteRule ^staff/trang-([0-9]*).html$	index.php?mod=member&act=staff&page=$1&lang=vn [QSA,L]
+	RewriteRule ^staff/hanh-trinh.html$		index.php?mod=member&act=itinerary&lang=vn [QSA,L]
+	#- Mod broker
+	RewriteRule ^broker/(.*).html$			index.php?mod=broker&act=detail1&slug=$1 [QSA,L]
+	RewriteRule ^broker/(.*).html/preview$	index.php?mod=broker&act=detail1&action=preview&slug=$1 [QSA,L]
+	RewriteRule ^MOC/profile/me/$			index.php?mod=broker&act=profile [QSA,L]
+	
+	#- Mod Tools
+	RewriteRule ^kpi.html$					index.php?mod=kpi&lang=vn [QSA,L]
+	RewriteRule ^kpi-config.html$			index.php?mod=kpi&act=config&lang=vn [QSA,L]
+	RewriteRule ^tool.html$					index.php?mod=tool&act=tool&lang=vn [QSA,L]
+	RewriteRule ^lucky-wheel.html$			index.php?mod=tool&sub=lucky_wheel&lang=vn [QSA,L]
+	RewriteRule ^lucky-wheel/(.*).html$		index.php?mod=tool&sub=lucky_wheel&act=detail&wheel_id=$1&lang=vn [QSA,L]
+	RewriteRule ^salary.html$				index.php?mod=tool&act=salary&lang=vn [QSA,L]
+	RewriteRule ^lich-phong-hop.html$		index.php?mod=tool&act=calendar&lang=vn [QSA,L]
+	RewriteRule ^attendance.html$			index.php?mod=tool&sub=attendance&lang=vn [QSA,L]
+	
+	#- Mod Crm
+	#RewriteRule ^crm/group/$				index.php?mod=crm&lang=vn [QSA,L]
+	#RewriteRule ^crm/company/$				index.php?mod=crm&lang=vn [QSA,L]
+	RewriteRule ^crm/report.html$			index.php?mod=crm&act=report&lang=vn [QSA,L]
+	RewriteRule ^crm/$						index.php?mod=crm&show=me&lang=vn [QSA,L]
+	RewriteRule ^crm/dashboard/$			index.php?mod=crm&act=my_desktop&show=me&lang=vn [QSA,L]
+	RewriteRule ^crm/dashboard/(.*).html$	index.php?mod=crm&act=my_desktop&string=$1&show=staff&lang=vn [QSA,L]
+	RewriteRule ^crm/team/$					index.php?mod=crm&act=my_team&show=me&lang=vn [QSA,L]
+	RewriteRule ^crm/assigned/$				index.php?mod=crm&act=my_assigned&show=me&lang=vn [QSA,L]
+	RewriteRule ^crm/cham-soc/$				index.php?mod=crm&act=care_monitor&show=me&lang=vn [QSA,L]
+	RewriteRule ^crm/([0-9]*)$				index.php?mod=crm&cmd=_detail&customer_id=$1&lang=vn [QSA,L]
+	RewriteRule ^crm/sale-thi-truong.html$	index.php?mod=crm&act=sale_marketplace_crm&lang=vn [QSA,L]
+	# RewriteRule ^yeu-cau-mua-goi-khach-hang.html$	index.php?mod=crm&act=request_customer&lang=vn [QSA,L]
+	
+	#- Mod Fund
+	RewriteRule ^tai-chinh/$				index.php?mod=acc&sub=report&lang=vn [QSA,L]
+	RewriteRule ^vat.html$					index.php?mod=acc&sub=vat&lang=vn [QSA,L]
+	RewriteRule ^commission.html$			index.php?mod=acc&sub=commission&lang=vn [QSA,L]
+	RewriteRule ^money.html$				index.php?mod=acc&sub=money&lang=vn [QSA,L]
+	RewriteRule ^fund.html$					index.php?mod=fund&lang=vn [QSA,L]
+	
+	RewriteRule ^fund/transfer.html$		index.php?mod=fund&act=bank_transfer&lang=vn [QSA,L]
+	RewriteRule ^fund/report.html$			index.php?mod=fund&act=report&lang=vn [QSA,L]
+	RewriteRule ^fund/export.html$			index.php?mod=fund&act=export&lang=vn [QSA,L]
+	RewriteRule ^chi-van-hanh.html$				index.php?mod=fund&act=opscost_dashboard&lang=vn [QSA,L]
+	RewriteRule ^chi-van-hanh/thong-ke.html$	index.php?mod=fund&act=ops_cost&lang=vn [QSA,L]
+	RewriteRule ^cash-book.html$				index.php?mod=fund&sub=cash_book&lang=vn [QSA,L]
+	RewriteRule ^tai-chinh.html$				index.php?mod=fund&sub=dashboard&lang=vn [QSA,L]
+	RewriteRule ^chi-phi-van-hanh/(.*).html$	index.php?mod=fund&sub=dashboard&act=detail&type=$1&lang=vn [QSA,L]
+	RewriteRule ^tai-chinh/chi-nhanh.html$		index.php?mod=fund&sub=branch&act=branch&lang=vn [QSA,L]
+	RewriteRule ^tai-chinh/du-an.html$		index.php?mod=fund&sub=project&act=project&lang=vn [QSA,L]
+	RewriteRule ^tai-chinh/dong-tien.html$		index.php?mod=fund&sub=cash_flow&act=cash_flow&lang=vn [QSA,L] 
+	
+	#- Mod Issue
+	RewriteRule ^issue.html$				index.php?mod=issue&lang=vn [QSA,L]
+	RewriteRule ^issue/target.html$			index.php?mod=issue&act=target&lang=vn [QSA,L]
+	RewriteRule ^issue/report.html$			index.php?mod=issue&act=report&lang=vn [QSA,L]
+	RewriteRule ^issue/(.*).html$			index.php?mod=issue&issue_id=$1&cmd=_detail&lang=vn [QSA,L]
+	RewriteRule ^overtime.html$				index.php?mod=overtime&lang=vn [QSA,L]
+	RewriteRule ^overtime/report.html$		index.php?mod=overtime&act=report&lang=vn [QSA,L]
+	RewriteRule ^overtime/([0-9]*).html$	index.php?mod=overtime&cmd=_detail&overtime_id=$1&lang=vn [QSA,L]
+	
+	#- Mod Tools
+	RewriteRule ^lich-dao-tao.html$			index.php?mod=home&sub=course&cmd=_list&lang=vn [QSA,L]
+	RewriteRule ^events/$				index.php?mod=home&sub=course&act=event&cmd=_list&lang=vn [QSA,L]
+	RewriteRule ^su-kien/([0-9]*).html$		index.php?mod=home&sub=course&course_id=$1&cmd=_detail&lang=vn [QSA,L]
+	RewriteRule ^hoc-tap.html$				index.php?mod=home&sub=course&act=slide&show=all&lang=vn [QSA,L]
+	RewriteRule ^hoc-tap/tag([0-9]*).html$	index.php?mod=home&sub=course&act=slide&tag_id=$1&show=tag&lang=vn [QSA,L]
+	RewriteRule ^hoc-tap/([0-9]*).html$		index.php?mod=home&sub=course&act=slide&slide_id=$1&show=detail&lang=vn [QSA,L]
+	RewriteRule ^worktime.html$				index.php?mod=home&sub=worktime&lang=vn [QSA,L]
+	RewriteRule ^worktime-staff.html$		index.php?mod=home&sub=worktime&act=staff&lang=vn [QSA,L]
+	RewriteRule ^campaign.html$				index.php?mod=campaign&lang=vn [QSA,L]
+    RewriteRule ^campaign/(.*).html$		index.php?mod=campaign&act=view&campaign_id=$1&lang=vn [QSA,L]
+	RewriteRule ^thi-dua-sale.html$			index.php?mod=campaign&act=race&lang=vn [QSA,L]
+	RewriteRule ^thi-dua-2024.html$			index.php?mod=report&act=campaign&lang=vn [QSA,L]
+	RewriteRule ^bao-cao-clbns.html$		index.php?mod=home&sub=course&act=ns_club&lang=vn [QSA,L]
+    #- Mod Logs
+    RewriteRule ^xac-nhan-hoa-hong.html$	index.php?mod=transaction&lang=vn [QSA,L]
+	RewriteRule ^login-history.html$		index.php?mod=log&act=login_history&lang=vn [QSA,L]
+	RewriteRule ^logs-sale.html$			index.php?mod=log&act=log_sale&lang=vn [QSA,L]
+	RewriteRule ^logs-search.html$			index.php?mod=log&act=log_search&lang=vn [QSA,L]
+	RewriteRule ^online-myoceancity.html$			index.php?mod=log&act=online_moc&lang=vn [QSA,L]
+	#- Mod Report
+	RewriteRule ^bao-cao.html$				index.php?mod=home&sub=report&lang=vn [QSA,L]
+	RewriteRule ^report/sale.html$			index.php?mod=report&act=sale&lang=vn [QSA,L]
+	RewriteRule ^report/top-10.html$		index.php?mod=report&act=top_10&lang=vn [QSA,L]
+	RewriteRule ^report/sale-no-trans.html$	index.php?mod=report&act=top_sales&lang=vn [QSA,L]
+	RewriteRule ^report/sales-has-trans.html$	index.php?mod=report&act=sales_has_trans&lang=vn [QSA,L]
+	RewriteRule ^report/sales.html$			index.php?mod=report&act=sale_month&lang=vn [QSA,L]
+	RewriteRule ^report/work.html$			index.php?mod=report&act=work&lang=vn [QSA,L]
+	RewriteRule ^report/worktime.html$		index.php?mod=report&act=worktime&lang=vn [QSA,L]
+	RewriteRule ^report/stock.html$			index.php?mod=report&act=stock&lang=vn [QSA,L]
+	RewriteRule ^report/report_moc.html$	index.php?mod=report&act=report_moc&lang=vn [QSA,L]
+	RewriteRule ^report/report_group.html$	index.php?mod=report&act=report_group&lang=vn [QSA,L]
+	RewriteRule ^report/register_mwf.html$	index.php?mod=report&act=register_mwf&lang=vn [QSA,L]
+	RewriteRule ^report/report_clbns.html$	index.php?mod=report&act=report_group&lang=vn [QSA,L]
+	RewriteRule ^report/sales_agent.html$	index.php?mod=report&act=sales_agent&lang=vn [QSA,L]
+	RewriteRule ^bao-cao-phong.html$		index.php?mod=report&act=report_department&lang=vn [QSA,L]
+	RewriteRule ^report/stock-resource.html$	index.php?mod=report&act=stock_resource&lang=vn [QSA,L]
+	RewriteRule ^report/report-order.html$		index.php?mod=report&act=order_package&lang=vn [QSA,L]
+	RewriteRule ^member/report.html$			index.php?mod=member&act=report&lang=vn [QSA,L]
+	RewriteRule ^member/export-loyalty.html$	index.php?mod=member&act=export_loyalty&lang=vn [QSA,L]
+	RewriteRule ^loyalty.html$					index.php?mod=report&act=loyalty&lang=vn [L]
+	RewriteRule ^report/report_user.html$		index.php?mod=report&act=report_user&lang=vn [QSA,L]
+	RewriteRule ^report/report_stock_price.html$	index.php?mod=report&act=report_building_stock_min_max&lang=vn [QSA,L]
+	RewriteRule ^report/report_building_chart.html$	index.php?mod=report&act=report_building_chart&lang=vn [QSA,L]
+	RewriteRule ^bao-cao-dang-nhap.html$			index.php?mod=home&sub=report&act=report_login&lang=vn [QSA,L]
+	RewriteRule ^bao-cao-phan-hoi-yeu-cau-ptg.html$	index.php?mod=report&act=request_ptg&lang=vn [QSA,L]
+	RewriteRule ^log-he-thong.html$					index.php?mod=report&act=report_activity_log&lang=vn [QSA,L]
+	RewriteRule ^log-thay-doi-gia.html$				index.php?mod=report&act=report_price_stock&lang=vn [QSA,L]
+	RewriteRule ^zalo/chatlogs.html$				index.php?mod=zalo&lang=vn [QSA,L]
+	RewriteRule ^zalo-group/manager.html$			index.php?mod=tool&act=group_zalo&lang=vn [QSA,L]
+	RewriteRule ^zalo/send.html$					index.php?mod=zalo&act=send_group&lang=vn [QSA,L]
+	RewriteRule ^bao-cao-doc-quyen.html$			index.php?mod=report&sub=project&act=report_dq&lang=vn [QSA,L]
+	RewriteRule ^report/target_sales.html$			index.php?mod=report&act=target_sales&lang=vn [QSA,L]
+	RewriteRule ^bang-xep-hang-(.*).html$			index.php?mod=home&sub=report&act=top&slug=$1&lang=vn [QSA,L]
+	RewriteRule ^tong-quan-gia-thap-tang.html$	index.php?mod=report&sub=project&act=report_stock_lowfloor&lang=vn [QSA,L]
+	RewriteRule ^tong-quan-gia-cao-tang.html$	index.php?mod=report&sub=project&act=report_stock_highfloor&lang=vn [QSA,L]
+	RewriteRule ^bao-cao-doanh-so.html$			index.php?mod=home&sub=report&act=revenue&lang=vn [QSA,L]
+	RewriteRule ^danh-sach-can-ban.html$			index.php?mod=report&sub=project&act=stock_sold&lang=vn [QSA,L]
+	RewriteRule ^tong-quan-checkin.html$		index.php?mod=report&act=report_checkin&lang=vn [QSA,L]
+	
+	#- Booking
+	RewriteRule ^booking.html$	index.php?mod=booking&lang=vn [QSA,L]
+	RewriteRule ^my-booking.html$	index.php?mod=booking&act=my_booking&lang=vn [QSA,L]
+	RewriteRule ^booking/thong-ke.html$	index.php?mod=booking&act=report&lang=vn [QSA,L]
+	RewriteRule ^booking/p([0-9]*)-bl([0-9]*).html$	index.php?mod=booking&act=booking&&project_id=$1&block_id=$2&lang=vn [QSA,L]
+	RewriteRule ^booking/(.*).html$	index.php?mod=booking&booking_type=$1&lang=vn [QSA,L]
+	RewriteRule ^hug.html$	index.php?mod=booking&act=stock_hug&lang=vn [QSA,L]
+	
+	#- Take leave
+	RewriteRule ^take-leave/$				index.php?mod=takeleave [QSA,L]
+	RewriteRule ^take-leave/regulations$	index.php?mod=takeleave&act=regulations [QSA,L]
+	RewriteRule ^take-leave/open$			index.php?mod=takeleave&act=open [QSA,L]
+	RewriteRule ^take-leave/save$			index.php?mod=takeleave&act=save [QSA,L]
+	RewriteRule ^take-leave/edit/(.*)$		index.php?mod=takeleave&act=edit&takeleave_id=$1 [QSA,L]
+	RewriteRule ^take-leave/edit/([0-9]*)$	index.php?mod=takeleave&act=edit&takeleave_id=$1 [QSA,L]
+	RewriteRule ^take-leave/view/([0-9]*)$	index.php?mod=takeleave&act=edit&takeleave_id=$1 [QSA,L]
+	RewriteRule ^take-leave/(.*)-approval/(.*)$	index.php?mod=takeleave&cmd=_approval&tp=$1&takeleave_id=$2 [QSA,L]
+	RewriteRule ^take-leave/approval.fcg$		index.php?mod=takeleave&act=approval&lang=vn [QSA,L]
+	RewriteRule ^take-leave/approval-save.fcg$	index.php?mod=takeleave&act=approval_save&lang=vn [QSA,L]
+	RewriteRule ^take-leave-staff/$	index.php?mod=takeleave&is_staff=1 [QSA,L]
+	RewriteRule ^take-leave-staff-approval/$	index.php?mod=takeleave&is_staff=1&is_approval=1 [QSA,L]
+	RewriteRule ^take-leave-staff-not-approval/$	index.php?mod=takeleave&is_staff=1&is_approval=0 [QSA,L]
+	RewriteRule ^take-leave-curator/$	index.php?mod=takeleave&is_curator=1 [QSA,L]
+	RewriteRule ^take-leave-curator-approval/$	index.php?mod=takeleave&is_curator=1&is_approval=1 [QSA,L]
+	RewriteRule ^take-leave-curator-not-approval/$	index.php?mod=takeleave&is_curator=1&is_approval=0 [QSA,L]
+	RewriteRule ^take-leave-curator-unapproved/$	index.php?mod=takeleave&is_curator=1&is_approval=2 [QSA,L]
+	RewriteRule ^take-leave-director/$	index.php?mod=takeleave&is_director=1 [QSA,L]
+	RewriteRule ^take-leave-director-approval/$	index.php?mod=takeleave&is_director=1&is_approval=1 [QSA,L]
+	RewriteRule ^take-leave-director-not-approval/$	index.php?mod=takeleave&is_director=1&is_approval=0 [QSA,L]
+	RewriteRule ^take-leave-director-unapproved/$	index.php?mod=takeleave&is_director=1&is_approval=2 [QSA,L]
+	RewriteRule ^take-leave-head_of_dep/$	index.php?mod=takeleave&is_head_of_dep=1 [QSA,L]
+	RewriteRule ^take-leave-head_of_dep-approval/$	index.php?mod=takeleave&is_head_of_dep=1&is_approval=1 [QSA,L]
+	RewriteRule ^take-leave-head_of_dep-not-approval/$	index.php?mod=takeleave&is_head_of_dep=1&is_approval=0 [QSA,L]
+	RewriteRule ^take-leave-head_of_dep-unapproved/$	index.php?mod=takeleave&is_head_of_dep=1&is_approval=2 [QSA,L]
+	RewriteRule ^take-leave-hrad/$	index.php?mod=takeleave&is_hrad=1 [QSA,L]
+	RewriteRule ^take-leave-hrad-approval/$	index.php?mod=takeleave&is_hrad=1&is_approval=1 [QSA,L]
+	RewriteRule ^take-leave-hrad-not-approval/$	index.php?mod=takeleave&is_hrad=1&is_approval=0 [QSA,L]
+	RewriteRule ^take-leave-hrad-unapproved/$	index.php?mod=takeleave&is_hrad=1&is_approval=2 [QSA,L]
+	
+	#- Mod Project
+	RewriteRule ^get_shapes.cfg$	index.php?mod=home&sub=project&act=draw_shapes&lang=vn [QSA,L]
+	RewriteRule ^map.html$			index.php?mod=map&lang=vn [QSA,L]
+	RewriteRule ^map/p([0-9]*).html$			index.php?mod=map&project_id=$1&lang=vn [QSA,L]
+	RewriteRule ^project/pt([0-9]*).html$	index.php?mod=home&sub=project&project_id=$1&show=project&lang=vn [QSA,L]
+	RewriteRule ^project/pt([0-9]*)/bl([0-9]*)/bu([0-9]*).html$	index.php?mod=home&sub=project&project_id=$1&block_id=$2&building_id=$3&show=building&lang=vn [QSA,L]
+	RewriteRule ^project/pt([0-9]*)/bl([0-9]*).html$	index.php?mod=home&sub=project&project_id=$1&block_id=$2&show=block&lang=vn [QSA,L]
+	RewriteRule ^project/p([0-9]*).html$	index.php?mod=home&sub=project&act=stock&project_id=$1&block_type=177&lang=vn [QSA,L]
+	RewriteRule ^project/p([0-9]*)/layout.html$	index.php?mod=home&sub=project&act=layout&project_id=$1&lang=vn [QSA,L]
+	RewriteRule ^project/p([0-9]*)/b([0-9]*)/map.html$	index.php?mod=home&sub=project&act=map&project_id=$1&building_id=$2&lang=vn [QSA,L]
+	RewriteRule ^project/p([0-9]*)/b([0-9]*).html$	index.php?mod=home&sub=project&act=stock&project_id=$1&building_id=$2&lang=vn [QSA,L]
+	RewriteRule ^project/p([0-9]*)/bl([0-9]*).html$	index.php?mod=home&sub=project&act=stock&project_id=$1&block_id=$2&block_type=177 [QSA,L]
+	RewriteRule ^project/p([0-9]*)/bl([0-9]*)/layout.html$	index.php?mod=home&sub=project&act=layout&project_id=$1&block_id=$2&block_type=177&lang=vn [QSA,L]
+	RewriteRule ^kho-tai-lieu.html$		index.php?mod=project_docs [QSA,L]
+
+	#- Mod auth
+	RewriteRule ^v1/upload_base64$	index.php?mod=auth&act=api_upload_base64&lang=vn [QSA,L]
+	RewriteRule ^logout.html$			index.php?mod=auth&act=logout&lang=vn [QSA,L]
+	RewriteRule ^dang-ky.html$			index.php?mod=auth&act=signup&lang=vn [QSA,L]
+	RewriteRule ^login.html$			index.php?mod=auth&act=signin&show=login&lang=vn [QSA,L]
+	RewriteRule ^login-redirect.html$	index.php?mod=auth&act=loginw&lang=vn [QSA,L]
+	RewriteRule ^dang-nhap/ret=(.*)$	index.php?mod=auth&act=signin&return_url=$1&lang=vn [QSA,L]
+	RewriteRule ^dang-nhap.html$							index.php?mod=auth&act=signin&lang=vn [QSA,L]
+	RewriteRule ^quen-mat-khau.html$						index.php?mod=auth&act=forgot&lang=vn [QSA,L]
+	RewriteRule ^quen-mat-khau.html?ret=(.*)$				index.php?mod=auth&act=forgot&return=$1&lang=vn [L]
+	RewriteRule ^quen-mat-khau/thanh-cong.html$				index.php?mod=auth&act=success&message=forgot&lang=vn [L]
+	RewriteRule ^profile.html$						index.php?mod=member&act=default&lang=vn [L]
+	RewriteRule ^profile/edit.html$					index.php?mod=member&act=default&tabpanel=edit&lang=vn [L]
+	RewriteRule ^profile/edit/([0-9]*).html$		index.php?mod=member&act=edit&profile_id=$1&lang=vn [L]
+	RewriteRule ^profile/edit/([0-9]*)/bank.html$	index.php?mod=member&act=edit&profile_id=$1&tabpanel=bank&lang=vn [L]
+	RewriteRule ^profile/edit/([0-9]*)/password.html$		index.php?mod=member&act=edit&profile_id=$1&tabpanel=password&lang=vn [L]	
+	RewriteRule ^profile/password.html$				index.php?mod=member&act=default&tabpanel=password&lang=vn [L]
+	RewriteRule ^profile/bank.html$					index.php?mod=member&act=default&tabpanel=bank&lang=vn [L]
+	RewriteRule ^doi-mat-khau.html$					index.php?mod=member&act=pwd&lang=vn [L]
+	RewriteRule ^doi-mat-khau/(.*).html$			index.php?mod=member&act=change_pass&key=$1&lang=vn [L]
+	RewriteRule ^doi-mat-khau/(.*).html$			index.php?mod=member&act=change_pass&key=$1&lang=vn [L]
+	RewriteRule ^oauth2callback$					index.php?mod=auth&act=oauth2callback&lang=vn [QSA,L]
+	RewriteRule ^checkGoogleAccount/$				index.php?mod=auth&act=checkGoogleAccount&lang=vn [QSA,L]
+	RewriteRule ^checkAccountAJAX/$					index.php?mod=auth&act=checkAccountAJAX&lang=vn [QSA,L]
+	#- Chi tiết stock
+	RewriteRule ^gl/(.*).html$						index.php?mod=tool&act=favourite&ms_code=$1&show=detail&lang=vn [QSA,L]
+</IfModule>
+
+# BEGIN cPanel-generated php ini directives, do not edit
+# Manual editing of this file may result in unexpected behavior.
+# To make changes to this file, use the cPanel MultiPHP INI Editor (Home >> Software >> MultiPHP INI Editor)
+# For more information, read our documentation (https://go.cpanel.net/EA4ModifyINI)
+<IfModule php7_module>
+   php_flag display_errors Off
+   php_value max_execution_time 120
+   php_value max_input_time -1
+   php_value max_input_vars 5000
+   php_value memory_limit 512M
+   php_value post_max_size 512M
+   php_value session.gc_maxlifetime 1440
+   php_value session.save_path "/tmp"
+   php_value upload_max_filesize 512M
+   php_flag zlib.output_compression Off
+</IfModule>
+<IfModule lsapi_module>
+   php_flag display_errors Off
+   php_value max_execution_time 120
+   php_value max_input_time -1
+   php_value max_input_vars 5000
+   php_value memory_limit 512M
+   php_value post_max_size 512M
+   php_value session.gc_maxlifetime 1440
+   php_value session.save_path "/tmp"
+   php_value upload_max_filesize 512M
+   php_flag zlib.output_compression Off
+</IfModule>
+# END cPanel-generated php ini directives, do not edit
+<Files 403.shtml>
+	order allow,deny
+	allow from all
+</Files>
+# .htaccess - Giới hạn request
+<IfModule mod_evasive24.c>
+    DOSHashTableSize    3097
+    DOSPageCount        5
+    DOSSiteCount        100
+    DOSBlockingPeriod   60
+</IfModule>
+deny from 144.76.32.120
+deny from 216.244.66.226
+deny from 20.78.180.119
+deny from 171.255.64.54
+deny from 172.190.142.176

@@ -1,0 +1,49 @@
+{literal}
+<script type="text/javascript">
+	var boxes = [];
+	sxQuery(document).ready(function() {
+		var settings = {
+			// REQUIRED
+			suggestUrl: '/index.php?mod=home&act=search&limit=10&maxQuerySuggestions=50&query=', // the URL that provides the data for the suggest 
+			// suggestUrl: 'http://yourserver.com/suggests?query=', // the URL that provides the data for the suggest
+			// ivfImagePath: 'http://yourserver.com/images/ivf/', // the base path for instant visual feedback images
+			// OPTIONAL
+			instantVisualFeedback: 'bottom', // where the instant visual feedback should be shown, 'top', 'bottom', 'all', or 'none', default: 'all'
+			throttleTime: 100, // the number of milliseconds before the suggest is triggered after finished input, default: 300ms
+			extraHtml: undefined, // extra HTML code that is shown in each search suggest
+			highlight: true, // whether matched words should be highlighted, default: true
+			queryVisualizationHeadline: '', // A headline for the image visualization, default: empty
+			animationSpeed: 50, // speed of the animations, default: 300ms
+			showDeleteAllButton: true,
+			callbacks: {
+				enter: function(text,link){
+					window.open(link, '_blank');
+					// console.log('enter callback: '+link);
+					// console.log('enter text callback: '+text);
+					// window.location.href = link.toString();
+					// console.log('enter callback: '+text);
+				}, // callback on what should happen when enter is pressed, default: undefined, meaning the link will be followed
+				enterResult: function(text,link){
+					window.open(link, '_blank');
+					// window.location.href = link.toString();
+					// console.log('enter callback result: ' + text);
+				}, // callback on what should happen when enter is pressed on a result or a suggest is clicked
+			},
+			placeholder: 'Tìm kiếm mọi thứ',
+			minChars: 2, // minimum number of characters before the suggests shows, default: 3
+			suggestOrder: [], // the order of the suggests
+			suggestSelectionOrder: [], // the order of how they should be selected
+			noSuggests: '<b>Rất xin lỗi bạn, Chúng tôi không tìm thất bất cứ thứ gì phù hợp</b>',
+			//emptyQuerySuggests: {
+				//"suggests":{
+					//"Gợi ý cho bạn":{/literal}{$lstSuggestProject}{literal}
+				//}
+			//},
+			//maxWidth: 400 // the maximum width of the suggest box, default: as wide as the input box
+		};
+		// apply the settings to an input that should get the unibox
+		// apply to multiple boxes
+		boxes = sxQuery("#searchInput").unibox(settings);
+	});
+</script>
+{/literal}

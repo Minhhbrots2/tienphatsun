@@ -1,0 +1,27 @@
+<script type="text/javascript">
+	$(function(){
+		$Core.sop.list_sop({});	
+		var slider = new rSlider({
+			target: '#slider-range',
+			values: [0,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,7,8,9,10],
+			range: true,
+			tooltip: false,
+			labels: true,
+			set: [{/literal}{$_ss_price_range[0]}{literal},{/literal}{$_ss_price_range[1]}{literal}],
+			onChange: function (vals) {
+				$('input[name=price_range]').val(vals);
+				//$Core.tool.do_search();
+			}
+		}), floor = new rSlider({
+			target: '#floor-range',
+			values: [2,4,6,8,10,12,14,16,18,20,22,24,26,28,30],
+			range: true,
+			tooltip: false,
+			labels: true,
+			set: [{/literal}{$_ss_price_range[0]}{literal},{/literal}{$_ss_price_range[1]}{literal}],
+			onChange: function (vals) {
+				$('input[name=floor_range]').val(vals);
+			}
+		});
+	});
+</script>

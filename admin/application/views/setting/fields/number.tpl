@@ -1,0 +1,2 @@
+{* Ô nhập số. Vẫn lưu dạng TEXT như mọi field khác, type chỉ đổi widget. *}
+<input type="number" class="form-control{if !empty($val.required)} required{/if}" name="config[{$keyword|escape}]" value="{$current|escape}"{if !empty($val.required)} required{/if}{if !empty($val.placeholder)} placeholder="{$val.placeholder|escape}"{/if}{if isset($val.min)} min="{$val.min|escape}"{/if}{if isset($val.max)} max="{$val.max|escape}"{/if}{if isset($val.step)} step="{$val.step|escape}"{/if} />

@@ -1,0 +1,35 @@
+<nav class="circular-menu">
+	<label for="menu_open" class="menu-button bx bx-plus bg-main text-white fs-30" onClick="$Core.menu.open_menu(this,event)"></label>
+	<div class="circle">
+		<a href="javascript:void(0)" onClick="$Core.global.crm.add_customer(this,event)" customer_id="0" openfrom="_crm" data-toggle="ripple" route="/customer/create/0" class="bx bx-user-plus bg-success text-white" title="Thêm mới khách hàng"></a>
+		<a href="javascript:void(0)" class="bx bx-task bg-danger text-white" onclick="$Core.global.issue.open_issue(this, event)" issue_id="0" parent_id="0" title="Thêm công việc"></a>
+		<a href="javascript:void(0)"  class="bx bx-image bg-main text-white" holderg="share" share_id="0" action="_add" title="Thêm "></a>		
+		<a href="javascript:void(0)" class="bx bx-news bg-warning text-white" onclick="open_news(this, event)" news_id="0" action="_add" title="Thêm bản tin"></a>	
+	</div>
+</nav>
+<@-- Sale Director -->
+<nav class="circular-menu">
+	<label for="menu_open" class="menu-button bx bx-plus bg-main text-white fs-30" onClick="$Core.menu.open_menu(this,event)"></label>
+	<div class="circle">
+		<a href="javascript:void(0)" onClick="$Core.global.crm.add_customer(this,event)" customer_id="0" openfrom="_crm" data-toggle="ripple" route="/customer/create/0" class="bx bx-user-plus bg-success text-white" title="Thêm mới khách hàng"></a>
+		<a href="javascript:void(0)" onclick="$Core.global.share.open(this, event)" class="bx bx-image bg-main text-white" holderg="share" share_id="0" action="_add" title="Thêm hoạt động tiếp khách"></a>
+		<a href="javascript:void(0)" class="bx bx-task bg-danger text-white" onclick="$Core.global.issue.open_issue(this, event)" issue_id="0" parent_id="0" title="Thêm công việc"></a>		
+		<a href="javascript:void(0)" class="bx bx-bell-plus bg-primary text-white {if $is_send_report_today eq '1' || !$clsReport->check_time_send_report()}disabled{/if}" onClick="$Core.global.report.open(this, event)" report_id="0" title="Báo cáo hiệu quả hàng ngày"></a>
+	</div>
+</nav>
+<!-- Admin -->
+<nav class="circular-menu">
+	<label for="menu_open" class="menu-button bx bx-plus bg-main text-white fs-30" onClick="$Core.menu.open_menu(this,event)"></label>
+	<div class="circle">
+		<a href="javascript:void(0)" onclick="$Core.global.billing.open_billing(this, event)" tp="quick" billing_id="0" class="bx bx-cart-add bg-success text-white" title="Thêm giao dịch chốt"></a>
+		<a href="javascript:void(0)" class="bx bx-task bg-danger text-white" onclick="$Core.global.issue.open_issue(this, event)" issue_id="0" parent_id="0" title="Thêm công việc"></a>
+		<a href="javascript:void(0)" onclick="$Core.global.overtime.open(this, event)" overtime_id="0" openFrom="menu" class="bx bx-timer bg-main text-white" title="Đăng ký tăng ca"></a>
+		<a href="javascript:void(0)" class="bx bx-news bg-warning text-white" onclick="open_news(this, event)" news_id="0" action="_add" title="Thêm bản tin"></a>	
+	</div>
+</nav>
+
+
+{*<a href="{$PCMS_URL}/ban-tin.html" data-toggle="ripple" class="bottom-navbar-item flex-flow d-flex flex-column align-items-center justify-content-center {if $mod eq 'home' && $act eq 'news'}text-main{else}text-dark{/if}">
+	<div class="icon mb-1"><i class="menu-icon tf-icons bx bx-news me-0"></i></div>
+	<span class="fs-12 {if $mod eq 'home' && $act eq 'news'}text-main{else}text-dark{/if} text-nowrap">Bản tin</span>
+</a>*}

@@ -1,0 +1,63 @@
+https://s3-hfx03.fptcloud.com/bucket-bds/map/20250529235143447/{z}/{y}/{x}.jpg
+https://s3-hfx03.fptcloud.com/bucket-bds/map/20250322103742718/{z}/{y}/{x}.jpg
+	Bounds: [[85,-180],[21,101]]
+	Center: [72,-32]
+
+$list_docs = $clsClassTable->getAll("is_sync='1'");
+if(!empty($list_docs)){
+	/** Load API */
+	require DIR_INCLUDES . '/googleapiclient/vendor/autoload.php';
+	/** Init Client */
+	$client = new Google_Client();
+	$client->setClientId(GOOGLE_CLIENT_ID);
+	$client->setClientSecret(GOOGLE_CLIENT_SECRET);
+	$client->refreshToken(GOOGLE_DRIVE_REFRESH_TOKEN);
+	$client->setScopes(Google_Service_Drive::DRIVE);
+	$service = new Google_Service_Drive($client);
+	###
+	foreach($list_docs as $val){
+		$content = 'https://drive.google.com/drive/u/1/folders/1dHwsDaJtlOyDjxYRCc_irX3kFMmIIe6l';
+		$more_information = $val['more_information'];
+		$more_information = !empty($more_information) 
+				? json_decode(html_entity_decode($more_information), true) : array();
+		if(!empty($content)){
+			if($clsISO->checkContainer($content,"drive.google.com","")){
+				if(@preg_match('/folders/', $content)){
+					@preg_match('/.*[^-\w]([-\w]{25,})[^-\w]?.*/', $content, $matches);
+					$folder_id = $matches[1];
+					//https://drive.google.com/file/d/1ucbQj3gwbt6imLyR6vcID1bxuWgpER6z/view?usp=drive_link
+					$list_files = @get_files($service, $folder_id);
+					if(!empty($list_files)){
+						$gg_id = "";
+						foreach($list_files as $okey => $oval){
+							$gg_id = $okey;
+							break;
+						}
+						if($gg_id){
+							$file = sprintf('https://drive.google.com/file/d/%s/view', $gg_id);
+							$more_information['gg_id'] = $gg_id;
+							$more_information['type'] = 'google.file';
+							$more_information['image'] = $file;
+						}
+					}
+				} else if(preg_match('/file/', $content)){
+					preg_match('~/d/\K[^/]+(?=/)~', $content, $matches);
+					$gg_id = $matches[0];
+					$more_information['gg_id'] = $gg_id;
+					$more_information['type'] = 'google.file';
+					$more_information['image'] = $content;
+				}
+			} else {
+				$more_information['type'] = 'user.fh';
+				$more_information['image'] = $content;
+			}
+			//$clsISO->print_pre($more_information); die();
+			$clsClassTable->updateOne($val[$clsClassTable->pkey], array(
+				'is_sync' => 0,
+				'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE)
+			));
+		}
+	}
+}
+$clsISO->print_pre($list_docs); die();
+	

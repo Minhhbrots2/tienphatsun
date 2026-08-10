@@ -1,0 +1,119 @@
+<div class="row">
+	<div class="col-12 mb-3">
+		<div class="d-flex align-items-center justify-content-between">
+			<h6 class="card-title mb-0 text-nowrap">Xin chào <span class="text-main fw-bold">{$clsProperty->getTitle($oneProfile.role_id)} {$clsProfile->getFullName($profile_id, $oneProfile)}</span></h6>
+			<div class="input-group d-flex align-items-center" role="group" style="width:175px">
+				<select class="form-control form-select" name="project" gid="66b58c6508b63091357236" onchange="$Core.admin.loadBlockAdmin(this,event)">
+					<option value="0">Chọn dự án</option>
+					{foreach from=$lstBlock item=_oBlock}
+						<option value="{$_oBlock.property_id}" {if $block_id eq $_oBlock.property_id}selected{/if}>{$_oBlock.title}</option>
+					{/foreach}
+				</select>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="form-row">
+			<div class="col-12 col-lg-12 order-0 mb-2">
+				<div class="card">
+					{assign var = gId value = $clsISO->getUniqid()}
+					<div class="card-header d-flex flex-wrap align-items-center justify-content-between">
+						<h5 class="card-title mb-2 mb-lg-0 me-2">Biểu đồ tăng trưởng doanh số <span class="txt_block_code">{$oneBLock.property_code}</span></h5>
+						<div class="p-right ox:w-100">
+							<div class="input-group w-px-150 ox:w-100 d-flex" role="group" aria-label="Sắp xếp">
+								<select class="form-control form-select" name="month" gId="{$gId}" onChange="$Core.admin.reload(this,event)"> 
+									<option value="">Tháng</option>			
+									{foreach from=$list_months item = _month}
+									<option value="{$_month}">T{$_month}</option>
+									{/foreach}
+								</select>
+								<select class="form-control form-select" name="year" gId="{$gId}" onChange="$Core.admin.reload(this,event)">
+									{foreach from=$list_years item = _year}
+									<option{if $_year eq $smarty.now|date_format:"%Y"} selected{/if} value="{$_year}">{$_year}</option>
+									{/foreach}
+								</select>
+								{if $deviceType ne 'phone' && 1==2}
+								<button type="button" onClick="$Core.admin.open_full(this, event)" tp="load_billing_chart" class="btn d-none d-lg-block btn-icon btn-outline-default"><i class='bx bx-windows'></i></button>
+								{/if}
+							</div>
+						</div>
+					</div>
+					<div class="card-body">
+						<div class="ajax" gId="{$gId}" data-url="{$PCMS_URL}/index.php?mod={$mod}&sub=admin&act=load_billing_chart" data-options='{ldelim}{rdelim}'>
+							<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+							<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+							<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+							<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+							<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+							<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+							<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+							<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+				
+			<div class="col-12 col-lg-12 order-0 mb-2">				
+				<div class="card h-100">
+					{assign var = gId value = $clsISO->getUniqid()}
+					<div class="w-100 d-flex card-header align-items-center justify-content-between">
+						<h5 class="card-title mb-0">Báo cáo bán hàng</h5>
+						<div class="p-right">
+							<div class="input-group w-px-175 d-flex align-items-center" role="group">
+								<select class="form-control form-select" name="month" gId="{$gId}" data-type="total"
+									onChange="$Core.admin.reload(this,event)"> 
+									<option value="">Tháng</option>			
+									{foreach from=$list_months item = _month}
+									<option value="{$_month}">T{$_month}</option>
+									{/foreach}
+								</select>
+								<select class="form-control form-select" name="year" gId="{$gId}" data-type="total" 
+									onChange="$Core.admin.reload(this,event)">
+									{foreach from=$list_years item = _year}
+									<option{if $_year eq $smarty.now|date_format:"%Y"} selected{/if} value="{$_year}">{$_year}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="card-body ajax" data-options='{ldelim}"type":"total"{rdelim}' 
+						data-url="{$PCMS_URL}/index.php?mod={$mod}&sub=admin&act=load_sale_building" gId="{$gId}">
+						<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+						<div class="animate-bg rounded-2 mb-2 h-px-20 w-100"></div>
+					</div>
+				</div>
+			</div>	
+			<div class="col-12 col-lg-12 order-0 mb-2">				
+				<div class="card h-100">
+					{assign var = gId value = $clsISO->getUniqid()}
+					<div class="w-100 d-flex card-header align-items-center justify-content-between">
+						<h5 class="card-title mb-0">Danh sách bán hàng</h5>
+						<div class="p-right">
+							<div class="input-group w-px-175 d-flex align-items-center" role="group">
+								<select class="form-control form-select" name="month" gId="{$gId}" data-type="list" 
+									onChange="$Core.admin.reload(this,event)"> 
+									<option value="">Tháng</option>			
+									{foreach from=$list_months item = _month}
+									<option value="{$_month}">T{$_month}</option>
+									{/foreach}
+								</select>
+								<select class="form-control form-select" name="year" gId="{$gId}" data-type="list" 
+									onChange="$Core.admin.reload(this,event)">
+									{foreach from=$list_years item = _year}
+									<option{if $_year eq $smarty.now|date_format:"%Y"} selected{/if} value="{$_year}">{$_year}</option>
+									{/foreach}
+								</select>
+							</div>
+						</div>
+					</div>
+					<div id="list_agent" class="card-body w-100 ajax" data-url="{$PCMS_URL}/index.php?mod={$mod}&sub=admin&act=load_sale_building" data-options='{ldelim}"type":"list"{rdelim}' style="min-height:300px;" gId="{$gId}">
+						<div class="p-5 text-center">
+							<div class="p-5 text-muted">Loading...</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>

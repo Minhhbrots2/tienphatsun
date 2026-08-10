@@ -1,0 +1,36 @@
+<div class="d-none">
+						{foreach name=i from=$stock_sheet_configs key= _oKey item = _oRow}
+						<div class="gbox p-3 radius-3">
+							<div class="form-group form-row">
+								<label class="col-md-2 text-right col-form-label">Spreadsheet ID</label>
+								<div class="col-md-5">
+									<div class="input-group">
+										<input type="text" class="form-control spreadsheetId_{$_oKey}" uid="{$_oKey}" name="stock_sheet_configs[{$_oKey}][spreadsheetId]" placeholder="Nhập tên sheet" onClick="this.select()" value="{$_oRow.spreadsheetId}" onChange="$Core.property.get_select_worksheets(this, event)" />
+										<div class="input-group-btn">
+											<button type="button" title="Tạo sheet name" onClick="$Core.property.do_select_worksheets(this, event)" uid="{$_oKey}" data-toggle="tooltip" class="btn btn-default">{$core->makeIcon('plus', 'Select')}</button>
+										</div>
+									</div>
+								</div>
+								<label class="col-md-2 text-right col-form-label">Sheet name</label>
+								<div class="col-md-3">
+									<select class="form-control slb_worksheets_{$_oKey}" uid="{$_oKey}" name="stock_sheet_configs[{$_oKey}][name]" placeholder="Nhập tên sheet" value="{$_oRow.name}">
+										{$_oRow.html_worksheets}
+									</select>
+								</div>
+							</div>
+							<div class="form-group form-row">
+								<label class="col-md-2 text-right col-form-label">Column</label>
+								<div class="col-md-10">
+									<textarea class="form-control field_worksheets_{$_oKey} mb-1" placeholder="Nhập Colum A-Mã code,...." name="stock_sheet_configs[{$_oKey}][column]" readonly>{$_oRow.column}</textarea>
+									<a onClick="$Core.property.open_setting_field(this, event)" uid="{$_oKey}" href="javascript:void(0);">Cài đặt trường dữ liệu</a>
+								</div>
+							</div>
+							<div class="form-group form-row mb-0">
+								<label class="col-md-2 text-right col-form-label">Row</label>
+								<div class="col-md-10">
+									<input type="text" class="form-control" placeholder="Nhập khoảng row" name="stock_sheet_configs[{$_oKey}][row]" value="{$_oRow.row}" />
+								</div>
+							</div>
+						</div>
+						{/foreach}
+					</div>

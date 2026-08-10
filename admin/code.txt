@@ -1,0 +1,234 @@
+else { // Thêm mới
+	if(1==2){
+		$uid = $clsISO->getUniqid();
+		$stock_id = $clsStock->getMaxId();
+		$insert_field = $more_information = $logs = array();
+		foreach($columns as $key => $p_field){
+			if(!empty($p_field)){
+				if($p_field=='block_id' && !empty($tblData[$i][$key])){
+					$tmp = $clsProperty->getByCond("`is_trash`=0 and `property_type`='_BLOCK' and `for_id`='{$project_id}' 
+					and (`property_code`='".$tblData[$i][$key]."' or `slug`='".$core->replaceSpace($tblData[$i][$key])."')");
+					$block_id = !empty($tmp) ? $tmp[$clsProperty->pkey] : 0;
+					$tblData[$i][$key] = $block_id;
+				} else if($p_field=='type_id' && !empty($tblData[$i][$key])){
+					$tmp = $clsProperty->getByCond("`is_trash`=0 and `property_type`='_TYPE_VILLA' 
+					and (`property_code`='".$tblData[$i][$key]."' or slug_vn='".$core->replaceSpace($tblData[$i][$key])."' or `slug`='".$core->replaceSpace($tblData[$i][$key])."')");
+					$tblData[$i][$key] = !empty($tmp) ? $tmp[$clsProperty->pkey] : 0;
+				} else if($p_field=='agency_id' && !empty($tblData[$i][$key])){
+					$tmp = $clsProperty->getByCond("`is_trash`=0 and `property_type`='_AGENCY' 
+					and (`property_code`='".$tblData[$i][$key]."' 
+						or `slug_vn`='".$tblData[$i][$key]."' 
+						or `slug` like '%".$core->replaceSpace($tblData[$i][$key])."%'
+					)");
+					$tblData[$i][$key] = !empty($tmp) ? $tmp[$clsProperty->pkey] : 0;
+				} else if($p_field=='status_id' && !empty($tblData[$i][$key])){
+					$tmp = $clsProperty->getByCond("is_trash=0 and property_type='_STATUS' 
+					and slug='".$core->replaceSpace($tblData[$i][$key])."'");
+					$tblData[$i][$key] = !empty($tmp) ? $tmp[$clsProperty->pkey] : 0;
+				} else if($p_field=='contract_type_id' && !empty($tblData[$i][$key])){
+					$tmp = $clsProperty->getByCond("property_type='_CONTRACT_TYPE' and slug='".$core->replaceSpace($tblData[$i][$key])."'");
+					if(!empty($tmp)){
+						$contract_type_id = $tmp[$clsProperty->pkey];
+					} else {
+						$contract_type_id = $clsProperty->getMaxId();
+						$clsProperty->insert(array(
+							$clsProperty->pkey => $contract_type_id,
+							'property_type' => '_CONTRACT_TYPE',
+							'title' => $tblData[$i][$key],
+							'slug' => $core->replaceSpace($tblData[$i][$key]),
+							'order_no' => $clsProperty->getMaxorderNo(),
+							'user_id' => $core->_USER['user_id'],
+							'user_id_update' => $core->_USER['user_id'],
+							'reg_date' => time(),
+							'upd_date' => time()
+						));
+					}
+					$tblData[$i][$key] = $contract_type_id;
+				} else if($p_field=='contract_subject_id' && !empty($tblData[$i][$key])){
+					$tmp = $clsProperty->getByCond("property_type='_CONTRACT_SUBJECT' and slug='".$core->replaceSpace($tblData[$i][$key])."'");
+					if(!empty($tmp)){
+						$contract_subject_id = $tmp[$clsProperty->pkey];
+					} else {
+						$contract_subject_id = $clsProperty->getMaxId();
+						$clsProperty->insert(array(
+							$clsProperty->pkey => $contract_subject_id,
+							'property_type' => '_CONTRACT_SUBJECT',
+							'title' => $tblData[$i][$key],
+							'slug' => $core->replaceSpace($tblData[$i][$key]),
+							'order_no' => $clsProperty->getMaxorderNo(),
+							'user_id' => $core->_USER['user_id'],
+							'user_id_update' => $core->_USER['user_id'],
+							'reg_date' => time(),
+							'upd_date' => time()
+						));
+					}
+					$tblData[$i][$key] = $contract_subject_id;
+				} else if($p_field=='invest_fund_id' && !empty($tblData[$i][$key])){
+					$tmp = $clsProperty->getByCond("property_type='_INVEST_FUND' and slug='".$core->replaceSpace($tblData[$i][$key])."'");
+					if(!empty($tmp)){
+						$invest_fund_id = $tmp[$clsProperty->pkey];
+					} else {
+						$invest_fund_id = $clsProperty->getMaxId();
+						$clsProperty->insert(array(
+							$clsProperty->pkey => $invest_fund_id,
+							'property_type' => '_INVEST_FUND',
+							'title' => $tblData[$i][$key],
+							'slug' => $core->replaceSpace($tblData[$i][$key]),
+							'order_no' => $clsProperty->getMaxorderNo(),
+							'user_id' => $core->_USER['user_id'],
+							'user_id_update' => $core->_USER['user_id'],
+							'reg_date' => time(),
+							'upd_date' => time()
+						));
+					}
+					$tblData[$i][$key] = $invest_fund_id;
+				} else if($p_field=='sale_status_id' && !empty($tblData[$i][$key])){
+					$tmp = $clsProperty->getByCond("property_type='_SALE_STATUS' and slug='".$core->replaceSpace($tblData[$i][$key])."'");
+					if(!empty($tmp)){
+						$sale_status_id = $tmp[$clsProperty->pkey];
+					} else {
+						$sale_status_id = $clsProperty->getMaxId();
+						$clsProperty->insert(array(
+							$clsProperty->pkey => $sale_status_id,
+							'property_type' => '_SALE_STATUS',
+							'title' => $tblData[$i][$key],
+							'slug' => $core->replaceSpace($tblData[$i][$key]),
+							'order_no' => $clsProperty->getMaxorderNo(),
+							'user_id' => $core->_USER['user_id'],
+							'user_id_update' => $core->_USER['user_id'],
+							'reg_date' => time(),
+							'upd_date' => time()
+						));
+					}
+					$tblData[$i][$key] = $invest_fund_id;
+				} else if(($p_field=='agent_lock_id' || $p_field=='deposit_agent_id') 
+					&& !empty($tblData[$i][$key])){
+					$tmp = $clsProperty->getByCond("property_type='_AGENCY' and (slug_vn='".$core->replaceSpace($tblData[$i][$key])."' or slug='".$core->replaceSpace($tblData[$i][$key])."')");
+					if(!empty($tmp)){
+						$agency_id = $tmp[$clsProperty->pkey];
+					} else {
+						$agency_id = $clsProperty->getMaxId();
+						$clsProperty->insert(array(
+							$clsProperty->pkey => $agency_id,
+							'property_type' => '_AGENCY',
+							'title' => $tblData[$i][$key],
+							'title_vn' => $tblData[$i][$key],
+							'slug' => $core->replaceSpace($tblData[$i][$key]),
+							'slug_vn' => $core->replaceSpace($tblData[$i][$key]),
+							'order_no' => $clsProperty->getMaxorderNo(),
+							'user_id' => $core->_USER['user_id'],
+							'user_id_update' => $core->_USER['user_id'],
+							'is_locked' => 1,
+							'reg_date' => time(),
+							'upd_date' => time()
+						));
+					}
+					$tblData[$i][$key] = $agency_id;
+				} else if(($p_field=='bank_second_id' || $p_field=='bank_id') 
+					 && !empty($tblData[$i][$key])){
+					$tmp = $clsProperty->getByCond("property_type='_BANK' and slug='".$core->replaceSpace($tblData[$i][$key])."'");
+					if(!empty($tmp)){
+						$bank_id = $tmp[$clsProperty->pkey];
+					} else {
+						$bank_id = $clsProperty->getMaxId();
+						$clsProperty->insert(array(
+							$clsProperty->pkey => $bank_id,
+							'property_type' => '_BANK',
+							'title' => $tblData[$i][$key],
+							'slug' => $core->replaceSpace($tblData[$i][$key]),
+							'order_no' => $clsProperty->getMaxorderNo(),
+							'user_id' => $core->_USER['user_id'],
+							'user_id_update' => $core->_USER['user_id'],
+							'reg_date' => time(),
+							'upd_date' => time()
+						));
+					}
+					$tblData[$i][$key] = $bank_id;
+				} else if($p_field=='home_direction_id' && !empty($tblData[$i][$key])){
+					$tmp = $clsProperty->getByCond("property_type='_DIRECTION' 
+					and slug='".$core->replaceSpace($tblData[$i][$key])."'");
+					$tblData[$i][$key] = !empty($tmp) ? $tmp[$clsProperty->pkey] : 0;
+				}
+				$more_information[$p_field] = $tblData[$i][$key];
+				if(!in_array($p_field, array('DT_Tim','total_price','total_price_vat','csbh','TCBG','contract_subject_id','invest_fund_id'
+					,'bank_second_id','bank_id','sale_status_id','agent_lock_id','deposit_agent_id','total_price_early','total_price_progress'
+					,'total_price_bank','total_price_bank_36','total_price_bank_12','cs_policy_ns','price_temporary_ns','notes'))){
+					if($p_field=='DT_TT'){
+						$insert_field[$p_field] = $clsISO->toNumber($tblData[$i][$key]);
+					} else {
+						$insert_field[$p_field] = $tblData[$i][$key];
+					}
+				} else {
+					if($p_field=='total_price_vat'){
+						$insert_field['total_price_vat'] = $clsISO->convertToNumber($tblData[$i][$key]);
+					}
+					if(in_array($p_field, array('total_price','total_price_vat','total_price_early'
+						,'total_price_progress','total_price_bank','total_price_bank_36','total_price_bank_12'))){
+						if(isset($tblData[$i][$key]) && !empty($tblData[$i][$key])){
+							$logs[$clsISO->getUniqid()] = array(
+								'reg_date' => time(),
+								'user_id' => $core->_USER['user_id'],
+								'from_value' => 0,
+								'to_value' => $clsISO->convertToNumber($tblData[$i][$key]),
+								'field' => $p_field
+							);
+						}
+					}
+				}
+			}
+		}
+		$insert_field['reg_date'] = time();
+		$insert_field['upd_date'] = time();
+		$insert_field[$clsStock->pkey] = $stock_id;
+		$insert_field['project_id'] = $project_id;
+		$insert_field['stock_type'] = $stock_type;
+		$insert_field['logs'] = json_encode($logs, JSON_UNESCAPED_UNICODE);
+		$insert_field['more_information'] = json_encode($more_information, JSON_UNESCAPED_UNICODE);
+		$insert_field['user_id'] = $core->_USER['user_id'];
+		if($block_id > 0){
+			if($clsStock->insert($insert_field)){
+				$total_results++;
+			}
+		}
+	}
+}
+
+
+$all = $clsStock->getAll("stock_type='"._BLOCK_TYPE_HIGHLEVEL_SALE."' and `status_id`>0 and status_id<>'"._STOCK_STATUS_NON_ID."' and `status_id`<>'"._STOCK_STATUS_SOLD_ID."'", "{$clsStock->pkey},more_information");
+foreach($all as $key => $val){
+	$more_information = $val['more_information'];
+	$more_information = $clsISO->to_array_json($more_information);
+	$total_price_vat = $more_information['total_price_vat'];
+	$total_price_early = $more_information['total_price_early'];
+	if(empty($total_price_vat) && !empty($total_price_early)){
+		$total_price_vat = $total_price_early;
+	}
+	$total_price_vat = $clsISO->convertToNumber($total_price_vat);
+	$clsStock->updateOne($val[$clsStock->pkey], array(
+		'total_price_vat' => $total_price_vat
+	));
+}
+/* $all = $clsStock->getAll("(floor='5A' or floor='8A' or floor='12A' or `floor`='15A' or floor='18A') and building_id='{$building_id}'", "{$clsStock->pkey},floor,code,ms_code");
+foreach($all as $key => $val){
+	$floor = $val['floor'];
+	$ms_code = $val['ms_code'];
+	if($val['floor'] == '5A'){
+		$floor = '4';
+	} else if($val['floor']=='8A'){
+		$floor = '7';
+	} else if($val['floor']=='12A'){
+		$floor = '13';
+	} else if($val['floor']=='15A'){
+		$floor = '14';
+	} else if($val['floor']=='18A'){
+		$floor = '17';
+	}
+	$ms_code = str_replace($val['floor'], $floor, $ms_code);
+	// $clsISO->print_pre($ms_code); die();
+	$clsStock->updateOne($val[$clsStock->pkey], array(
+		'floor' => $floor,
+		'ms_code' => $ms_code
+	));
+}
+
+VHOP 2: 20250529235143447

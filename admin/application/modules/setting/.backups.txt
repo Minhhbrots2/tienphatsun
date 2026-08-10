@@ -1,0 +1,10 @@
+'user.fh' => array(
+	'title' => 'User.FH',
+	'description' => 'Cấu hình điểm số F-Point cho mỗi hoạt động của nhân sự sẽ nhận được.',
+	'actions' => array(
+		'login' => 'Đăng nhập',
+		'consulting' => 'Tiếp khách',
+		'transaction' => 'Giao dịch',
+		'created_post' => 'Đăng bản tin' 
+	)
+) ,

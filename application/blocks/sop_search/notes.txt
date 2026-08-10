@@ -1,0 +1,56 @@
+$list_range_floors = $list_range_axis = array();
+	for($i=1; $i<=40; $i += 5){
+		$list_range_floors[] = sprintf('%s-%s', $i, $i+4);
+	}
+	for($i=2; $i<=40; $i++){
+		if($i==4){
+			$list_range_axis[] = $clsISO->parseNumber($i);
+			$list_range_axis[] = '5A';
+		} else if($i==7){
+			$list_range_axis[] = $clsISO->parseNumber($i);
+			$list_range_axis[] = '8A';
+		} else if($i==13){
+			$axis = '12A';
+			$list_range_axis[] = $axis;
+		} else if($i==14){
+			$axis = '15A';
+			$list_range_axis[] = $axis;
+		} else {
+			$axis = $clsISO->parseNumber($i);
+			$list_range_axis[] = $axis;
+		}
+	}
+	$smarty->assign('list_range_axis', $list_range_axis);
+	$smarty->assign('list_range_floors', $list_range_floors);
+	###
+	$_ss_search = array();
+	if(vnSessionExist('_ss_search')){
+		$_ss_search = vnSessionGetVar('_ss_search');
+	}
+	$_ss_project_id = isset($_ss_search['project_id']) && !empty($_ss_search['project_id']) 
+		? $_ss_search['project_id'] : _PROJECT_DEF_ID;
+	$_ss_blocks_ids = isset($_ss_search['blocks_ids']) && !empty($_ss_search['blocks_ids']) 
+		? $_ss_search['blocks_ids'] : array();
+	$_ss_building_ids = isset($_ss_search['building_ids']) && !empty($_ss_search['building_ids']) 
+		? $_ss_search['building_ids'] : array();
+	$_ss_bedroom_ids = isset($_ss_search['bedroom_ids']) && !empty($_ss_search['bedroom_ids']) 
+		? $_ss_search['bedroom_ids'] : array();
+	$_ss_direction_ids = isset($_ss_search['direction_ids']) && !empty($_ss_search['direction_ids']) 
+		? $_ss_search['direction_ids'] : array();
+	$_ss_price_range = isset($_ss_search['price_range']) && !empty($_ss_search['price_range']) 
+		? $_ss_search['price_range'] : "0,10";
+	$_ss_floor_range = isset($_ss_search['floor_range']) && !empty($_ss_search['floor_range']) 
+		? $_ss_search['floor_range'] : array();
+	$_ss_type_ids = isset($_ss_search['type_ids']) && !empty($_ss_search['type_ids']) 
+		? $_ss_search['type_ids'] : array();
+	$_ss_axis_ids = isset($_ss_search['axis_ids']) && !empty($_ss_search['axis_ids']) 
+		? $_ss_search['axis_ids'] : array();
+	$smarty->assign('_ss_project_id', $_ss_project_id);
+	$smarty->assign('_ss_blocks_ids', $_ss_blocks_ids);
+	$smarty->assign('_ss_building_ids', $_ss_building_ids);
+	$smarty->assign('_ss_bedroom_ids', $_ss_bedroom_ids);
+	$smarty->assign('_ss_direction_ids', $_ss_direction_ids);
+	$smarty->assign('_ss_price_range', explode(',', $_ss_price_range));
+	$smarty->assign('_ss_floor_range', $_ss_floor_range);
+	$smarty->assign('_ss_type_ids', $_ss_type_ids);
+	$smarty->assign('_ss_axis_ids', $_ss_axis_ids);

@@ -1,0 +1,96 @@
+PLUGIN ISOMAN v1.0
+
+1. Copy folder isoman vào thư mục root
+
+2. Edit file /ucp/.htaccess
+Thêm 01 dòng: 
+RewriteRule ^isomanager/$		index.php?mod=editor&act=manager [L]
+
+3. Copy đè folder editor trong mod editor của ucp.
+
+4. Mở file /isocms/iso.php
+
+Nếu không sử dụng FTP Upload Thêm 05 dòng:
+define("_isoman_use", 1);
+define("_isoman_ftp", 0);
+define("_isoman_dir", $_SERVER['DOCUMENT_ROOT'].'/uploads');//thư mục upload đã cmod 777
+define("_isoman_url", "http://docs.isocms.net/uploads"); //duong dan tuyet doi
+define("_isoman_abs_url", "http://docs.isocms.net/uploads"); //duong dan tuyet doi goc
+
+Nếu sử dụng FTP Upload, thêm 07 dòng:
+define("_isoman_use", 1);
+define("_isoman_ftp", 1);
+define("_isoman_ftp_host_info", $_SERVER['SERVER_ADDR']);
+define("_isoman_ftp_usr_info", "uploads@docs.isocms.net");
+define("_isoman_ftp_pwd_info", "OAVZIOz3");
+define("_isoman_ftp_dir", $_SERVER['DOCUMENT_ROOT'].'/uploads');
+define("_isoman_ftp_url", 'http://docs.isocms.net/uploads');
+
+5. Edit file module home sub_default.php
+Thêm 01 dòng
+require($_SERVER['DOCUMENT_ROOT'].'/isoman/php/index.php');
+
+6. Edit file header trong ucp
+Thêm 01 dòng
+$assign_list["_isoman_use"] = _isoman_use;	
+
+6.2 Mở file index trong ucp
+Thêm dòng
+<script type="text/javascript" src="{$URL_JS}/jquery.form.js"></script>
+<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/isoman/js/jquery.cookie.js"></script>
+<script type="text/javascript" src="/isoman/js/man.js"></script>
+
+6.3. Mở file /isoman/js/man.js
+
+Thay thế
+var myWindow = window.open("http://docs.isocms.net/ucp/isomanager/", "ISOMAN", "width=860, height=620");
+Bằng
+var myWindow = window.open("DOMAINHIENTAI/ucp/isomanager/", "ISOMAN", "width=860, height=620");
+ 
+6. Cú pháp sử dụng:
+
+- TRONG FILE TEMPLATE
+{if $_isoman_use eq 1}
+<fieldset id="FImage">
+    <legend>Ảnh minh họa*:</legend>
+    <div style="float:left; margin-right:10px;">
+        <img id="isoman_show_NAMEIMAGE" src="VALUEIMAGE" style="display:block; max-width:150px; max-height:150px;"  />
+        <input type="hidden" id="isoman_hidden_NAMEIMAGE" name="isoman_hidden_NAMEIMAGE'" value="VALUEIMAGE">
+    </div>
+    <div style="float:left; width:70%">
+        <input style="width:90%;" type="text" id="isoman_url_NAMEIMAGE" name="isoman_url_NAMEIMAGE" value="VALUEIMAGE"><a href="#" class="ajOpenDialog" isoman_for_id="NAMEIMAGE" isoman_val="VALUEIMAGE" isoman_name=""><img src="/isoman/images/folderopen.gif" border="0" title="Open" alt="Open"></a>
+    </div>     
+</fieldset> 
+{else}
+<fieldset id="FImage">
+    <legend>Ảnh minh họa*:</legend>
+    <table>
+        <tr>
+            <td width="200px">
+                <img src="VALUEIMAGE" width="150px" height="100px" style="display:block; border:1px solid #ccc;"  />
+            </td>
+            <td valign="top" align="left">
+                Tải ảnh từ trên máy tính<br />
+                <input type="file" name="image" /><br />
+                Hệ thống chỉ chấp nhận các ảnh có định dạng .jpg,.png, hoặc .gif
+            </td>
+        </tr>
+    </table>    
+</fieldset>
+{/if}
+- TRONG FILE PHP
+
+if(_isoman_use){
+	$value .= ",image='".addslashes($_POST['isoman_url_NAMEIMAGE'])."'";
+}else{
+	$up = '';
+    if(is_uploaded_file($_FILES['image']['tmp_name'])){
+        $clsUploadFile = new UploadFile();
+        $up = $clsUploadFile->uploadItem($_FILES["image"],"/content","jpg,gif,png"); 			
+    }
+    if($up!=''&&$up!='0'){ 
+        $value .= ",image='".$up."'";
+    }
+}

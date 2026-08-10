@@ -1,0 +1,90 @@
+<div class="no-margin no-padding no-border-bottom">
+	<div class="tabs-panel">
+		<ul class="tabs d-flex text-nowrap dashboard_tabs">
+			<li class="active">
+				<a href="javascript:void(0);" class="tab" onClick="$Core.crm.sw_tab(this, event)" status_id="0">
+					<span>Tất cả</span>
+					<span class="badge label-danger color-666">{$total_customers}</span>
+				</a>
+			</li>
+			{if !empty(list_type_array)}
+				{section name=i loop=$list_type_array}
+				<li><a href="javascript:void(0);" class="tab" onClick="$Core.crm.sw_tab(this, event)" 
+				type_id="{$list_type_array[i].property_id}">
+					<span>{$list_type_array[i].title}</span>
+					<span class="badge status-badge-green">{$list_type_array[i].total_customers} </span>
+				</a></li>
+				{/section}
+			{/if}
+		</ul>
+	</div>
+</div>
+<div class="form-group form-row mb-2">
+			<div class="col-6 col-md-6">
+				<div class="form-label mb-1">Quốc gia</div>
+				<select class="form-control {$crm_field} iso-select2" toId="slb_City" holderG="{$holderG}" onchange="$Core.crm.get_select_city(this,event)" data-placeholder="Quốc gia" data-allow-clear="true" data-width="100%" data-field="country_id">
+					{$clsCountry->makeSelectOption(0)}
+				</select>			
+			</div>
+			<div class="col-6 col-md-6">
+				<div class="form-label mb-1">Tỉnh/Thành phố</div>
+				<select id="slb_City" class="form-control {$crm_field} iso-select2" holderG="{$holderG}" onchange="$Core.crm.do_search(this, event)" placeholder="Tỉnh/Thành phố" data-width="100%" data-allow-clear="true" data-field="city_id">
+					<option value="0">Tỉnh/Thành phố</option>
+				</select>			
+			</div>
+		</div>
+
+<div class="highlights">
+				<div class="highlight-panel">
+					<div class="highlight-list">
+						<div class="highlight-item">
+							<div class="highlight-label">Họ và tên</div>
+							<div class="metadata-row-viewer text-bold">{$oneCustomer.name}</div>
+						</div>
+						<div class="highlight-item">
+							<div class="highlight-label">Người tạo</div>
+							<div class="metadata-row-viewer text-bold">
+								{$clsProfile->getFullName($oneCustomer.user_id)}
+							</div>
+						</div>
+						<div class="highlight-item">
+							<div class="highlight-label">Ngày tạo</div>
+							<div class="metadata-row-viewer text-bold">
+								{$clsISO->convertTimeToText($oneCustomer.reg_date, true)}
+							</div>
+						</div>
+						<div class="highlight-item">
+							<div class="highlight-label">Ngày cập nhật</div>
+							<div class="metadata-row-viewer text-bold text-left">
+								{$clsISO->convertTimeToText($oneCustomer.upd_date, true)}
+							</div>
+						</div>
+						<div class="highlight-item">
+							<div class="highlight-label">Tổng doanh số</div>
+							<div class="metadata-row-viewer text-bold text-left">{$total_revenues}</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			
+			'.($deviceType=='phone'?'
+				<td class="text-left">'.
+					$clsFollowUp->getHTMLType($crm_followup_id,$followup).' <a href="javascript:;" class="link font-bold view_customer" onClick="$Core.crm.open_customer(this, event)" route="/customer/'.$customer_id.'/overview" customer_id="'.$customer_id.'">'.$clsCustomer->getName($customer_id).'<a/> <br />
+					<span class="text-muted"><i style="transform:translateY(5px);" class="material-icons-outlined">more_time</i> '.$clsISO->convertTimeToText($followup['date_id'],true).'</span>
+				</td>':'
+				<td class="text-left">
+				
+				
+				<a href="javascript:;" class="link font-bold view_customer" onClick="$Core.crm.open_customer(this, event)" route="/customer/'.$customer_id.'/overview" customer_id="'.$customer_id.'">'.$clsCustomer->getName($customer_id).'<a/></td>
+				<td class="text-left text-muted fs-13">
+					<i style="transform:translateY(5px);" class="material-icons-outlined">more_time</i>
+					'.$clsISO->convertTimeToText($followup['date_id'],true).'
+				</td>
+				<td class="text-center">'.$clsFollowUp->getHTMLType($crm_followup_id,$followup).'</td>
+				<td class="text-center">
+					<a href="javascript:;" class="btn btn-sm" data-bs-toggle="tooltip" data-bs-html="true" title="'.$followup['content'].'" '.$props.'>Xem</a>
+				</td>').'
+				<td class="text-center">
+					<a><img class="avatar rounded-circle avatar-xs" src="'.$clsProfile->getAvatar($followup['admin_id']).'" /></a>
+				</td>

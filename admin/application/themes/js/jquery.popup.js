@@ -1,0 +1,4 @@
+jQuery.popup={show:function(url,options){var defaults={wparamet:'',wposition:'center',wtoolbar:'no',wdirectories:'no',wstatus:'no',wscrollbars:'yes',wresizable:'no',wmenubar:'no',wlocation:'no',wwidth:800,wheight:600};var options=jQuery.extend(defaults,options);var xpos,ypos;if(options.wposition=='center'){xpos=(screen.width-options.wwidth)/2;ypos=(screen.height-options.wheight)/2;}
+else if(options.wposition=='right'){xpos=screen.width-options.wwidth;ypos=screen.height-options.wheight;}
+else{xpos=0;ypos=0;}
+url=(options.wparamet=='')?url:url+'?'+options.wparamet;var nwin=window.open(url,"NVCOM","toolbar="+options.wtoolbar+",location="+options.wlocation+",width="+options.wwidth+",height="+options.wheight+",directories="+options.wdirectories+",status="+options.wstatus+",scrollbars="+options.wscrollbars+",resizable="+options.wresizable+", menubar="+options.wmenubar);nwin.moveTo(xpos,ypos);nwin.focus();return jQuery;}};

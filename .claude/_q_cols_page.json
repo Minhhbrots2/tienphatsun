@@ -1,0 +1,144 @@
+{
+  "magic": 1111,
+  "conn_errno": 0,
+  "results": [
+    {
+      "errno": 0,
+      "affected_rows": 15,
+      "insert_id": 0,
+      "num_fields": 6,
+      "num_rows": 15,
+      "columns": [
+        "Field",
+        "Type",
+        "Null",
+        "Key",
+        "Default",
+        "Extra"
+      ],
+      "rows": [
+        [
+          "page_id",
+          "int(10)",
+          "NO",
+          "PRI",
+          null,
+          "auto_increment"
+        ],
+        [
+          "user_id",
+          "int(10)",
+          "NO",
+          "",
+          "0",
+          ""
+        ],
+        [
+          "user_id_update",
+          "int(10)",
+          "NO",
+          "",
+          "0",
+          ""
+        ],
+        [
+          "cat_id",
+          "int(10)",
+          "NO",
+          "",
+          "0",
+          ""
+        ],
+        [
+          "title",
+          "varchar(255)",
+          "NO",
+          "",
+          "",
+          ""
+        ],
+        [
+          "slug",
+          "varchar(255)",
+          "NO",
+          "",
+          null,
+          ""
+        ],
+        [
+          "intro",
+          "text",
+          "NO",
+          "",
+          null,
+          ""
+        ],
+        [
+          "content",
+          "longtext",
+          "NO",
+          "",
+          null,
+          ""
+        ],
+        [
+          "more_information",
+          "longtext",
+          "YES",
+          "",
+          null,
+          ""
+        ],
+        [
+          "image",
+          "varchar(255)",
+          "NO",
+          "",
+          "",
+          ""
+        ],
+        [
+          "reg_date",
+          "int(10)",
+          "NO",
+          "",
+          "0",
+          ""
+        ],
+        [
+          "upd_date",
+          "int(10)",
+          "NO",
+          "",
+          "0",
+          ""
+        ],
+        [
+          "is_about_us",
+          "tinyint(1)",
+          "NO",
+          "",
+          "0",
+          ""
+        ],
+        [
+          "is_online",
+          "tinyint(1)",
+          "NO",
+          "",
+          "0",
+          ""
+        ],
+        [
+          "is_trash",
+          "tinyint(1)",
+          "NO",
+          "",
+          "0",
+          ""
+        ]
+      ],
+      "_sep": 0
+    }
+  ]
+}

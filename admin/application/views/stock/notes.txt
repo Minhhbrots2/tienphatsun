@@ -1,0 +1,75 @@
+$cnd = "`project_id`='"._PROJECT_DEF_ID."'";
+$total_all_stock = $clsStock->countItem($cnd);
+$total_sold_stock = $clsStock->countItem("{$cnd} and (`status_id`='"._STOCK_STATUS_SOLD_ID."' or `status_id`=0)");
+$total_banlance_stock = $total_all_stock - $total_sold_stock;
+$assign_list['total_all_stock'] = $total_all_stock;
+$assign_list['total_sold_stock'] = $total_sold_stock;
+$assign_list['total_banlance_stock'] = $total_banlance_stock;
+if(!empty($arrBlock)){
+	foreach($arrBlock as $key => $val){
+		$blok_id = $val[$clsProperty->pkey];
+		$total_stock_block = $clsStock->countItem("{$cnd} and `block_id`='{$blok_id}'");
+		$total_sold_block = $clsStock->countItem("{$cnd} and `block_id`='{$blok_id}' and (`status_id`='"._STOCK_STATUS_SOLD_ID."' or `status_id`=0)");
+		$total_banlance_block = $total_stock_block - $total_sold_block;
+		$arrBlock[$key]['total_stock_block'] = $total_stock_block;
+		$arrBlock[$key]['total_sold_block'] = $total_sold_block;
+		$arrBlock[$key]['total_banlance_block'] = $total_banlance_block;
+	}
+}
+
+{if $stock_type eq $smarty.const._BLOCK_TYPE_HIGHLEVEL_SALE}
+<table class="form" cellpadding="2" cellspacing="2" width="100%">
+	<thead><tr>
+		<th></th>
+		<th>Tổng</th>
+		<th>Đang chào bán</th>
+		<th>Đã bán</th>
+	</tr></thead>
+	<tr>
+		<td class="fieldlabel">Tất cả</td>
+		<td class="fieldarea">
+			<div class="d-flex align-items-center justify-content-between">
+				<span>{$total_all_stock}</span>
+				<span class="text-muted">100%</span>
+			</div>
+		</td>
+		<td class="fieldarea">
+			<div class="d-flex align-items-center justify-content-between">
+				<span>{$total_banlance_stock}</span>
+				<span class="text-muted">{$clsISO->getPercent($total_banlance_stock, $total_all_stock)}%</span>
+			</div>
+		</td>
+		<td class="fieldarea">
+			<div class="d-flex align-items-center justify-content-between">
+				<span>{$total_sold_stock}</span>
+				<span class="text-muted">{$clsISO->getPercent($total_sold_stock, $total_all_stock)}%</span>
+			</div>
+		</td>
+	</tr>
+	{if !empty($arrBlock)}
+		{foreach from=$arrBlock item = _oBlock}
+		<tr>
+			<td class="fieldlabel">{$_oBlock.title}</td>
+			<td class="fieldarea">
+				<div class="d-flex align-items-center justify-content-between">
+					<span>{$_oBlock.total_stock_block}</span>
+					<span class="text-muted">{$clsISO->getPercent($_oBlock.total_stock_block, $total_all_stock)}%</span>
+				</div>
+			</div>
+			<td class="fieldarea">
+				<div class="d-flex align-items-center justify-content-between">
+					<span>{$_oBlock.total_banlance_block}</span>
+					<span class="text-muted">{$clsISO->getPercent($_oBlock.total_banlance_block, $_oBlock.total_stock_block)}%</span>
+				</div>
+			</div>
+			<td class="fieldarea">
+				<div class="d-flex align-items-center justify-content-between">
+					<span>{$_oBlock.total_sold_block}</span>
+					<span class="text-muted">{$clsISO->getPercent($_oBlock.total_sold_block, $_oBlock.total_stock_block)}%</span>
+				</div>
+			</div>
+		</tr>
+		{/foreach}
+	{/if}
+</table>
+{/if}

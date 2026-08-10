@@ -1,0 +1,70 @@
+require DIR_INCLUDES . '/googleapiclient/vendor/autoload.php';
+	/** Init Client */
+	$client = new Google_Client();
+	$client->setClientId(GOOGLE_CLIENT_ID);
+	$client->setClientSecret(GOOGLE_CLIENT_SECRET);
+	$client->refreshToken(GOOGLE_DRIVE_REFRESH_TOKEN);
+	$client->setScopes(Google_Service_Sheets::SPREADSHEETS);
+	$service = new Google_Service_Sheets($client);
+	// Web: https://www.nidup.io/blog/manipulate-google-sheets-in-php-with-api
+	// the spreadsheet id can be found in the url https://docs.google.com/spreadsheets/d/143xVs9lPopFSF4eJQWloDYAndMor/edit
+	// $spreadsheet = $service->spreadsheets->get($spreadsheetId);
+	// get all the rows of a sheet
+	$range = 'Shop'; // here we use the name of the Sheet to get all the rows
+	$spreadsheetId = '1e1gmt6BSQ8X9sGmL35D1L0YRO_Y2strWtyZ-UYLpbjE';
+	$response = $service->spreadsheets_values->get($spreadsheetId, $range);
+	$tblData = $response->getValues();
+	if(!empty($tblData)){
+		for($i=1; $i<count($tblData); $i++){
+			$ms_code = $tblData[$i][0];
+			$title = $tblData[$i][1];
+			$type = $tblData[$i][2];
+			$phone = $tblData[$i][3];
+			$image = $tblData[$i][4];
+			###
+			if(!empty($title)){
+				$field = "{$clsProperty->pkey},for_id";
+				$tmp = $clsProperty->getByCond("`property_type`='_BUILDING' and (`property_code`='{$ms_code}' or `title`='{$ms_code}')", $field);
+				$block_id = $tmp['for_id'];
+				$building_id = $tmp[$clsProperty->pkey];
+				$project_id = $clsProperty->getOneField('for_id', $block_id);
+				#
+				$tmp = $clsProperty->getByCond("is_trash=0 and property_type='_SHOP' and slug='".$core->replaceSpace($type)."'");
+				if(!empty($tmp)){
+					$cat_id = $tmp[$clsProperty->pkey];
+				} else {
+					$cat_id = $clsProperty->getMaxId();
+					$clsProperty->insert(array(
+						$clsProperty->pkey => $cat_id,
+						'property_type' => '_SHOP',
+						'title' => $type,
+						'slug' => $core->replaceSpace($type),
+						'order_no' => $clsProperty->getMaxorderNo(),
+						'user_id' => $core->_USER['user_id'],
+						'user_id_update' => $core->_USER['user_id'],
+						'reg_date' => time(),
+						'upd_date' => time()
+					));
+				}
+				$more_information = array('phone' => $phone);
+				if($clsShop->countItem("slug='".$core->replaceSpace($title)."' and cat_id='{$cat_id}'") == 0){
+					// $clsShop->setDebug(true);
+					$clsShop->insert(array(
+						$clsShop->pkey => $clsShop->getMaxId(),
+						'title' => $title,
+						'slug' => $core->replaceSpace($title),
+						'image' => $image,
+						'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE),
+						'block_id' => $block_id,
+						'building_id' => $building_id,
+						'project_id' => $project_id,
+						'cat_id' => $cat_id,
+						'user_id' => $core->_USER['user_id'],
+						'user_id_update' => $core->_USER['user_id'],
+						'reg_date' => time(),
+						'upd_date' => time()
+					));
+				}	
+			}
+		}
+	}

@@ -1,0 +1,4 @@
+.iso_checkin_day,.iso_checkin_year_month,.iso_checkout_day,.iso_checkout_year_month{float:left; margin-right:5px; width:89px;}
+.iso_checkin_year_month,.iso_checkout_year_month{width:152px; color:#4A4A4A}
+.iso_checkout_cal,.iso_checkin_cal{float:left;}
+.ui-datepicker-trigger{cursor:pointer;margin-top:-1px; background:url(../images/isocalendar.png) no-repeat; width:21px; height:24px; overflow:hidden; border:none; text-indent:-9999%;}

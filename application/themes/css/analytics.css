@@ -1,0 +1,583 @@
+/* ============================================================
+   Dashboard Quản trị BOD (module analytics) — design system crm-ld
+   Auto-load theo {$mod}.css. Sneat/Bootstrap đã cung cấp .card/.row/.col/utilities
+   + font Public Sans + boxicons (KHÔNG re-import ở đây). Chỉ định nghĩa class crm-ld-*.
+   Bar/track dùng inline width/height (data-driven) như chuẩn các view report sẵn có.
+   ============================================================ */
+
+/* Tokens (đồng bộ palette Sneat) */
+.crm-ld {
+	--ld-brand: #696cff;
+	--ld-brand-d: #5f61e6;
+	--ld-brand-l: #8385ff;
+	--ld-ink1: #566a7f;
+	--ld-ink2: #697a8d;
+	--ld-ink3: #8592a3;
+	--ld-ink4: #a1acb8;
+	--ld-line: #d9dee3;
+	--ld-line-soft: #ebedf0;
+	--ld-paper2: #f0f1f3;
+	--ld-paper3: #e7e7ef;
+	--ld-success: #71dd37;
+	--ld-success-soft: #e8f9dd;
+	--ld-success-ink: #5a9e2a;
+	--ld-danger: #ff3e1d;
+	--ld-danger-soft: #ffe2dc;
+	--ld-danger-ink: #e23217;
+	--ld-warning: #ffab00;
+	--ld-warning-soft: #fff1d6;
+	--ld-warning-ink: #b37700;
+	--ld-info: #03c3ec;
+	--ld-info-soft: #d7f6fc;
+	--ld-info-ink: #0398b5;
+	color: var(--ld-ink2);
+}
+
+.crm-ld .ff-num {
+	font-variant-numeric: tabular-nums
+}
+
+/* Tab switch (segmented pill — bám Bootstrap nav + data-bs-toggle) */
+.crm-ld-tabs {
+	display: inline-flex;
+	flex-wrap: wrap;
+	background: #fff;
+	border: 1px solid var(--ld-line);
+	border-radius: 9px;
+	padding: 3px;
+	gap: 2px
+}
+
+.crm-ld-tabs .nav-link {
+	border: 0;
+	background: transparent;
+	color: var(--ld-ink2);
+	font-weight: 600;
+	font-size: 13px;
+	padding: 8px 14px;
+	border-radius: 7px;
+	display: inline-flex;
+	align-items: center;
+	gap: 7px
+}
+
+.crm-ld-tabs .nav-link.active {
+	background: var(--ld-brand);
+	color: #fff;
+	box-shadow: 0 2px 6px rgba(105, 108, 255, .32)
+}
+
+/* Thanh bộ lọc — select gọn gàng (chốt max-width để tên CĐT/dự án dài không kéo giãn) */
+.crm-ld-filter .form-select {
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--ld-ink1);
+	background-color: #fff;
+	border: 1px solid var(--ld-line);
+	border-radius: 8px;
+	padding: 6px 28px 6px 11px;
+	min-height: 34px;
+	width: auto;
+	max-width: 160px;
+	box-shadow: none;
+	text-overflow: ellipsis;
+	cursor: pointer
+}
+
+.crm-ld-filter .form-select[name="period"] {
+	max-width: 118px
+}
+
+.crm-ld-filter .form-select:hover {
+	border-color: var(--ld-brand-l)
+}
+
+.crm-ld-filter .form-select:focus {
+	border-color: var(--ld-brand);
+	box-shadow: 0 0 0 2px rgba(105, 108, 255, .16)
+}
+
+/* Mobile: 2 ô/hàng lấp đầy bề rộng (bỏ max-width cố định để fit màn hẹp) */
+@media (max-width: 575.98px) {
+
+	.crm-ld-filter .form-select,
+	.crm-ld-filter .form-select[name="period"] {
+		max-width: none;
+		flex: 1 1 calc(50% - 4px);
+		min-width: 0
+	}
+}
+
+/* Section header */
+.crm-ld-head {
+	margin-bottom: 18px
+}
+
+.crm-ld-eyebrow {
+	font-size: 11px;
+	letter-spacing: .14em;
+	text-transform: uppercase;
+	font-weight: 700;
+	margin-bottom: 5px;
+	color: #1e4d6b
+}
+
+.crm-ld-title {
+	margin: 0;
+	font-size: 24px;
+	font-weight: 700;
+	letter-spacing: -.03em;
+	color: var(--ld-ink1)
+}
+
+.crm-ld-sub {
+	font-size: 13.5px;
+	color: var(--ld-ink3);
+	margin-top: 3px
+}
+
+/* KPI card */
+.crm-ld-kpi {
+	position: relative;
+	overflow: hidden;
+	height: 100%
+}
+
+.crm-ld-kpi .card-body {
+	padding: 15px 17px
+}
+
+.crm-ld-kpi-label {
+	font-size: 11px;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+	color: var(--ld-ink3);
+	font-weight: 600
+}
+
+/* Icon chú thích chỉ số (ⓘ + tooltip Bootstrap) */
+.info-i {
+	font-size: 13px;
+	color: var(--ld-ink4);
+	cursor: help;
+	vertical-align: middle
+}
+
+.info-i:hover {
+	color: var(--ld-brand)
+}
+
+.crm-ld-kpi-val {
+	font-size: 28px;
+	font-weight: 700;
+	letter-spacing: -.035em;
+	margin-top: 6px;
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
+	color: var(--ld-ink1)
+}
+
+.crm-ld-kpi-val.is-down {
+	color: var(--ld-danger)
+}
+
+.crm-ld-kpi-val.is-warn {
+	color: var(--ld-warning)
+}
+
+.crm-ld-kpi-val.is-up {
+	color: var(--ld-success-ink)
+}
+
+.crm-ld-kpi-sub {
+	font-size: 11.5px;
+	margin-top: 5px;
+	font-weight: 500;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	color: var(--ld-ink3)
+}
+
+.crm-ld-kpi-sub.is-up {
+	color: var(--ld-success-ink)
+}
+
+.crm-ld-kpi-sub.is-down {
+	color: var(--ld-danger)
+}
+
+.crm-ld-kpi-sub.is-warn {
+	color: var(--ld-warning-ink)
+}
+
+.crm-ld-kpi-ic {
+	position: absolute;
+	right: 13px;
+	top: 13px;
+	font-size: 24px;
+	opacity: .13;
+	color: var(--ld-ink1)
+}
+
+.crm-ld-kpi-ic.is-down {
+	color: var(--ld-danger)
+}
+
+.crm-ld-kpi-ic.is-warn {
+	color: var(--ld-warning)
+}
+
+/* Gói trả phí _MF_PACKAGE — Pro=brand, VVIP=gold */
+.crm-ld-kpi-val.is-pro {
+	color: var(--ld-brand-d)
+}
+
+.crm-ld-kpi-val.is-vvip {
+	color: #b8860b
+}
+
+.crm-ld-kpi-ic.is-pro {
+	color: var(--ld-brand)
+}
+
+.crm-ld-kpi-ic.is-vvip {
+	color: #f5b50a
+}
+
+.crm-ld-kpi-split {
+	display: flex;
+	justify-content: space-between;
+	font-size: 11.5px;
+	margin-top: 4px
+}
+
+/* Tag thế hệ F trong KPI "Giới thiệu mới" */
+.gentag {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-weight: 600
+}
+
+.gentag b {
+	color: var(--ld-ink1);
+	font-variant-numeric: tabular-nums
+}
+
+.gentag i {
+	width: 8px;
+	height: 8px;
+	border-radius: 2px;
+	display: inline-block
+}
+
+/* Ô số = 0 trong bảng BXH (mờ) */
+.crm-ld-th-row .muted0 {
+	color: var(--ld-ink4)
+}
+
+/* Panel */
+.crm-ld-panel {
+	background: #fff;
+	border: 1px solid var(--ld-line);
+	border-radius: 8px;
+	box-shadow: 0 1px 2px rgba(75, 70, 92, .08)
+}
+
+.crm-ld-panel-h {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 13px 17px;
+	border-bottom: 1px solid var(--ld-line-soft)
+}
+
+.crm-ld-panel-h h4 {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--ld-ink1);
+	display: flex;
+	align-items: center;
+	gap: 8px
+}
+
+.crm-ld-panel-h h4 .bx {
+	font-size: 17px;
+	color: var(--ld-brand-d)
+}
+
+.crm-ld-hint {
+	font-size: 11px;
+	color: var(--ld-ink4);
+	font-family: 'JetBrains Mono', 'Courier New', monospace
+}
+
+/* Chart container CanvasJS (thay CSS-bars) */
+.an-chart {
+	width: 100%;
+	height: 250px
+}
+
+.crm-ld-cap {
+	text-align: center;
+	font-size: 11.5px;
+	color: var(--ld-ink4);
+	margin-top: 10px;
+	border-top: 1px solid var(--ld-line-soft);
+	padding-top: 10px
+}
+
+/* Source / structure bars */
+.crm-ld-src {
+	margin-bottom: 14px
+}
+
+.crm-ld-src:last-child {
+	margin-bottom: 0
+}
+
+.crm-ld-src-top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 6px
+}
+
+.crm-ld-src-name {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 13px;
+	color: var(--ld-ink2);
+	font-weight: 500
+}
+
+.crm-ld-src-dot {
+	width: 9px;
+	height: 9px;
+	border-radius: 3px
+}
+
+.crm-ld-src-val {
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--ld-ink1);
+	font-variant-numeric: tabular-nums
+}
+
+.crm-ld-src-track {
+	height: 7px;
+	background: var(--ld-paper2);
+	border-radius: 5px;
+	overflow: hidden
+}
+
+.crm-ld-src-track>span {
+	display: block;
+	height: 100%;
+	border-radius: 5px
+}
+
+/* Leaderboard */
+.crm-ld-lb {
+	display: grid;
+	grid-template-columns: 24px 32px 1fr auto;
+	align-items: center;
+	gap: 11px;
+	padding: 9px 3px;
+	border-bottom: 1px solid var(--ld-line-soft)
+}
+
+.crm-ld-lb:last-child {
+	border-bottom: 0
+}
+
+.crm-ld-lb-rank {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	font-weight: 800;
+	font-variant-numeric: tabular-nums;
+	color: #fff;
+	background: var(--ld-paper3)
+}
+
+.crm-ld-lb-rank.r1 {
+	background: #f5b50a
+}
+
+.crm-ld-lb-rank.r2 {
+	background: #9aa4ad
+}
+
+.crm-ld-lb-rank.r3 {
+	background: #c8855a
+}
+
+.crm-ld-lb-rank.rn {
+	background: var(--ld-paper3);
+	color: var(--ld-ink3)
+}
+
+.crm-ld-lb-av {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: var(--ld-paper3);
+	color: var(--ld-ink3);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	font-weight: 700
+}
+
+.crm-ld-lb-name {
+	display: block;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--ld-ink1);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis
+}
+
+.crm-ld-lb-rev {
+	display: block;
+	font-size: 11px;
+	color: var(--ld-ink3)
+}
+
+.crm-ld-lb-deal {
+	font-size: 15px;
+	color: var(--ld-ink1);
+	font-variant-numeric: tabular-nums;
+	font-weight: 700
+}
+
+/* Table (grid rows) */
+.crm-ld-th-row {
+	display: grid;
+	align-items: center;
+	border-bottom: 1px solid var(--ld-line-soft)
+}
+
+.crm-ld-th-row.head {
+	background: var(--ld-paper2);
+	border-bottom: 1px solid var(--ld-line)
+}
+
+.crm-ld-th-row.head>div {
+	font-size: 10.5px;
+	text-transform: uppercase;
+	letter-spacing: .05em;
+	color: var(--ld-ink3);
+	font-weight: 700;
+	padding: 9px 12px
+}
+
+.crm-ld-mini-track {
+	flex: 1;
+	height: 8px;
+	background: var(--ld-paper2);
+	border-radius: 5px;
+	overflow: hidden
+}
+
+.crm-ld-mini-track>span {
+	display: block;
+	height: 100%;
+	border-radius: 5px
+}
+
+.crm-ld-pill {
+	display: inline-block;
+	font-size: 11.5px;
+	font-weight: 700;
+	padding: 3px 11px;
+	border-radius: 999px
+}
+
+/* Bảng grid cố định -> cuộn ngang trên mobile */
+.crm-ld-table {
+	overflow-x: auto
+}
+
+.crm-ld-table .crm-ld-th-row {
+	min-width: 560px
+}
+
+/* Forecast / summary dark card */
+.crm-ld-fc {
+	background: linear-gradient(135deg, #1e2438, #2c3754);
+	border-radius: 10px;
+	box-shadow: 0 .25rem 1rem rgba(75, 70, 92, .12);
+	padding: 20px 22px;
+	color: #fff;
+	position: relative;
+	overflow: hidden;
+	height: 100%
+}
+
+.crm-ld-fc-eye {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 11px;
+	letter-spacing: .1em;
+	text-transform: uppercase;
+	color: rgba(255, 255, 255, .65);
+	font-weight: 700;
+	margin-bottom: 14px
+}
+
+.crm-ld-fc-big {
+	font-size: 44px;
+	font-weight: 800;
+	letter-spacing: -.04em;
+	line-height: .9;
+	font-variant-numeric: tabular-nums
+}
+
+.crm-ld-fc-row {
+	display: flex;
+	align-items: center;
+	gap: 22px;
+	flex-wrap: wrap;
+	margin-top: 18px;
+	padding-top: 15px;
+	border-top: 1px solid rgba(255, 255, 255, .14)
+}
+
+.crm-ld-fc-k {
+	font-size: 10.5px;
+	text-transform: uppercase;
+	letter-spacing: .05em;
+	color: rgba(255, 255, 255, .55);
+	font-weight: 600
+}
+
+.crm-ld-fc-ic {
+	position: absolute;
+	right: -10px;
+	bottom: -10px;
+	font-size: 96px;
+	color: #fff;
+	opacity: .06
+}
+
+/* Honest note */
+.crm-ld-note {
+	font-size: 12px;
+	color: var(--ld-warning-ink);
+	background: var(--ld-warning-soft);
+	border-radius: 7px;
+	padding: 10px 13px;
+	line-height: 1.5
+}

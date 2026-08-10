@@ -1,0 +1,27 @@
+{
+	"name":"CA - Tiến Phát Sunrise",
+	"short_name":"CA - Tiến Phát Sunrise",
+	"start_url":"https://tienphatsunrise.c-a.vn/",
+	"scope":"https://tienphatsunrise.c-a.vn/",
+	"id":"https://tienphatsunrise.c-a.vn/",
+	"display":"standalone",
+	"orientation": "portrait",
+	"background_color":"#FFFFFF",
+	"theme_color":"#FFFFFF",
+	"icons":[{
+		"src":"https://tienphatsunrise.c-a.vn/apple-touch-icon-57x57.png?v=1785481482",
+		"sizes":"57x57"
+	},{
+		"src":"https://tienphatsunrise.c-a.vn/apple-touch-icon-72x72.png?v=1785481482",
+		"sizes":"72x72"
+	},{
+		"src":"https://tienphatsunrise.c-a.vn/apple-touch-icon-114x114.png?v=1785481482",
+		"sizes":"114x114"
+	},{
+		"src":"https://tienphatsunrise.c-a.vn/apple-touch-icon-144x144.png?v=1785481482",
+		"sizes":"144x144"
+	},{
+		"src":"https://tienphatsunrise.c-a.vn/apple-touch-icon-256x256.png?v=1785481482",
+		"sizes":"256x256"
+	}]
+}

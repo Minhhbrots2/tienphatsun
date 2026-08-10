@@ -1,0 +1,40 @@
+{
+  "magic": 1111,
+  "conn_errno": 0,
+  "results": [
+    {
+      "errno": 0,
+      "affected_rows": 2,
+      "insert_id": 0,
+      "num_fields": 6,
+      "num_rows": 2,
+      "columns": [
+        "Field",
+        "Type",
+        "Null",
+        "Key",
+        "Default",
+        "Extra"
+      ],
+      "rows": [
+        [
+          "setting",
+          "varchar(255)",
+          "NO",
+          "PRI",
+          null,
+          ""
+        ],
+        [
+          "value",
+          "longtext",
+          "NO",
+          "",
+          null,
+          ""
+        ]
+      ],
+      "_sep": 0
+    }
+  ]
+}

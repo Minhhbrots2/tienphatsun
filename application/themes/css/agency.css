@@ -1,0 +1,31 @@
+.table_sticky .table tbody tr td.column_sticky{
+    border-right: 1px solid #d9dee3;
+    background: var(--bs-white) !important;
+    z-index: 1 !important;
+    left:0; top: 0 !important;
+}
+.table_sticky thead tr th.column_sticky:not(:last-child),  
+.table_sticky tbody tr td.column_sticky:not(:last-child) {
+    border-right: 1px solid #d9dee3;
+}
+.table_sticky thead tr:first-child th:first-child{
+	z-index:3 !important;
+}
+.table_sticky thead tr:first-child th:not(:first-child),
+.table_sticky thead tr:last-child th{
+	z-index:2 !important;
+	position:sticky;
+	top:0; left:0;
+	background:rgb(245,247,248);
+}
+.table_sticky thead tr:last-child th{
+	top:30px !important;
+}
+.tableFixHead thead{
+	position:sticky;
+	left:0; z-index:3;
+	transition:all .1s ease-in-out;
+	-moz-transition:all .1s ease-in-out;
+	-webkit-transition:all .1s ease-in-out;
+	
+}

@@ -1,0 +1,441 @@
+require DIR_INCLUDES . '/googleapiclient/vendor/autoload.php';
+	/** Init Client */
+	$client = new Google_Client();
+	$client->setClientId(GOOGLE_CLIENT_ID);
+	$client->setClientSecret(GOOGLE_CLIENT_SECRET);
+	$client->refreshToken(GOOGLE_DRIVE_REFRESH_TOKEN);
+	$client->setScopes(Google_Service_Sheets::SPREADSHEETS);
+	$service = new Google_Service_Sheets($client);
+	// Web: https://www.nidup.io/blog/manipulate-google-sheets-in-php-with-api
+	// the spreadsheet id can be found in the url https://docs.google.com/spreadsheets/d/143xVs9lPopFSF4eJQWloDYAndMor/edit
+	// $spreadsheet = $service->spreadsheets->get($spreadsheetId);
+	// get all the rows of a sheet
+	$range = 'Shop'; // here we use the name of the Sheet to get all the rows
+	$spreadsheetId = '1e1gmt6BSQ8X9sGmL35D1L0YRO_Y2strWtyZ-UYLpbjE';
+	$response = $service->spreadsheets_values->get($spreadsheetId, $range);
+	$tblData = $response->getValues();
+	if(!empty($tblData)){
+		for($i=1; $i<count($tblData); $i++){
+			$ms_code = $tblData[$i][0];
+			$title = $tblData[$i][1];
+			$type = $tblData[$i][2];
+			$phone = $tblData[$i][3];
+			$image = $tblData[$i][4];
+			###
+			if(!empty($title)){
+				$field = "{$clsProperty->pkey},for_id";
+				$tmp = $clsProperty->getByCond("`property_type`='_BUILDING' and (`property_code`='{$ms_code}' or `title`='{$ms_code}')", $field);
+				$block_id = $tmp['for_id'];
+				$building_id = $tmp[$clsProperty->pkey];
+				$project_id = $clsProperty->getOneField('for_id', $block_id);
+				#
+				$tmp = $clsProperty->getByCond("is_trash=0 and property_type='_SHOP' and slug='".$core->replaceSpace($type)."'");
+				if(!empty($tmp)){
+					$cat_id = $tmp[$clsProperty->pkey];
+				} else {
+					$cat_id = $clsProperty->getMaxId();
+					$clsProperty->insert(array(
+						$clsProperty->pkey => $cat_id,
+						'property_type' => '_SHOP',
+						'title' => $type,
+						'slug' => $core->replaceSpace($type),
+						'order_no' => $clsProperty->getMaxorderNo(),
+						'user_id' => $core->_USER['user_id'],
+						'user_id_update' => $core->_USER['user_id'],
+						'reg_date' => time(),
+						'upd_date' => time()
+					));
+				}
+				$more_information = array('phone' => $phone);
+				if($clsShop->countItem("slug='".$core->replaceSpace($title)."' and cat_id='{$cat_id}'") == 0){
+					// $clsShop->setDebug(true);
+					$clsShop->insert(array(
+						$clsShop->pkey => $clsShop->getMaxId(),
+						'title' => $title,
+						'slug' => $core->replaceSpace($title),
+						'image' => $image,
+						'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE),
+						'block_id' => $block_id,
+						'building_id' => $building_id,
+						'project_id' => $project_id,
+						'cat_id' => $cat_id,
+						'user_id' => $core->_USER['user_id'],
+						'user_id_update' => $core->_USER['user_id'],
+						'reg_date' => time(),
+						'upd_date' => time()
+					));
+				}	
+			}
+		}
+	}
+	
+	
+	<?php 
+function default_default(){
+	global $smarty,$assign_list,$_CONFIG, $_SITE_ROOT,$mod ,$_LANG_ID,$act,$menu_current
+	,$current_page,$core,$clsModule,$clsButtonNav,$clsConfiguration,$clsISO,$dbconn;
+	$clsProject = new Project();
+	$clsProperty = new Property();
+	$assign_list["clsProject"] = $clsProject;
+	$assign_list["clsProperty"] = $clsProperty;
+	###
+	$classTable = "Furniture";
+	$clsClassTable = new $classTable;
+	$tableName = $clsClassTable->tbl;
+	$pkeyTable = $clsClassTable->pkey ;
+	$assign_list["clsClassTable"] = $clsClassTable;
+	$assign_list["pkeyTable"] = $pkeyTable;
+	###
+	if(isset($_POST['filter'])&&$_POST['filter']=='filter'){
+		$hasCond = false;
+		$keyword = Input::post('keyword', "");
+		if(!empty($keyword)){
+			$link .= '&keyword='.$keyword;
+		}
+		header('location: '.PCMS_URL.'/?mod='.$mod.$link);
+		exit();
+	}
+	$keyword = Input::get('keyword', "");
+	$assign_list["keyword"] = $keyword;
+	/*List all item*/
+	$cond = "1='1'";
+	
+	#Filter By Keyword
+	if(!empty($keyword)){
+		$keyword = $core->replaceSpace($keyword);
+		$cond .= " and slug like '%".$keyword."%'";
+	}
+	$orderBy = " reg_date DESC";
+	#-------Page Divide---------------------------------------------------------------
+	$record_per_page = 50;
+	$current_page = (int) Input::get('page',1);
+	$total_record = $clsClassTable->countItem($cond);
+	$pUrl .= '&page='.$current_page;
+	
+	$link_page_current = '';
+	$query_string = $_SERVER['QUERY_STRING'];
+	$lst_query_string = explode('&',$query_string);
+	for($i=0;$i<count($lst_query_string);$i++){
+		$tmp = explode('=',$lst_query_string[$i]);
+		if($tmp[0]!='page')
+			$link_page_current .= ($i==0)?'?'.$lst_query_string[$i]:'&'.$lst_query_string[$i];
+	}
+	$assign_list['link_page_current'] = $link_page_current;
+	#
+	$link_page_current_2 = '';
+	for($i=0;$i<count($lst_query_string);$i++){
+		$tmp = explode('=',$lst_query_string[$i]);
+		if($tmp[0]!='page'&&$tmp[0]!='vpc_status')
+			$link_page_current_2 .= ($i==0)?'?'.$lst_query_string[$i]:'&'.$lst_query_string[$i];
+	}
+	$assign_list['link_page_current_2'] = $link_page_current_2;
+	$config = array(
+		'total'	=> $total_record,
+		'current_page'	=> $current_page,
+		'number_per_page'	=> $record_per_page,
+		'link'	=> PCMS_URL.'/index.php'.$link_page_current_2
+	);
+	$clsPagination = new Pagination();
+	$clsPagination->initianize($config);
+	$html_pager = $clsPagination->create_links();
+	$assign_list["html_pager"] = $html_pager;
+	#
+	$offset = ($current_page-1)*$record_per_page;
+	$limit = " limit {$offset},{$record_per_page}";
+	#-------End Page Divide-----------------------------------------------------------
+//	$clsClassTable->setDeBug(1);
+	$allItem = $clsClassTable->getAll($cond." order by ".$orderBy.$limit); 
+	if(!empty($allItem)){
+		$arr_property_cached = array();
+		
+		foreach($allItem as $key => $val){
+			$more_information = $clsISO->to_array_json($val['more_information']);
+			$unit_id = (!empty($more_information['unit_id']))?(int)$more_information['unit_id']:0;
+			if(!isset($arr_property_cached[$unit_id])){
+				$arr_property_cached[$unit_id] = $clsProperty->getTitle($unit_id);
+			}
+			$allItem[$key]['unit_name'] = $arr_property_cached[$unit_id];
+			$allItem[$key]['length'] = $more_information['size']['length'];
+			$allItem[$key]['width'] = $more_information['size']['width'];
+			$allItem[$key]['height'] = $more_information['size']['height'];
+			if(!isset($arr_property_cached[$val['cat_id']])){
+				$arr_property_cached[$val['cat_id']] = $clsProperty->getTitle($val['cat_id']);
+			}
+			$allItem[$key]['cat_name'] = $arr_property_cached[$val['cat_id']];
+			unset($unit_id);
+		}
+	}
+//	$clsISO->print_pre($allItem); die();
+	$assign_list["total_record"] = $total_record;
+	$assign_list["allItem"] = $allItem; unset($allItem);
+	$assign_list["pUrl"] = $pUrl;
+}
+function default_loadFormPrice(){
+	global $smarty,$_CONFIG,$_SITE_ROOT,$mod,$act;
+	global $core,$clsModule,$clsButtonNav,$oneSetting,$clsISO;
+	$user_id = $core->_USER['user_id'];
+	$clsFurniture = new Furniture();
+	$clsProperty = new Property();
+	#
+	$property_keys = Input::post('property_keys', "");
+	$property_values = Input::post('property_values', "");
+	var_dump($property_keys,$property_values);die;
+	$html = $core->build('_ajax.loadFormPrice.tpl');
+	echo $html; die();
+}
+function default_edit(){
+	global $smarty,$assign_list,$_CONFIG, $_SITE_ROOT,$mod ,$_LANG_ID,$act,$menu_current
+	,$current_page,$core,$clsModule,$clsButtonNav,$clsConfiguration,$clsISO,$dbconn;
+	$clsProperty = new Property();
+	$assign_list['clsProperty'] = $clsProperty;
+	$property_default  = ['Chất liệu','Kích thước'];
+	$assign_list['property_default'] = $property_default;
+}
+function default_save(){
+	global $assign_list,$_CONFIG,$_SITE_ROOT,$mod,$act;
+	global $core,$clsModule,$clsButtonNav,$oneSetting,$clsISO;
+	$user_id = $core->_USER['user_id'];
+	##
+	$classTable = "Furniture";
+	$clsClassTable = new $classTable;
+	$tableName = $clsClassTable->tbl;
+	$pkeyTable = $clsClassTable->pkey;
+	##
+	$pvalTable = (int) Input::post($pkeyTable, 0);
+	$furniture_code = Input::post('furniture_code');
+	$title = Input::post('title');
+	$weight = Input::post('weight');
+	$unit_id = (int)Input::post('unit_id',0);
+	$cat_id = (int)Input::post('cat_id',0);
+	$length = Input::post('length');
+	$width = Input::post('width');
+	$height = Input::post('height');
+	$price = Input::post('price',0);	
+	$intro = Input::post('intro');	
+	$image = Input::post('image');
+	if($image != "" && stripos($image, FH_URL)===false){
+		$image = FH_URL.$image;
+	}
+	if($pvalTable > 0){
+		$oFurniture = $clsClassTable->getOne($pvalTable);
+		$more_information = $oFurniture['more_information'];
+		$more_information = !empty($more_information) 
+			? json_decode(html_entity_decode($more_information), true) : array();
+		$more_information['size'] = [
+			'length'	=>	$length,
+			'width'	=>	$width,
+			'height'	=>	$height,
+		];
+		$more_information['unit_id'] = $unit_id;
+		$arr_data = [
+			'furniture_code' 	=> $furniture_code,
+			'title' 			=> $title,
+			'weight' 			=> $weight,
+			'image' 			=> $image,
+			'cat_id' 			=> $cat_id,
+			'slug'				=>	$core->replaceSpace($title),
+			'more_information' 	=> json_encode($more_information, JSON_UNESCAPED_UNICODE),
+			'intro' 			=> addslashes($intro),
+			'price' 			=> $clsISO->processSmartNumber($price),
+		];
+		if($clsClassTable->updateOne($pvalTable, $arr_data)){
+			$msg = "_success";
+		}
+	} else {
+		$more_information['size'] = [
+			'length'	=>	$length,
+			'width'	=>	$width,
+			'height'	=>	$height,
+		];
+		$more_information['unit_id'] = $unit_id;
+		$arr_data = [
+			'furniture_code' 	=> $furniture_code,
+			'title' 			=> $title,
+			'weight' 			=> $weight,
+			'cat_id' 			=> $cat_id,
+			'image' 			=> $image,
+			'slug'				=>	$core->replaceSpace($title),
+			'more_information' 	=> json_encode($more_information, JSON_UNESCAPED_UNICODE),
+			'intro' 			=> addslashes($intro),
+			'price' 			=> $clsISO->processSmartNumber($price),
+			'user_id' 			=> $user_id,
+			'reg_date' 			=> time()
+		];
+		if($clsClassTable->insert($arr_data)){
+			$msg = "_success";
+		}
+	}
+	// Return
+	echo json_encode(array(
+		'msg' => $msg
+	)); die();
+}
+function default_delete(){
+	global $assign_list,$_CONFIG,$_SITE_ROOT,$mod,$act;
+	global $core,$clsModule,$clsButtonNav,$oneSetting;
+	$user_id = $core->_USER['user_id'];
+	#
+	$classTable = "Furniture";
+	$clsClassTable = new $classTable;
+	$tableName = $clsClassTable->tbl;
+	$pkeyTable = $clsClassTable->pkey;
+	
+	$cat_id = (int) Input::get('cat_id',0);
+	$string = isset($_GET[$pkeyTable])? ($_GET[$pkeyTable]) : '';
+	$pvalTable = intval($core->decryptID($string));
+	
+	$pUrl = '';
+	if(intval($cat_id)> 0){
+		$pUrl .= '&cat_id='.$cat_id;
+	}
+	if($pvalTable == 0){
+		header('Location: '.PCMS_URL.'/?mod='.$mod.$param_url.'&message=notPermission');
+		exit();
+	}
+	if($clsClassTable->doDelete($pvalTable)){
+		header('Location: '.PCMS_URL.'/?mod='.$mod.$pUrl.'&message=DeleteSuccess');
+		exit();
+	}
+}
+function default_import(){
+	global $core;
+	$clsISO = new ISO();
+	
+	
+	require_once DIR_INCLUDES."/phpexcel/PHPExcel.php";
+    require_once DIR_INCLUDES."/phpexcel/PHPExcel/IOFactory.php";
+	$inputFileName = ABSPATH . "/furniture1.xlsx";
+	$objPHPExcel = PHPExcel_IOFactory::load($inputFileName);
+	try {
+		$inputFileType = PHPExcel_IOFactory::identify($inputFileName);
+		$objReader = PHPExcel_IOFactory::createReader($inputFileType);
+		$objPHPExcel = $objReader->load($inputFileName);
+	} catch(Exception $e) {
+		die($e->getMessage());
+	}
+	$worksheet = $objPHPExcel->getActiveSheet();
+	$worksheetTitle     = $worksheet->getTitle();
+	$highestRow         = $worksheet->getHighestRow();
+	$highestColumn      = $worksheet->getHighestColumn();
+	$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+	
+	$tblColumn =array();
+	for ($col = 0; $col < $highestColumnIndex; ++ $col) {
+		$cell = $worksheet->getCellByColumnAndRow($col, 1);
+		$tblColumn[] = $cell->getValue();
+	}
+	$index = 0;
+	$tblData =array();
+	for ($row = 4; $row <= $highestRow; ++ $row) {
+		if($worksheet->getCellByColumnAndRow(2, $row)->getValue() != ""){
+			for ($col = 2; $col < 11; ++ $col) {
+				$cell = $worksheet->getCellByColumnAndRow($col, $row);
+				if(PHPExcel_Shared_Date::isDateTime($cell)){
+					if(!empty($cell)){
+						$date= PHPExcel_Shared_Date::ExcelToPHPObject($cell->getValue());
+						$tblData[$index][] =  date_format($date,'d/m/Y');
+					}else{
+						if($cell->isFormula()){
+							$tblData[$index][] = $cell->getCalculatedValue();
+						}else{
+							$tblData[$index][] = $cell->getValue();
+						}
+
+					}
+				}else{
+					if($cell->isFormula()){
+						$tblData[$index][] = $cell->getCalculatedValue();
+					}else{
+						$tblData[$index][] = $cell->getValue();
+					}
+				}
+			}	
+			++$index;
+		}	
+	}
+	$clsISO->print_pre($tblData);die;
+	$clsFurniture = new Furniture();
+	$clsProperty = new Property();
+	$lstItemUnit = $clsProperty->getCacheItems("_FURNITUREUNIT");
+	$arrUnit = [];
+	foreach($lstItemUnit as $k => $val){
+		$arrUnit[$val['property_id']] = $val['title'];
+	}
+	
+//	var_dump(array_search("m2",$arrUnit),$arrUnit);die;
+	if(!empty($tblData)){
+		$reg_date = time();
+		foreach($tblData as $key => $val){
+			$project_id = 1;
+			$title = $val[0];
+			$intro = $val[1];
+			$weight = $val[2];
+			$unit_name = $val[3];
+			$unit_id = array_search($unit_name,$arrUnit);
+			$length = (float)$val[4] * 1000;
+			$width = (float)$val[5] * 1000;
+			$height = (float)$val[6] * 1000;
+			$price = $val[7];
+			$cat_id = $val[8];
+			
+			$more_information['size'] = [
+				'length'	=>	(int)round($length),
+				'width'		=>	(int)round($width),
+				'height'	=>	(int)round($height),
+			];
+			$more_information['unit_id'] = $unit_id;
+			$arr_data = [
+				'title' 			=> ucfirst($title),
+				'weight' 			=> $weight,
+				'cat_id' 			=> $cat_id,
+				'image' 			=> "",
+				'slug'				=>	$core->replaceSpace($title),
+				'more_information' 	=> json_encode($more_information, JSON_UNESCAPED_UNICODE),
+				'intro' 			=> ucfirst(addslashes($intro)),
+				'price' 			=> $price,
+				'user_id' 			=> 2,
+				'reg_date' 			=> $reg_date
+			];
+			/*if($clsFurniture->insert($arr_data)){
+				unset($arr_data,$more_information);
+			}*/
+			
+		}
+	}
+	$clsISO->print_pre($tblData); die();
+}
+function default_open(){
+	global $smarty,$_CONFIG,$_SITE_ROOT,$mod,$act;
+	global $core,$clsModule,$clsButtonNav,$oneSetting,$clsISO;
+	$user_id = $core->_USER['user_id'];
+	$clsFurniture = new Furniture();
+	$clsProject = new Project();
+	$clsProperty = new Property();
+	#
+	$furniture_id = (int) Input::post('furniture_id', 0);
+	$action = "_edit";
+	$titlePage = "Thêm mới";
+	$html_subcategory_options = "";
+	$oneFurniture = array('cat_id' => 0, 'project_id' => 0);
+	$list_blocks = $list_buildings = $more_information = array();
+	if($furniture_id > 0){
+		$action = '_edit';
+		$titlePage= 'Chỉnh sửa';
+		$oneFurniture = $clsFurniture->getOne($furniture_id);
+		##
+		$more_information = $oneFurniture['more_information'];
+		$more_information = !empty($more_information) 
+			? json_decode(html_entity_decode($more_information), true) : array();
+	}
+	$smarty->assign('action', $action);
+	$smarty->assign('furniture_id', $furniture_id);
+	$smarty->assign('oneFurniture', $oneFurniture);
+	$smarty->assign('titlePage', $titlePage);
+	$smarty->assign('clsProperty', $clsProperty);
+	$smarty->assign('more_information', $more_information);
+	// Return
+	$smarty->assign('core', $core);
+	$html = $core->build('_ajax.open.tpl');
+	echo $html; die();
+}
+?>
