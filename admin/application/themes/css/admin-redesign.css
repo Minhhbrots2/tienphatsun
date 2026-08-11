@@ -1,8 +1,8 @@
 /* ============================================================
-   FH Admin Redesign — Modern Clean (accent: FH crimson)
-   L?p skin n?p SAU admin.css d? override. G? 1 dòng <link>
-   trong index.tpl là quay v? giao di?n cu. Gi? nguyên hình h?c
-   header 90px / sidebar 220px d? không v? layout.
+   FH Admin Redesign ï¿½ Modern Clean (accent: FH crimson)
+   L?p skin n?p SAU admin.css d? override. G? 1 dï¿½ng <link>
+   trong index.tpl lï¿½ quay v? giao di?n cu. Gi? nguyï¿½n hï¿½nh h?c
+   header 90px / sidebar 220px d? khï¿½ng v? layout.
    ============================================================ */
 :root {
   --fh-crimson: #1d446b;
@@ -190,7 +190,7 @@ body#wrapper {
   scrollbar-color: transparent transparent
 }
 
-/* scrollbar ?n lúc bình thu?ng, ch? hi?n m? khi rê chu?t vào menu */
+/* scrollbar ?n lï¿½c bï¿½nh thu?ng, ch? hi?n m? khi rï¿½ chu?t vï¿½o menu */
 .sidebar--nav>.nav-list::-webkit-scrollbar {
   width: 6px
 }
@@ -323,7 +323,7 @@ body#wrapper {
   background: rgba(164, 22, 26, .18)
 }
 
-/* sidebar footer (config) — fixed bottom, ghi dè n?n navy cu */
+/* sidebar footer (config) ï¿½ fixed bottom, ghi dï¿½ n?n navy cu */
 .sidebar-default .nav-user,
 .nav-user {
   background: var(--fh-ink) !important;
@@ -535,7 +535,7 @@ textarea:focus {
 }
 
 /* ============================================================
-   ROUND 2 — COMPONENTS (dùng chung cho m?i module)
+   ROUND 2 ï¿½ COMPONENTS (dï¿½ng chung cho m?i module)
    ============================================================ */
 
 /* ---------- Card / box ---------- */
@@ -690,7 +690,7 @@ table.list,
   margin-bottom: 18px
 }
 
-/* freeze-table (b?ng hàng stock cu?n ngang/c?t dông c?ng): không bo góc, không c?n scroll */
+/* freeze-table (b?ng hï¿½ng stock cu?n ngang/c?t dï¿½ng c?ng): khï¿½ng bo gï¿½c, khï¿½ng c?n scroll */
 table.freeze-table,
 .freeze-table table,
 table.table.freeze-table {
@@ -795,7 +795,7 @@ textarea.form-control {
   margin-bottom: 14px
 }
 
-/* select2 / chosen harmonize chi?u cao + bo góc */
+/* select2 / chosen harmonize chi?u cao + bo gï¿½c */
 .select2-container .select2-selection--single {
   height: 38px !important;
   border: 1px solid var(--fh-border) !important;
@@ -816,7 +816,7 @@ textarea.form-control {
   box-shadow: 0 0 0 3px rgba(164, 22, 26, .10)
 }
 
-/* ---------- jQuery Chosen — modern restyle ---------- */
+/* ---------- jQuery Chosen ï¿½ modern restyle ---------- */
 .chosen-container {
   font-size: 14px
 }
@@ -886,7 +886,7 @@ textarea.form-control {
 }
 
 .chosen-container-single .chosen-single abbr::before {
-  content: "×";
+  content: "ï¿½";
   color: #94a3b8;
   font-size: 14px;
   line-height: 1
@@ -899,6 +899,24 @@ textarea.form-control {
   box-shadow: var(--fh-shadow-md);
   background: var(--fh-white);
   margin-top: -1px
+}
+
+.chosen-container.chosen-drop-up .chosen-drop {
+  top: auto;
+  bottom: 100%;
+  border-top: 1px solid var(--fh-crimson);
+  border-bottom: none;
+  border-radius: var(--fh-radius-sm) var(--fh-radius-sm) 0 0;
+  margin-top: 0;
+  margin-bottom: -1px
+}
+
+.chosen-container-active.chosen-with-drop.chosen-drop-up .chosen-single {
+  border-radius: 0 0 var(--fh-radius-sm) var(--fh-radius-sm)
+}
+
+.chosen-container-multi.chosen-with-drop.chosen-drop-up .chosen-choices {
+  border-radius: 0 0 var(--fh-radius-sm) var(--fh-radius-sm)
 }
 
 .chosen-container .chosen-search {
@@ -1008,7 +1026,7 @@ textarea.form-control {
 }
 
 .chosen-container-multi .chosen-choices li.search-choice-close::before {
-  content: "×";
+  content: "ï¿½";
   color: rgba(164, 22, 26, .7);
   font-size: 16px;
   line-height: 1;
@@ -1170,19 +1188,19 @@ textarea.form-control {
   border-radius: var(--fh-radius-sm) 0 0 var(--fh-radius-sm)
 }
 
-/* Last visible button — :last-of-type b? qua <ul.dropdown-menu> n?m cu?i .btn-group */
+/* Last visible button ï¿½ :last-of-type b? qua <ul.dropdown-menu> n?m cu?i .btn-group */
 .btn-group>.btn:last-child,
 .btn-group>.btn:last-of-type {
   border-radius: 0 var(--fh-radius-sm) var(--fh-radius-sm) 0
 }
 
-/* Lone button (ch? 1 nút, ho?c 1 nút + dropdown-menu) — round d? 4 góc */
+/* Lone button (ch? 1 nï¿½t, ho?c 1 nï¿½t + dropdown-menu) ï¿½ round d? 4 gï¿½c */
 .btn-group>.btn:only-child,
 .btn-group>.btn:first-child:last-of-type {
   border-radius: var(--fh-radius-sm)
 }
 
-/* ---------- Dropdown menu (nút gear .btn-group + m?i .dropdown) ---------- */
+/* ---------- Dropdown menu (nï¿½t gear .btn-group + m?i .dropdown) ---------- */
 .dropdown-menu {
   min-width: 184px;
   padding: 6px;
@@ -1242,10 +1260,10 @@ textarea.form-control {
   color: var(--fh-muted-2)
 }
 
-/* ---------- Primary action = crimson (Thêm m?i & submit chính) ----------
-   Module hi?n d?i dùng .ui-button--primary (dang gradient xanh !important).
-   Module cu (profile) dùng .btn.btn-success.ui-title-bar__action.
-   Search gi? .btn-success xanh lá (KHÔNG d?ng). */
+/* ---------- Primary action = crimson (Thï¿½m m?i & submit chï¿½nh) ----------
+   Module hi?n d?i dï¿½ng .ui-button--primary (dang gradient xanh !important).
+   Module cu (profile) dï¿½ng .btn.btn-success.ui-title-bar__action.
+   Search gi? .btn-success xanh lï¿½ (KHï¿½NG d?ng). */
 .ui-button--primary {
   background: #a4161a !important;
   border-color: #7b1113 !important;
@@ -1276,7 +1294,7 @@ a.btn.ui-title-bar__action {
   color: var(--fh-white)
 }
 
-/* nút luu trong modal = crimson (search ? toolbar v?n xanh lá) */
+/* nï¿½t luu trong modal = crimson (search ? toolbar v?n xanh lï¿½) */
 .modal-footer .btn-success,
 .modal-content .modal-footer .btn-success {
   background: #a4161a;
@@ -1291,7 +1309,7 @@ a.btn.ui-title-bar__action {
   color: var(--fh-white)
 }
 
-/* nút Luu chính ? footer trang edit (.ui-page-actions) = crimson; search toolbar v?n xanh lá */
+/* nï¿½t Luu chï¿½nh ? footer trang edit (.ui-page-actions) = crimson; search toolbar v?n xanh lï¿½ */
 .ui-page-actions .btn-success,
 .ui-page-actions__container .btn-success {
   background: #a4161a !important;
@@ -1405,7 +1423,7 @@ a.btn.ui-title-bar__action {
   color: var(--fh-white)
 }
 
-/* ---------- Pagination (ch? .pagination/.pager — KHÔNG dùng .pages vì là class section wrapper) ---------- */
+/* ---------- Pagination (ch? .pagination/.pager ï¿½ KHï¿½NG dï¿½ng .pages vï¿½ lï¿½ class section wrapper) ---------- */
 .pagination,
 .pager {
   display: flex;
@@ -1467,7 +1485,7 @@ a.btn.ui-title-bar__action {
   box-shadow: 0 0 0 3px rgba(164, 22, 26, .15)
 }
 
-/* ---------- Status pills (helper, dùng chung) ---------- */
+/* ---------- Status pills (helper, dï¿½ng chung) ---------- */
 .fh-pill,
 .label,
 .badge {
@@ -1537,7 +1555,7 @@ a.btn.ui-title-bar__action {
   border-top: 1px solid var(--fh-border-2)
 }
 
-/* ---------- ui-card (customer dùng, components.min.css không n?p) ---------- */
+/* ---------- ui-card (customer dï¿½ng, components.min.css khï¿½ng n?p) ---------- */
 .ui-card {
   background: var(--fh-card);
   border: 1px solid var(--fh-border);
@@ -1555,7 +1573,7 @@ a.btn.ui-title-bar__action {
   border-bottom: 0
 }
 
-/* ---------- Utility còn thi?u (Bootstrap 3.4 không có các class BS4) ---------- */
+/* ---------- Utility cï¿½n thi?u (Bootstrap 3.4 khï¿½ng cï¿½ cï¿½c class BS4) ---------- */
 .mr-2 {
   margin-right: .5rem !important
 }
@@ -1576,7 +1594,7 @@ a.btn.ui-title-bar__action {
   }
 }
 
-/* ---------- Icon picker (boxicons) — dùng chung m?i module ($Core.iconpicker) ---------- */
+/* ---------- Icon picker (boxicons) ï¿½ dï¿½ng chung m?i module ($Core.iconpicker) ---------- */
 .iconpicker-field {
   display: flex;
   align-items: center;
@@ -1668,7 +1686,7 @@ a.btn.ui-title-bar__action {
   color: var(--fh-white)
 }
 
-/* ---------- Project overview — lu?i nút ch?c nang (tiles) ---------- */
+/* ---------- Project overview ï¿½ lu?i nï¿½t ch?c nang (tiles) ---------- */
 .proj-group {
   --accent: var(--fh-crimson);
   --accent-soft: rgba(164, 22, 26, .10)
@@ -1755,7 +1773,7 @@ a.btn.ui-title-bar__action {
 }
 
 .proj-tile__tx::after {
-  content: "›";
+  content: "ï¿½";
   float: right;
   color: #cbd5e1;
   font-size: 18px;
@@ -1768,7 +1786,7 @@ a.btn.ui-title-bar__action {
   transform: translateX(3px)
 }
 
-/* ---------- Ti?n d? — media gallery (Drive/upload/link; video uu tiên + highlight) ---------- */
+/* ---------- Ti?n d? ï¿½ media gallery (Drive/upload/link; video uu tiï¿½n + highlight) ---------- */
 .pm-desc {
   margin-bottom: 10px
 }
@@ -1781,7 +1799,7 @@ a.btn.ui-title-bar__action {
   margin-bottom: 4px
 }
 
-/* ---------- Ti?n d? — m?i m?c = 1 block (card) ---------- */
+/* ---------- Ti?n d? ï¿½ m?i m?c = 1 block (card) ---------- */
 .progress-blocks {
   display: flex;
   flex-direction: column;
@@ -2020,7 +2038,7 @@ a.btn.ui-title-bar__action {
   padding-left: 2px
 }
 
-/* Video highlight: ô l?n hon + vi?n crimson (sort lên d?u lu?i) */
+/* Video highlight: ï¿½ l?n hon + vi?n crimson (sort lï¿½n d?u lu?i) */
 .pm-thumb--video {
   width: 170px;
   height: 108px;
@@ -2042,7 +2060,7 @@ a:hover {
   outline: none !important
 }
 
-/* ---------- C?m nút hành d?ng — dùng GAP thay vì .mr-x r?i rác ---------- */
+/* ---------- C?m nï¿½t hï¿½nh d?ng ï¿½ dï¿½ng GAP thay vï¿½ .mr-x r?i rï¿½c ---------- */
 .ui-title-bar__actions {
   display: inline-flex;
   align-items: center;
@@ -2059,7 +2077,7 @@ a:hover {
   vertical-align: middle
 }
 
-/* Nút "+ Thêm" trong .widget-header — pill crimson g?n, rõ là clickable */
+/* Nï¿½t "+ Thï¿½m" trong .widget-header ï¿½ pill crimson g?n, rï¿½ lï¿½ clickable */
 .widget-header .widget-add {
   display: inline-flex;
   align-items: center;
@@ -2086,19 +2104,19 @@ a:hover {
 }
 
 /* =========================================================================
-   FH Admin Refinement — b?ng + nút  (additive, n?p CU?I cascade = th?ng override)
-   • Làm NH? lu?i vi?n .table-bordered (d?m?nh?t) TOÀN admin — GI? k? d?c+ngang d?
-     b?ng ma tr?n/c?u hình (F-Point, import column, crawl-config) v?n d?c du?c;
-     KHÔNG lo?i tr?, KHÔNG d?i border-collapse/overflow ? an toàn matrix+sticky+freeze.
-   • .ui-button ph?ng/d?ng d?u; primary crimson (gi? rule !important cu) + th? c?p
-     trung tính ? c?p "Xem/Duy?t" + "B?" cân d?i, chuyên nghi?p.
-   Gi? màu thuong hi?u crimson #a4161a. KHÔNG d?ng nút --transparent (chrome nav).
+   FH Admin Refinement ï¿½ b?ng + nï¿½t  (additive, n?p CU?I cascade = th?ng override)
+   ï¿½ Lï¿½m NH? lu?i vi?n .table-bordered (d?m?nh?t) TOï¿½N admin ï¿½ GI? k? d?c+ngang d?
+     b?ng ma tr?n/c?u hï¿½nh (F-Point, import column, crawl-config) v?n d?c du?c;
+     KHï¿½NG lo?i tr?, KHï¿½NG d?i border-collapse/overflow ? an toï¿½n matrix+sticky+freeze.
+   ï¿½ .ui-button ph?ng/d?ng d?u; primary crimson (gi? rule !important cu) + th? c?p
+     trung tï¿½nh ? c?p "Xem/Duy?t" + "B?" cï¿½n d?i, chuyï¿½n nghi?p.
+   Gi? mï¿½u thuong hi?u crimson #a4161a. KHï¿½NG d?ng nï¿½t --transparent (chrome nav).
    ========================================================================= */
 
-/* ---------- TABLE: b?ng DANH SÁCH .table-bordered ? PH?NG S?CH toàn admin (g? k?
+/* ---------- TABLE: b?ng DANH Sï¿½CH .table-bordered ? PH?NG S?CH toï¿½n admin (g? k?
    D?C, d? l? style .table: ch? k? ngang m?nh + thead s?ch + zebra). GI? lu?i (ch?
-   làm nh? màu) cho: b?ng MA TR?N/c?u hình (thêm class .keep-grid) + b?ng dày/sticky/
-   freeze (dã có class text-nowrap/table-fixed/table-pill/table-computer/
+   lï¿½m nh? mï¿½u) cho: b?ng MA TR?N/c?u hï¿½nh (thï¿½m class .keep-grid) + b?ng dï¿½y/sticky/
+   freeze (dï¿½ cï¿½ class text-nowrap/table-fixed/table-pill/table-computer/
    table-iloocal/no-maxwidth/freeze-table). ---------- */
 table.table-bordered,
 table.table-bordered>thead>tr>th,
@@ -2130,7 +2148,7 @@ table.table-bordered>tbody>tr:hover>td {
   background: rgba(164, 22, 26, .03);
 }
 
-/* g? k? D?C cho b?ng DANH SÁCH (không ph?i ma tr?n) ? ph?ng nhu .table thu?ng */
+/* g? k? D?C cho b?ng DANH Sï¿½CH (khï¿½ng ph?i ma tr?n) ? ph?ng nhu .table thu?ng */
 table.table-bordered:not(.keep-grid):not(.text-nowrap):not(.table-fixed):not(.table-pill):not(.table-computer):not(.table-iloocal):not(.no-maxwidth):not(.freeze-table)>thead>tr>th,
 table.table-bordered:not(.keep-grid):not(.text-nowrap):not(.table-fixed):not(.table-pill):not(.table-computer):not(.table-iloocal):not(.no-maxwidth):not(.freeze-table)>thead>tr>td {
   border-left: 0;
@@ -2189,7 +2207,7 @@ table.table-bordered:not(.keep-grid):not(.text-nowrap):not(.table-fixed):not(.ta
   border-radius: 6px;
 }
 
-/* icon-only gi? vuông */
+/* icon-only gi? vuï¿½ng */
 .ui-button.ui-button--icon,
 .ui-button.btn-icon {
   padding: 0;
@@ -2203,7 +2221,7 @@ table.table-bordered:not(.keep-grid):not(.text-nowrap):not(.table-fixed):not(.ta
   min-width: 30px;
 }
 
-/* .btn-default trung tính (d?ng b? v?i .ui-button th? c?p, d? c?p nút cân) */
+/* .btn-default trung tï¿½nh (d?ng b? v?i .ui-button th? c?p, d? c?p nï¿½t cï¿½n) */
 .btn.btn-default {
   background: var(--fh-card);
   border-color: var(--fh-border);
@@ -2219,7 +2237,7 @@ table.table-bordered:not(.keep-grid):not(.text-nowrap):not(.table-fixed):not(.ta
 }
 
 /* ============================================================
-   Settings redesign — company profile card layout (.cfg-* markup).
+   Settings redesign ï¿½ company profile card layout (.cfg-* markup).
    Scoped via body.mod-setting so it never leaks to other admin screens.
    ============================================================ */
 body.mod-setting .cfg-grid {
@@ -2376,9 +2394,9 @@ body.mod-setting .cfg-footer .save_setting:hover,
 body.mod-setting .cfg-footer button:hover { background: var(--fh-crimson-700); }
 
 /* ============================================================
-   C?u hình h? th?ng (?mod=setting&act=general) — rail di?u hu?ng
-   + lu?ng th? liên t?c. M?t trang, m?t form, m?t l?n luu: rail ch?
-   cu?n và l?c, KHÔNG c?t form thành tab nên submit luôn d? key.
+   C?u hï¿½nh h? th?ng (?mod=setting&act=general) ï¿½ rail di?u hu?ng
+   + lu?ng th? liï¿½n t?c. M?t trang, m?t form, m?t l?n luu: rail ch?
+   cu?n vï¿½ l?c, KHï¿½NG c?t form thï¿½nh tab nï¿½n submit luï¿½n d? key.
    ============================================================ */
 body.mod-setting .setting-general {
   display: grid;
@@ -2388,7 +2406,7 @@ body.mod-setting .setting-general {
 }
 body.mod-setting .setting-general__groups { min-width: 0; }
 
-/* ---------- rail trái ---------- */
+/* ---------- rail trï¿½i ---------- */
 body.mod-setting .setting-general__rail {
   position: sticky;
   top: 100px;
@@ -2478,7 +2496,7 @@ body.mod-setting .setting-general__nav-dot {
 }
 body.mod-setting .setting-general__nav-item.is-dirty .setting-general__nav-dot { opacity: 1; width: 7px;}
 
-/* ---------- th? nhóm ---------- */
+/* ---------- th? nhï¿½m ---------- */
 body.mod-setting .setting-general__group {
   margin-bottom: 16px;
   background: var(--fh-card);
@@ -2552,14 +2570,14 @@ body.mod-setting .setting-general__field-help {
   word-break: break-word;
 }
 body.mod-setting .setting-general__field-help--warn { color: #b4551f; }
-/* Ô dán script c?a bên th? ba: d?c b?ng font d?u m?i soi du?c d?u ngo?c. */
+/* ï¿½ dï¿½n script c?a bï¿½n th? ba: d?c b?ng font d?u m?i soi du?c d?u ngo?c. */
 body.mod-setting .setting-general__field--code textarea.form-control {
   background: var(--fh-bg);
   font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
   font-size: 12px;
 }
-/* Ch?m báo field v?a s?a — dùng hình kh?i, không dùng ch?, d? không ph?
-   thu?c b?ng mã khi file CSS du?c n?p r?i kh?i trang. */
+/* Ch?m bï¿½o field v?a s?a ï¿½ dï¿½ng hï¿½nh kh?i, khï¿½ng dï¿½ng ch?, d? khï¿½ng ph?
+   thu?c b?ng mï¿½ khi file CSS du?c n?p r?i kh?i trang. */
 body.mod-setting .setting-general__field.is-dirty .setting-general__field-label::before {
   content: "";
   display: inline-block;
@@ -2573,7 +2591,7 @@ body.mod-setting .setting-general__field.is-dirty .setting-general__field-label:
 body.mod-setting .setting-general__field.is-dirty .form-control { border-color: var(--fh-crimson); }
 body.mod-setting .setting-general__field.is-hidden,
 body.mod-setting .setting-general__group.is-hidden { display: none; }
-/* chosen/selectize t? d?t width inline nên ph?i ghi dè d? không tràn c?t */
+/* chosen/selectize t? d?t width inline nï¿½n ph?i ghi dï¿½ d? khï¿½ng trï¿½n c?t */
 body.mod-setting .setting-general__field .chosen-container,
 body.mod-setting .setting-general__field .selectize-control { width: 100% !important; }
 body.mod-setting .setting-general__check {
@@ -2591,7 +2609,7 @@ body.mod-setting .setting-general__pair {
 }
 body.mod-setting .setting-general__pair-extra { display: none; }
 body.mod-setting .setting-general__pair-extra.is-open { display: block; }
-/* ---------- b?ng tài kho?n h? tr? ---------- */
+/* ---------- b?ng tï¿½i kho?n h? tr? ---------- */
 body.mod-setting .setting-general__support {
   border: 1px solid var(--fh-border);
   border-radius: var(--fh-radius-sm);
@@ -2620,7 +2638,7 @@ body.mod-setting .setting-general__support-name {
   font-weight: 600;
 }
 
-/* ---------- tr?ng thái r?ng khi tìm ki?m ---------- */
+/* ---------- tr?ng thï¿½i r?ng khi tï¿½m ki?m ---------- */
 body.mod-setting .setting-general__empty {
   display: none;
   margin: 0;
@@ -2633,9 +2651,9 @@ body.mod-setting .setting-general__empty {
 }
 body.mod-setting .setting-general__empty.is-open { display: block; }
 
-/* ---------- thanh luu bám dáy ----------
-   Ch? hi?n khi có field khác giá tr? ban d?u (JS b?t .is-open), d? không ai
-   b?m Luu khi chua s?a gì. ?n b?ng display nên thanh không chi?m ch? tr?ng. */
+/* ---------- thanh luu bï¿½m dï¿½y ----------
+   Ch? hi?n khi cï¿½ field khï¿½c giï¿½ tr? ban d?u (JS b?t .is-open), d? khï¿½ng ai
+   b?m Luu khi chua s?a gï¿½. ?n b?ng display nï¿½n thanh khï¿½ng chi?m ch? tr?ng. */
 body.mod-setting .setting-general__savebar {
   display: none;
   position: sticky;
