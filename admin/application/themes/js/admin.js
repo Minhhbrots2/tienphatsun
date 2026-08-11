@@ -2881,3 +2881,45 @@ $Core.dropdownClone = {
 	}
 };
 $(function(){ $Core.dropdownClone.init(); });
+
+$Core.chosenDropUp = {
+	init: function(){
+		var self = $Core.chosenDropUp;
+		$(document).on('chosen:showing_dropdown', function(e, params){
+			if(params && params.chosen){ self.apply(params.chosen.container); }
+		});
+		$(document).on('chosen:hiding_dropdown', function(e, params){
+			if(params && params.chosen){ params.chosen.container.removeClass('chosen-drop-up'); }
+		});
+	},
+	// vung ma drop con nhin thay: giao cua cac ancestor cat overflow, chan ngoai la viewport
+	limits: function($container){
+		var box = { top: 0, bottom: $(window).height() };
+		$container.parents().each(function(){
+			if(this === document.body || this === document.documentElement){ return false; }
+			var overflow = $(this).css('overflow-x') + ' ' + $(this).css('overflow-y');
+			if(overflow.indexOf('visible') === -1){
+				var rect = this.getBoundingClientRect();
+				box.top = Math.max(box.top, rect.top);
+				box.bottom = Math.min(box.bottom, rect.bottom);
+			}
+		});
+		return box;
+	},
+	apply: function($container){
+		var self = $Core.chosenDropUp;
+		var $drop = $container.children('.chosen-drop');
+		if(!$drop.length){ return; }
+		var $results = $drop.find('.chosen-results');
+		var maxResults = parseInt($results.css('max-height'), 10) || 0;
+		// winnow_results() do lai danh sach ngay sau event -> cong them phan results con gian duoc
+		var dropHeight = $drop.outerHeight() + Math.max(0, maxResults - $results.outerHeight());
+		var rect = $container[0].getBoundingClientRect();
+		var box = self.limits($container);
+		var spaceBelow = box.bottom - rect.bottom;
+		var spaceAbove = rect.top - box.top;
+		var flip = spaceBelow < dropHeight && spaceAbove > spaceBelow;
+		$container.toggleClass('chosen-drop-up', flip);
+	}
+};
+$(function(){ $Core.chosenDropUp.init(); });

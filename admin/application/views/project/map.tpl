@@ -398,13 +398,76 @@
 
 				circle: false,
 
-				marker: false
+				marker: false,
+
+				polygon: {repeatMode: true},
+
+				rectangle: {repeatMode: true},
+
+				circlemarker: {repeatMode: true}
 
 			}
 
 		});
 
 		map.addControl(drawControl);
+
+		var draw_modes = drawControl._toolbars.draw._modes;
+
+		map.getContainer().addEventListener('click', function(e){
+
+			var _btn = e.target.closest('a[class*="leaflet-draw-draw-"]');
+
+			if(!_btn) return;
+
+			for(var _type in draw_modes){
+
+				var _handler = draw_modes[_type].handler;
+
+				if(draw_modes[_type].button !== _btn) continue;
+
+				if(!_handler._enabled) break;
+
+
+				e.preventDefault();
+
+				e.stopPropagation();
+
+				_handler.disable();
+
+				break;
+
+			}
+
+		}, true);
+
+		// Phím tắt D: bật/tắt nhanh công cụ vẽ circlemarker
+
+		$_document.on('keydown', function(e){
+
+			if(e.key !== 'd' && e.key !== 'D') return;
+
+			if(e.ctrlKey || e.altKey || e.metaKey) return;
+
+			if($(e.target).is('input, textarea, select, [contenteditable="true"]')) return;
+
+			var _circle = draw_modes['circlemarker'];
+
+			if(!_circle) return;
+
+			e.preventDefault();
+
+			if(_circle.handler._enabled){
+
+				_circle.handler.disable();
+
+				return;
+
+			}
+
+			_circle.handler.enable();
+
+		});
 
 		// Xử lý khi người dùng vẽ xong
 
