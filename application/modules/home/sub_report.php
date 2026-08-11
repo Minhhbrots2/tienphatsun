@@ -1288,29 +1288,18 @@ function report_loadTimeLogin(){
 	$current_now = strtotime(date('d-m-Y'));
 	$month = (int) Input::post('month', date('n'));
 	$year = (int) Input::post('year', date('Y'));
-	$date_type = Input::post('date_type', 'yesterday');
 	$start_date = Input::post('start_date');
 	$end_date = Input::post('end_date');
-	$profile_id = (int)Input::post('profile_id',0);
-	
+	$view_profile_id = (int)Input::post('profile_id',0);
 	if(!empty($start_date) && !empty($end_date)){
-		if($date_type == 'today'){
-			$start_time = strtotime(date('d-m-Y'));
-			$end_time = strtotime(date('d-m-Y 23:59', $start_time));
-		} else if($date_type == 'yesterday'){
-			$start_time = strtotime('-1 days');
-			$end_time = strtotime(date('d-m-Y 23:59',$start_time));
-		} else {
-			$start_time = $clsISO->toTime($start_date);
-			$end_time = $clsISO->toTime($end_date,"23:59");
-		}
+		$start_time = $clsISO->toTime($start_date);
+		$end_time = $clsISO->toTime($end_date,"23:59:59");
 	} else {
 		$end_day = cal_days_in_month(CAL_GREGORIAN, $month, $year);
 		$start_time = strtotime(sprintf('%s-%s-%s', '01', $month, $year));
-		$end_time = strtotime(sprintf('%s-%s-%s %s', $end_day, $month, $year,"23:59"));
+		$end_time = strtotime(sprintf('%s-%s-%s %s', $end_day, $month, $year,"23:59:59"));
 	}
-	
-	$list_reports = $clsProfileLog->getAll("`profile_id`='{$profile_id}' 
+	$list_reports = $clsProfileLog->getAll("`profile_id`='{$view_profile_id}'
 		AND (`reg_date` BETWEEN {$start_time} AND {$end_time}) ORDER BY `reg_date` DESC");
 	$smarty->assign('list_reports', $list_reports);
 	// $clsISO->print_pre($list_reports); 
