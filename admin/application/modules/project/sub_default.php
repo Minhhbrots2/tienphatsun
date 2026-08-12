@@ -621,6 +621,10 @@ function default_edit(){
     #menu thông tin dự án
     $list_category_menu = $clsProperty->getAll("`is_trash`=0 and `property_type`='_CATEGORY_DOCS' and `parent_id`='0' order by `order_no` ASC", "{$clsProperty->pkey},title");
     $assign_list["list_category_menu"] = $list_category_menu;
+    #phân khu: dùng cho bộ lọc danh sách tiện ích
+    $field = "{$clsProperty->pkey},title";
+    $list_blocks = $clsProperty->getAll("`property_type`='_BLOCK' and `for_id`='".((int) $pvalTable)."' order by `order_no` ASC", $field);
+    $assign_list["list_blocks"] = $list_blocks;
     #
     $lstField_highfloor = $clsStock->getTableField(_BLOCK_TYPE_HIGHLEVEL_SALE);
     $html_select_field_highfloor = '<select name="config_column[]" id="" class="form-select form-control required">';
@@ -4606,8 +4610,9 @@ function default_ajLoadListUtilities(){
     $clsProperty = new Property();
     $clsProject = new Project();
     $project_id = Input::post('project_id',0);
+    $block_id = (int) Input::post('block_id', 0);
     $uid = $clsISO->getUniqid();
-    $html = '<div class="'.$uid.' dragscroll" style="max-height:300px">
+    $html = '<div class="'.$uid.' dragscroll ui-resize-y">
 	<table class="table table-vertical mb-0 table-stripped">
 		<thead><tr>
 			<th class="text-left">Tiêu đề</th>
@@ -4620,17 +4625,22 @@ function default_ajLoadListUtilities(){
     $lstUtilities = !empty($utilities) ? json_decode($utilities, true) : array();
 //	 $clsISO->print_pre($lstUtilities); die();
     $array_cache_block = $array_cache_cat = [];
-    if(!empty($lstUtilities)){ $ii=0; // init
+    $ii = 0; // số dòng thực sự hiển thị sau khi lọc theo phân khu
+    if(!empty($lstUtilities)){
         foreach($lstUtilities as $k_utilities => $_oUtilities){
-            if(!isset($array_cache_block[$_oUtilities['block_id']])) {
-                $array_cache_block[$_oUtilities['block_id']] = $clsProperty->getTitle($_oUtilities['block_id']);
+            $_block_id = isset($_oUtilities['block_id']) ? (int) $_oUtilities['block_id'] : 0;
+            if($block_id > 0 && $_block_id != $block_id){
+                continue;
+            }
+            if(!isset($array_cache_block[$_block_id])) {
+                $array_cache_block[$_block_id] = $clsProperty->getTitle($_block_id);
             }
             if(!isset($array_cache_cat[$_oUtilities['cat_id']])) {
                 $array_cache_cat[$_oUtilities['cat_id']] = $clsProperty->getTitle($_oUtilities['cat_id']);
             }
             $html .= '<tr>
 				<td class="fieldarea right_click" '.$props.'><div class="limit_1line">'.($ii+1).'. '.$_oUtilities['title'].'</div></td>
-				<td class="fieldarea right_click" '.$props.'>'.$array_cache_block[$_oUtilities['block_id']].'</td>
+				<td class="fieldarea right_click" '.$props.'>'.$array_cache_block[$_block_id].'</td>
 				<td class="fieldarea right_click" '.$props.'>'.$array_cache_cat[$_oUtilities['cat_id']].'</td>
 				<td class="fieldarea right_click text-nowrap" '.$props.'>'.$clsISO->convertTimeToText($_oUtilities['reg_date'], true).'</td>
 				<td class="text-center">
@@ -4641,6 +4651,11 @@ function default_ajLoadListUtilities(){
             ++$ii;
         }
         unset($lstUtilities);
+    }
+    if($ii == 0){
+        $html .= '<tr>
+			<td class="text-center" colspan="5">Chưa có dữ liệu</td>
+		</tr>';
     }
     $html .= '</table>
 	</div>';

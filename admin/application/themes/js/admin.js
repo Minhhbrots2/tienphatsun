@@ -2923,3 +2923,31 @@ $Core.chosenDropUp = {
 	}
 };
 $(function(){ $Core.chosenDropUp.init(); });
+
+/* =========================================================================
+ * $Core.resizableBox -- dung chung cho moi vung danh sach co class .ui-resize-y.
+ * CSS chi dat max-height de box tu co lai khi it dong, nhung max-height cung
+ * chan luon thao tac keo cao them. Xu ly: ngay khi nguoi dung bam vao nut keo
+ * o goc duoi-phai, chot chieu cao hien tai thanh height inline roi bo
+ * max-height -> tu do keo giong textarea. Delegate tren document nen ap dung
+ * duoc ca cho vung duoc nap bang AJAX.
+ * ========================================================================= */
+$Core.resizableBox = {
+	grip: 18, // canh vung goc duoi-phai chua nut keo cua trinh duyet
+	init: function(){
+		var self = $Core.resizableBox;
+		$(document).on('mousedown', '.ui-resize-y', function(e){
+			self.unlock(this, e);
+		});
+	},
+	unlock: function(el, e){
+		var self = $Core.resizableBox;
+		if(el.style.height){ return; } // da bo max-height o lan keo truoc
+		var rect = el.getBoundingClientRect();
+		if(e.clientX < rect.right - self.grip){ return; }
+		if(e.clientY < rect.bottom - self.grip){ return; }
+		el.style.height = el.offsetHeight + 'px';
+		el.style.maxHeight = 'none';
+	}
+};
+$(function(){ $Core.resizableBox.init(); });

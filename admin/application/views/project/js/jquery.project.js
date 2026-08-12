@@ -2760,13 +2760,27 @@ $Core.utilities = {
 		});
 		return false;	
 	},
+	filter : function (_this,e){
+		e.preventDefault();
+		var $_this = $(_this);
+		$Core.utilities.loadList($_this.attr('project_id'), {'block_id':$_this.val()});
+		return false;
+	},
 	loadList : function (project_id, options){
 		var $_adata = options || {};
 		$_adata['project_id'] = project_id;
+		if(typeof $_adata['block_id'] == 'undefined'){
+			$_adata['block_id'] = $('.filterUtilitiesBlock').val() || 0;
+		}
+		var $_box = $('.holderUtilities .ui-resize-y'),
+			_height = $_box.length ? $_box[0].style.height : '';
 		toggleIndicatior(1);
 		$.post(path_ajax_script+"/?mod="+mod+"&act=ajLoadListUtilities", $_adata, function(respJson){
 			toggleIndicatior(0);
 			$('.holderUtilities').html(respJson.html);
+			if(_height){
+				$('.holderUtilities .ui-resize-y').css({'height':_height, 'max-height':'none'});
+			}
 			$('.'+respJson.uid).freezeTable({
 				'columnNum': 1,
 				'scrollable': true,

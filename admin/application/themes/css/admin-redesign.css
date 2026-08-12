@@ -2709,3 +2709,14 @@ body.mod-setting .setting-general__savebar-actions input[type="submit"]:hover { 
 .setting-general__field .config-color__picker{
 	width: 100px;
 }
+
+.filterUtilitiesBlock {
+	width: auto;
+	max-width: 220px;
+}
+
+.ui-resize-y {
+	max-height: 300px;
+	overflow-y: auto;
+	resize: vertical;
+}

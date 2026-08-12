@@ -429,8 +429,19 @@
 					</div>
 					<div class="ui-card">
 						<div class="ui-card__section">
-							<header class="ui-stack ui-stack--wrap mb-3">
+							<header class="ui-stack ui-stack--wrap ui-stack--alignment-center mb-3">
 								<h2 class="ui-stack-item ui-stack-item--fill ui-heading">5. Tiện ích dự án</h2>
+								<div class="ui-stack-item mr-2">
+									<select class="form-control input-sm filterUtilitiesBlock" project_id="{$pvalTable}"
+										onChange="$Core.utilities.filter(this,event)">
+										<option value="0">Tất cả phân khu</option>
+										{if !empty($list_blocks)}
+											{foreach from=$list_blocks item=_oBlockFilter}
+												<option value="{$_oBlockFilter.property_id}">{$_oBlockFilter.title|escape}</option>
+											{/foreach}
+										{/if}
+									</select>
+								</div>
 								<div class="ui-stack-item">
 									<button type="button" class="ui-button ui-button--link" project_id="{$pvalTable}"
 										utilities_id="" onClick="$Core.utilities.open(this,event)">Thêm</button>
