@@ -172,6 +172,18 @@
 
 	}
 
+	.leaflet-container.js__del_box_mode {
+
+		cursor: crosshair;
+
+	}
+
+	.js__del_box_mode .leaflet-pane > svg path.leaflet-interactive {
+
+		pointer-events: none;
+
+	}
+
 </style>
 
 <script type="text/javascript">
@@ -416,6 +428,22 @@
 
 		map.getContainer().addEventListener('click', function(e){
 
+			// Nút thùng rác: bật/tắt xóa theo vùng thay cho xóa từng hình
+
+			var _remove_btn = e.target.closest('a.leaflet-draw-edit-remove');
+
+			if(_remove_btn){
+
+				e.preventDefault();
+
+				e.stopPropagation();
+
+				set_del_box_mode(!del_box_on);
+
+				return;
+
+			}
+
 			var _btn = e.target.closest('a[class*="leaflet-draw-draw-"]');
 
 			if(!_btn) return;
@@ -441,21 +469,119 @@
 
 		}, true);
 
-		// Phím tắt D: bật/tắt nhanh công cụ vẽ circlemarker
+		// Xóa theo vùng: bôi 1 vùng rồi nhấn Delete để xóa mọi hình nằm trong vùng
 
-		$_document.on('keydown', function(e){
+		var del_box_on = false,
 
-			if(e.key !== 'd' && e.key !== 'D') return;
+			del_box_layer = null,
 
-			if(e.ctrlKey || e.altKey || e.metaKey) return;
+			del_box_start = null;
 
-			if($(e.target).is('input, textarea, select, [contenteditable="true"]')) return;
+		function is_drawing(){
+
+			for(var _type in draw_modes){
+
+				if(draw_modes[_type].handler._enabled) return true;
+
+			}
+
+			return false;
+
+		}
+
+		function get_shapes_in_box(){
+
+			var _layers = [];
+
+			if(!del_box_layer) return _layers;
+
+			var _bounds = del_box_layer.getBounds();
+
+			drawnItems.eachLayer(function(_layer){
+
+				if($Core.util.isEmpty(_layer.shape_id)) return;
+
+				var _point = _layer.getLatLng ? _layer.getLatLng() : _layer.getBounds().getCenter();
+
+				if(!_bounds.contains(_point)) return;
+
+				_layers.push(_layer);
+
+			});
+
+			return _layers;
+
+		}
+
+		function update_del_box_hint(){
+
+			if(!del_box_layer) return;
+
+			var _total = get_shapes_in_box().length;
+
+			if(!del_box_layer.getTooltip()){
+
+				del_box_layer.bindTooltip('', {permanent: true, direction: 'center'});
+
+			}
+
+			del_box_layer.setTooltipContent(_total + ' hình - nhấn Delete để xóa');
+
+			del_box_layer.openTooltip(del_box_layer.getBounds().getCenter());
+
+		}
+
+		function clear_del_box(){
+
+			del_box_start = null;
+
+			if(!del_box_layer) return;
+
+			map.removeLayer(del_box_layer);
+
+			del_box_layer = null;
+
+		}
+
+		function set_del_box_mode(_on){
+
+			if(del_box_on === _on) return;
+
+			del_box_on = _on;
+
+			clear_del_box();
+
+			$(map.getContainer()).toggleClass('js__del_box_mode', _on);
+
+			$('.leaflet-draw-edit-remove').toggleClass('leaflet-draw-toolbar-button-enabled', _on);
+
+			if(!_on){
+
+				// Đang vẽ dở thì leaflet tự quản lý dragging, không giành lại
+
+				if(!is_drawing()) map.dragging.enable();
+
+				return;
+
+			}
+
+			// Khóa kéo bản đồ để chuột dùng cho việc bôi vùng
+
+			map.dragging.disable();
+
+			for(var _key in drawControl._toolbars){
+
+				drawControl._toolbars[_key].disable();
+
+			}
+
+		}
+
+		function toggle_circlemarker(){
 
 			var _circle = draw_modes['circlemarker'];
 
 			if(!_circle) return;
-
-			e.preventDefault();
 
 			if(_circle.handler._enabled){
 
@@ -466,6 +592,132 @@
 			}
 
 			_circle.handler.enable();
+
+		}
+
+		function delete_shapes_in_box(){
+
+			var _layers = get_shapes_in_box();
+
+			if(!_layers.length) return;
+
+			$.each(_layers, function(_i, _layer){
+
+				drawnItems.removeLayer(_layer);
+
+				$Core.project.shapes = $Core.project.shapes.filter(function(_shape){
+
+					return _shape.shape_id !== _layer.shape_id;
+
+				});
+
+			});
+
+			clear_del_box();
+
+			$('.btn_save_all').trigger('click');
+
+		}
+
+		map.getContainer().addEventListener('mousedown', function(e){
+
+			if(!del_box_on || e.button !== 0) return;
+
+			if(e.target.closest('.leaflet-control-container')) return;
+
+			e.preventDefault();
+
+			clear_del_box();
+
+			del_box_start = map.mouseEventToLatLng(e);
+
+			del_box_layer = L.rectangle([del_box_start, del_box_start], {
+
+				color: '#0d6efd', weight: 1, fillOpacity: 0.25, interactive: false
+
+			}).addTo(map);
+
+			L.DomUtil.disableTextSelection();
+
+		});
+
+		map.getContainer().addEventListener('mousemove', function(e){
+
+			if(!del_box_start || !del_box_layer) return;
+
+			del_box_layer.setBounds(L.latLngBounds(del_box_start, map.mouseEventToLatLng(e)));
+
+			update_del_box_hint();
+
+		});
+
+		$_document.on('mouseup', function(){
+
+			if(!del_box_start) return;
+
+			del_box_start = null;
+
+			L.DomUtil.enableTextSelection();
+
+			update_del_box_hint();
+
+		});
+
+		// Bật công cụ vẽ hoặc sửa thì thoát chế độ xóa theo vùng
+
+		map.on(L.Draw.Event.DRAWSTART, function(){
+
+			set_del_box_mode(false);
+
+		});
+
+		map.on(L.Draw.Event.EDITSTART, function(){
+
+			set_del_box_mode(false);
+
+		});
+
+		// Phím tắt: D vẽ circlemarker, X xóa theo vùng, Delete xóa các hình đã bôi
+
+		$_document.on('keydown', function(e){
+
+			if(e.ctrlKey || e.altKey || e.metaKey) return;
+
+			if($(e.target).is('input, textarea, select, [contenteditable="true"]')) return;
+
+			if(e.key === 'd' || e.key === 'D'){
+
+				e.preventDefault();
+
+				toggle_circlemarker();
+
+				return;
+
+			}
+
+			if(e.key === 'x' || e.key === 'X'){
+
+				e.preventDefault();
+
+				set_del_box_mode(!del_box_on);
+
+				return;
+
+			}
+
+			if(e.key === 'Escape'){
+
+				set_del_box_mode(false);
+
+				return;
+
+			}
+
+			if(e.key !== 'Delete' || !del_box_on) return;
+
+			e.preventDefault();
+
+			delete_shapes_in_box();
 
 		});
 
