@@ -432,7 +432,7 @@ class ConfigDeclaration {
 						'placeholder' => 'Company Logo',
 						'width'       => 100,
 						'height'      => 50,
-						'demo'        => '/application/themes/images/no-image.png'
+						'demo'        => '/application/themes/images/no-image.jpg'
 					),
 					'HeaderLogo' => array(
 						'type'        => 'images',
@@ -440,7 +440,7 @@ class ConfigDeclaration {
 						'placeholder' => 'Header Logo',
 						'width'       => 100,
 						'height'      => 50,
-						'demo'        => '/application/themes/images/no-image.png'
+						'demo'        => '/application/themes/images/no-image.jpg'
 					),
 					'LogoWhite' => array(
 						'type'        => 'images',
@@ -448,7 +448,7 @@ class ConfigDeclaration {
 						'placeholder' => 'Company Logo',
 						'width'       => 100,
 						'height'      => 50,
-						'demo'        => '/application/themes/images/no-image.png'
+						'demo'        => '/application/themes/images/no-image.jpg'
 					),
 					'Favicon' => array(
 						'type'        => 'images',
@@ -456,17 +456,37 @@ class ConfigDeclaration {
 						'placeholder' => 'Favicon',
 						'width'       => 100,
 						'height'      => 50,
-						'demo'        => '/application/themes/images/no-image.png'
+						'demo'        => '/application/themes/images/no-image.jpg'
 					),
 					'BgHomeMobile' => array(
 						'type'    => 'images',
 						'label'   => 'Ảnh nền trang chủ bản mobile',
 						'width'       => 882,
 						'height'      => 853,
-						'demo'        => '/application/themes/images/no-image.png',
-						'help'        => 'Click để xem ví dụ <a href="https://tienphatsunrise.c-a.vn/application/themes/images/demo.png">nơi hiển thị</a>.',
+						'demo'        => '/application/themes/images/no-image.jpg',
+						'help'        => 'Click để xem ví dụ <a href="https://ace.c-a.vn/application/themes/images/demo.png">nơi hiển thị</a>.',
 						'help_html'   => true
 					),
+				)
+			),
+			'organization' => array(
+				'label'       => 'Cấu hình tổ chức',
+				'description' => 'Cấu trúc phòng ban và mô hình bán hàng của công ty.',
+				'slug'        => 'organization',
+				'icon'        => 'sitemap',
+				'value'       => array(
+					'has_business_area' => array(
+						'type'    => 'checkbox',
+						'label'   => 'Có Khối kinh doanh',
+						'default' => '1',
+						'help'    => 'Bật khi tổ chức theo Khối kinh doanh > Phòng kinh doanh. Tắt khi Phòng kinh doanh trực thuộc thẳng gốc kinh doanh (không có tầng Khối).',
+					),
+					'has_co_sale' => array(
+						'type'    => 'checkbox',
+						'label'   => 'Cho phép Co-sale (nhiều sale chia 1 giao dịch)',
+						'default' => '1',
+						'help'    => 'Bật để một giao dịch được chia cho nhiều sale theo tỷ lệ (sale chính + sale phụ). Tắt khi mỗi giao dịch chỉ có một sale.',
+					)
 				)
 			),
 			/** Gộp từ màn "Thông tin công ty" cũ (act=profile, nay chỉ còn redirect).
@@ -535,6 +555,12 @@ class ConfigDeclaration {
 						'label'       => 'Set app',
 						'placeholder' => 'Link google driver',
 						'help'        => 'Thư mục hướng dẫn cài đặt app'
+					),
+					'gdrive_agency' => array(
+						'type'        => 'text',
+						'label'       => 'Đại lý thấp tầng',
+						'placeholder' => 'ID thư mục hoặc link, vd: 1UeNKzHt4EU9xg66aSe9o9BUl8X8Fdo2Y',
+						'help'        => 'Link driver nhập đại lý thấp tầng'
 					)
 				)
 			),
@@ -970,13 +996,53 @@ class ConfigDeclaration {
 						'placeholder' => 'Ảnh hiển thị khi chia sẻ liên kết trang độc quyền',
 						'width'       => 120,
 						'height'      => 63,
-						'demo'        => '/application/themes/images/no-image.png'
+						'demo'        => '/application/themes/images/no-image.jpg'
 					),
 					'docquyen_footer_content' => array(
 						'type'        => 'editor',
 						'label'       => 'Nội dung chân trang',
 						'placeholder' => 'Nội dung hiển thị ở chân trang độc quyền (hỗ trợ HTML)',
 						'rows'        => 6
+					)
+				)
+			),
+			'theme' => array(
+				'label'       => 'Giao diện',
+				'description' => 'Lựa chọn giao diện phù hợp cho website.',
+				'slug'        => 'theme',
+				'icon'        => 'list',
+				'permission'  => 'dev',
+				'hidden'      => true,
+				'value'       => array(
+					'SiteTemplate' => array(
+						'type'   => 'select',
+						'label'  => 'Giao diện đang sử dụng',
+						'source' => 'app_template'
+					)
+				)
+			),
+			'worktime' => array(
+				'label'       => 'Thời gian cập nhật bảng hàng',
+				'description' => 'Khung giờ cho phép cập nhật bảng hàng trong ngày.',
+				'slug'        => 'worktime',
+				'icon'        => 'bars',
+				'hidden'      => true,
+				'value'       => array(
+					'morning_start' => array(
+						'type'  => 'time',
+						'label' => 'Buổi sáng — bắt đầu'
+					),
+					'morning_end' => array(
+						'type'  => 'time',
+						'label' => 'Buổi sáng — kết thúc'
+					),
+					'afternoon_start' => array(
+						'type'  => 'time',
+						'label' => 'Buổi chiều — bắt đầu'
+					),
+					'afternoon_end' => array(
+						'type'  => 'time',
+						'label' => 'Buổi chiều — kết thúc'
 					)
 				)
 			)
