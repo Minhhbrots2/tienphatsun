@@ -1597,6 +1597,45 @@ $Core.project = {
 		} else {
 			$('.holder_template_type').removeClass('hidden');
 		}
+	}, open_data_picker : (_this) => {
+		var $_this = $(_this),
+			sop_id = $_this.attr('sop_id'),
+			project_id  = $_this.attr('project_id');
+		vietiso_loading(1);
+		$.ajax({
+			type: "POST",
+			url: path_ajax_script+"/index.php?mod="+mod+"&act=open_data_picker",
+			data: {'project_id':project_id,'sop_id':sop_id},
+			dataType: "html",
+			success: function(html){
+				vietiso_loading(0);
+				var htm = html.split('|||');
+				$Core.popup.open('auto','auto',htm[0],'data_picker_'+sop_id);
+			}
+		});
+		return false;
+	}, save_data_items : (_this) => {
+		var $_this = $(_this),
+			sop_id = $_this.attr('sop_id'),
+			project_id  = $_this.attr('project_id'),
+			_form = $_this.closest('form'),
+			utilities_ids = [];
+		$('input[name="utilities_ids[]"]:checked', _form).each(function(){
+			utilities_ids.push($(this).val());
+		});
+		vietiso_loading(1);
+		$.ajax({
+			type: "POST",
+			url: path_ajax_script+"/index.php?mod="+mod+"&act=save_data_items",
+			data: {'project_id':project_id,'sop_id':sop_id,'utilities_ids':utilities_ids},
+			dataType: "html",
+			success: function(html){
+				vietiso_loading(0);
+				$Core.project.load_sop_items(sop_id, project_id, {});
+				$Core.popup.close($_this.closest('.modal'));
+			}
+		});
+		return false;
 	}, move_sop : (_this, direct) => {
 		var sop_id = $(_this).attr('sop_id'),
 			project_id  = $(_this).attr('project_id');
@@ -2474,31 +2513,197 @@ $Core.project = {
 				}
 			});
 		}
-		if(_validated == 0){
-			$Core.alert.confirm("Xác nhận", "Bạn có chắc chắn muốn thực hiện hành động này?", function(){
-				vietiso_loading(1);
-				_form.ajaxSubmit({
-					type: 'POST',
-					url: path_ajax_script+'/index.php?mod=ajax&act=crawl_doc_sheet_by_link', 
-					data:{"action":action}, 
-					dataType:'json',
-					success: function(respJson) {
-						vietiso_loading(0);
-						let status = respJson.status;
-						status = typeof status == 'undefined' ? 500 : status;
-						let msg = respJson.msg;
-						msg = typeof msg == 'undefined' ? 'Có lỗi xảy ra!!' : msg;
-						if (status == 200 ) {
-							$Core.alert.success(msg);
-							$Core.popup.close(_form.closest(".modal"));
-						} else {
-							$Core.alert.error(msg);
-						}
-					}
-				});
-			});
+		if(_validated > 0){
+			return false;
 		}
+		// Tạo bảng hàng phải xem trước dữ liệu trước đã, popup xem trước chính là bước xác nhận
+		if(action == "_CREATE"){
+			$Core.project.preview_low_floor(_form);
+			return false;
+		}
+		$Core.alert.confirm("Xác nhận", "Bạn có chắc chắn muốn thực hiện hành động này?", function(){
+			vietiso_loading(1);
+			_form.ajaxSubmit({
+				type: 'POST',
+				url: path_ajax_script+'/index.php?mod=ajax&act=crawl_doc_sheet_by_link',
+				data:{"action":action},
+				dataType:'json',
+				success: function(respJson) {
+					vietiso_loading(0);
+					let status = respJson.status;
+					status = typeof status == 'undefined' ? 500 : status;
+					let msg = respJson.msg;
+					msg = typeof msg == 'undefined' ? 'Có lỗi xảy ra!!' : msg;
+					if (status == 200 ) {
+						$Core.alert.success(msg);
+						$Core.popup.close(_form.closest(".modal"));
+					} else {
+						$Core.alert.error(msg);
+					}
+				}
+			});
+		});
     },
+	// Dựng trước danh sách căn từ sheet và hiện popup để user soát, chưa ghi gì vào DB
+	preview_low_floor: function(_form) {
+		vietiso_loading(1);
+		_form.ajaxSubmit({
+			type: 'POST',
+			url: path_ajax_script+'/index.php?mod=ajax&act=crawl_doc_sheet_by_link',
+			data:{"action":"_PREVIEW"},
+			dataType:'json',
+			success: function(respJson) {
+				vietiso_loading(0);
+				let status = respJson.status;
+				status = typeof status == 'undefined' ? 500 : status;
+				let msg = respJson.msg;
+				msg = typeof msg == 'undefined' ? 'Có lỗi xảy ra!!' : msg;
+				if (status != 200) {
+					$Core.alert.error(msg);
+					return false;
+				}
+				$Core.popup.close($('#preview_low_floor'));
+				$Core.popup.open('auto','auto', respJson.html, 'preview_low_floor');
+				// Popup cấu hình vẫn mở bên dưới nên phải đẩy popup xem trước lên trên
+				$('#preview_low_floor').css('z-index', 10000);
+				$Core.project.init_preview_low_floor();
+			}
+		});
+	},
+	preview_page_size: 100,
+	_preview: null,
+	// Bảng xem trước render sẵn toàn bộ dòng, phân trang bằng ẩn/hiện tại chỗ để khỏi gọi lại server
+	init_preview_low_floor: function() {
+		var _modal = $('#preview_low_floor');
+		if(!_modal.length){
+			return false;
+		}
+		var _rows = _modal.find('.js__preview_low_floor tbody tr'),
+			_texts = [],
+			_errors = [];
+		// Cache sẵn text + cờ lỗi từng dòng, nếu không mỗi lần gõ lọc phải đọc DOM cả nghìn dòng
+		_rows.each(function(){
+			_texts.push($(this).text().toLowerCase());
+			_errors.push($(this).hasClass('js__row_error'));
+		});
+		$Core.project._preview = {
+			modal: _modal,
+			rows: _rows,
+			texts: _texts,
+			errors: _errors,
+			matched: _rows,
+			shown: $(),
+			page: 1
+		};
+		_rows.hide();
+		$Core.project.goto_preview_page(1);
+	},
+	goto_preview_page: function(page) {
+		var _st = $Core.project._preview;
+		if(!_st){
+			return false;
+		}
+		var size = $Core.project.preview_page_size,
+			total = _st.matched.length,
+			pages = Math.max(1, Math.ceil(total / size));
+		page = Math.min(Math.max(1, page), pages);
+		// Chỉ đụng vào trang cũ + trang mới, không duyệt lại cả nghìn dòng mỗi lần chuyển trang
+		_st.shown.hide();
+		_st.shown = _st.matched.slice((page - 1) * size, page * size);
+		_st.shown.show();
+		_st.page = page;
+		var from = total > 0 ? (page - 1) * size + 1 : 0,
+			to = Math.min(page * size, total);
+		_st.modal.find('.js__preview_pager').html($Core.project.build_preview_pager(page, pages));
+		_st.modal.find('.js__preview_range').text('Hiển thị ' + from + ' - ' + to + ' / ' + total + ' căn');
+		_st.modal.find('.preview-lowfloor-scroll').scrollTop(0);
+	},
+	build_preview_pager: function(page, pages) {
+		if(pages <= 1){
+			return '';
+		}
+		var html = $Core.project.preview_pager_item(page - 1, '&laquo;', page <= 1, false),
+			end = Math.min(pages, page + 2),
+			start = Math.max(1, end - 4);
+		end = Math.min(pages, start + 4);
+		if(start > 1){
+			html += $Core.project.preview_pager_item(1, 1, false, false);
+			if(start > 2){
+				html += $Core.project.preview_pager_item(0, '...', true, false);
+			}
+		}
+		for(var i = start; i <= end; i++){
+			html += $Core.project.preview_pager_item(i, i, false, i == page);
+		}
+		if(end < pages){
+			if(end < pages - 1){
+				html += $Core.project.preview_pager_item(0, '...', true, false);
+			}
+			html += $Core.project.preview_pager_item(pages, pages, false, false);
+		}
+		html += $Core.project.preview_pager_item(page + 1, '&raquo;', page >= pages, false);
+		return html;
+	},
+	preview_pager_item: function(page, label, disabled, active) {
+		if(active){
+			return '<li><a class="paginate_active" href="javascript:void(0);">' + label + '</a></li>';
+		}
+		if(disabled){
+			return '<li><a class="paginate_button disabled" href="javascript:void(0);">' + label + '</a></li>';
+		}
+		return '<li><a class="paginate_button" href="javascript:void(0);" onclick="$Core.project.goto_preview_page(' + page + ')">' + label + '</a></li>';
+	},
+	// Xác nhận từ popup xem trước: gửi lại đúng form cấu hình với _CREATE để ghi thật
+	create_low_floor: function(_this, e) {
+		e.preventDefault();
+		var _preview = $(_this).closest('.modal'),
+			_form = $('#open_setting_table_update').find('form').first();
+		if(!_form.length){
+			$Core.alert.error("Không tìm thấy form cấu hình, vui lòng mở lại và thử lại");
+			return false;
+		}
+		vietiso_loading(1);
+		_form.ajaxSubmit({
+			type: 'POST',
+			url: path_ajax_script+'/index.php?mod=ajax&act=crawl_doc_sheet_by_link',
+			data:{"action":"_CREATE"},
+			dataType:'json',
+			success: function(respJson) {
+				vietiso_loading(0);
+				let status = respJson.status;
+				status = typeof status == 'undefined' ? 500 : status;
+				let msg = respJson.msg;
+				msg = typeof msg == 'undefined' ? 'Có lỗi xảy ra!!' : msg;
+				if (status == 200 ) {
+					$Core.alert.success(msg);
+					$Core.popup.close(_preview);
+					$Core.popup.close(_form.closest(".modal"));
+				} else {
+					$Core.alert.error(msg);
+				}
+			}
+		});
+		return false;
+	},
+	// Lọc nhanh trên bảng xem trước, danh sách dài nên soát bằng mắt không xuể
+	filter_preview_low_floor: function(_this, e) {
+		var _st = $Core.project._preview;
+		if(!_st){
+			return false;
+		}
+		var keyword = $.trim(_st.modal.find('.js__filter_preview').val()).toLowerCase(),
+			only_error = _st.modal.find('.js__filter_error').is(':checked');
+		_st.matched = _st.rows.filter(function(index){
+			if(only_error && !_st.errors[index]){
+				return false;
+			}
+			return keyword === '' || _st.texts[index].indexOf(keyword) !== -1;
+		});
+		// Ẩn trang đang hiện trước khi đổi tập kết quả, không thì dòng cũ còn sót lại trên bảng
+		_st.shown.hide();
+		_st.shown = $();
+		$Core.project.goto_preview_page(1);
+	},
 	open_sheet: (_this, e) => {
 		e.preventDefault();
 		var uid = $(_this).attr('uid'),

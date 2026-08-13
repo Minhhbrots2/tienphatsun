@@ -1361,7 +1361,7 @@ function default_ajLoadListBannerStock(){
 }
 function default_crawl_doc_sheet_by_link(){
 	ini_set('memory_limit', '5048M');
-    global $core,$clsISO,$dbconn;
+    global $core,$clsISO,$dbconn,$smarty;
 	#
 	$clsStock = new Stock();
 	$clsProject = new Project();
@@ -1385,7 +1385,10 @@ function default_crawl_doc_sheet_by_link(){
 			];
 			echo json_encode($data_return,JSON_UNESCAPED_UNICODE);die;
 		}
-		if($action == "_CREATE") {
+		// _PREVIEW dựng đúng bộ dữ liệu mà _CREATE sẽ ghi, nhưng không đụng vào DB,
+		// để user soát lại trên popup trước khi thật sự khởi tạo các căn thấp tầng.
+		$is_preview = ($action == "_PREVIEW");
+		if($action == "_CREATE" || $is_preview) {
 			$spreadsheetId = !empty($config_stock["spreadsheet_id"]) ? $config_stock["spreadsheet_id"] : "";
 			$gid = !empty($config_stock["sheet_id"]) ? $config_stock["sheet_id"] : 0;
 			$sheet_name = !empty($config_stock["sheet_name"]) ? $config_stock["sheet_name"] : "";
@@ -1424,6 +1427,7 @@ function default_crawl_doc_sheet_by_link(){
 				$list_builings_by_code = []; // mảng ds tòa/dãy có key là property_code
 				$list_builings_by_block_id = []; // mảng ds tòa/dãy có key là for_id
 				$arr_block_ids = []; // mảng block_id
+				$property_title_by_id = []; // mảng tên property có key là property_id, dùng cho bảng xem trước
 				### process cho từng mảng
 				if (!empty($types_in_property)) {
 					foreach ($types_in_property as $type_property) {
@@ -1431,6 +1435,7 @@ function default_crawl_doc_sheet_by_link(){
 						$property_id = $type_property['property_id'] ?? 0;
 						$propety_slug = $type_property['slug'] ?? '';
 						$property_type = $type_property['property_type'];
+						$property_title_by_id[$property_id] = $type_property['title'] ?? '';
 						if ($property_type == _TYPE_VILLA_PROPERTY) {
 							$type_low_floor_key_by_code[$propety_code] = $type_property;
 							$type_low_floor_key_by_id[$property_id] = $type_property;
@@ -1454,6 +1459,7 @@ function default_crawl_doc_sheet_by_link(){
 				foreach ($list_ranges as $range) {
 					$list_builings_by_code[$range['property_code']] = $range;
 					$list_builings_by_block_id[$range['for_id']][] = $range;
+					$property_title_by_id[$range['property_id']] = $range['title'] ?? '';
 				}
 				$arr_ms_code_file = array_column($rows, 4); // lấy ds mã căn trong file
 				$data_save = $data_update = $arr_stock_project = [];
@@ -1484,6 +1490,11 @@ function default_crawl_doc_sheet_by_link(){
 				$total_upd = 0;
 				$kc = 0;
 				$failed = [];
+				$preview_rows = []; // ds dòng render ở popup xem trước
+				$preview_new_no = 0; // bộ đếm sinh khóa tạm cho căn mới khi xem trước (chưa có stock_id thật)
+				$total_insert = 0;
+				$total_update = 0;
+				$total_error = 0; // số căn có dữ liệu chưa khớp, còn lỗi thì chặn không cho tạo
 				foreach ($rows as $row) {
 					$range_value = isset($row[4]) ? trim($row[4]) : "";
 					$build_code = isset($row[2]) ? trim($row[2]) : "";
@@ -1552,28 +1563,33 @@ function default_crawl_doc_sheet_by_link(){
 						? $list_blocks_by_code[trim($row[1])]['property_id'] : 0;
 					$building_id = isset($list_builings_by_code[trim($row[2])])
 						? $list_builings_by_code[trim($row[2])]['property_id'] : 0;
+					$building_is_new = false;
 					if(empty($building_id) && !empty($block_id) && trim($row[2]) != "") {
-						$check = $clsProperty->getByCond("`property_type`='_RANGE' AND `for_id`='{$block_id}' AND `property_code`='".trim($row[2])."'",$clsProperty->pkey);
+						$check = $clsProperty->getByCond("`property_type`='_RANGE' AND `for_id`='{$block_id}' AND `property_code`=".$dbconn->qstr(trim($row[2])),$clsProperty->pkey);
 						if(!$check) {
-							$building_id = $clsProperty->getMaxId();
+							$building_is_new = true;
 							$property_code = trim($row[2]);
 							$title = trim($row[3]);
-							$clsProperty->insert(array(
-								$clsProperty->pkey => $building_id,
-								'property_type' => '_RANGE',
-								'property_code' => $property_code,
-								'for_id' => $block_id,
-								'title' => $title,
-								'slug' => $core->replaceSpace($title),
-								'order_no' => $clsProperty->getMaxOrderNo(),
-								'reg_date' => time(),
-								'upd_date' => time(),
-								'user_id' => $core->_USER['user_id'],
-								'user_id_update' => $core->_USER['user_id'],
-							));
+							// Xem trước thì không được đẻ property mới, chỉ đánh dấu để popup báo "sẽ tạo mới"
+							if(!$is_preview) {
+								$building_id = $clsProperty->getMaxId();
+								$clsProperty->insert(array(
+									$clsProperty->pkey => $building_id,
+									'property_type' => '_RANGE',
+									'property_code' => $property_code,
+									'for_id' => $block_id,
+									'title' => $title,
+									'slug' => $core->replaceSpace($title),
+									'order_no' => $clsProperty->getMaxOrderNo(),
+									'reg_date' => time(),
+									'upd_date' => time(),
+									'user_id' => $core->_USER['user_id'],
+									'user_id_update' => $core->_USER['user_id'],
+								));
+							}
 						}else{
 							$building_id = $check[$clsProperty->pkey];
-						}						
+						}
 					}
 					
 					$type = 0;
@@ -1589,8 +1605,42 @@ function default_crawl_doc_sheet_by_link(){
 					$DT_TT = !empty(trim($row[6])) ? $clsISO->formatNumber2(trim($row[6])) : 0;
 					$DT_Tim = !empty(trim($row[7])) ? $clsISO->formatNumber2(trim($row[7])) : '';
 					// $clsISO->print_pre($more_information_save); die();
+					// Nhãn + cảnh báo cho popup xem trước: tính 1 lần cho mỗi dòng sheet, dùng lại cho mọi mã căn của dòng đó
+					// $preview_errors chặn nút tạo, $preview_notes chỉ để báo cho biết
+					$preview_labels = [];
+					$preview_errors = [];
+					$preview_notes = [];
+					if ($is_preview) {
+						$raw_block = isset($row[1]) ? trim($row[1]) : "";
+						$raw_building = isset($row[2]) ? trim($row[2]) : "";
+						$raw_type = isset($row[5]) ? trim($row[5]) : "";
+						$raw_direct = isset($row[8]) ? trim($row[8]) : "";
+						// Không tra ra property thì hiển thị nguyên giá trị trên sheet để user biết chỗ nào lệch
+						$preview_labels = [
+							'block' => !empty($property_title_by_id[$block_id]) ? $property_title_by_id[$block_id] : $raw_block,
+							'building' => !empty($property_title_by_id[$building_id]) ? $property_title_by_id[$building_id] : $raw_building,
+							'type' => !empty($property_title_by_id[$type]) ? $property_title_by_id[$type] : $raw_type,
+							'direction' => !empty($property_title_by_id[$direct]) ? $property_title_by_id[$direct] : $raw_direct,
+						];
+						if (empty($block_id)) {
+							$preview_errors[] = 'Chưa khớp phân khu';
+						}
+						// Tòa/dãy chưa có sẽ được tự tạo lúc chạy thật nên không tính là lỗi
+						if ($building_is_new) {
+							$preview_notes[] = 'Tòa/dãy sẽ được tạo mới';
+						} else if (empty($building_id) && $raw_building != "") {
+							$preview_errors[] = 'Chưa khớp tòa/dãy';
+						}
+						if (empty($type) && $raw_type != "") {
+							$preview_errors[] = 'Chưa khớp loại căn';
+						}
+						if (empty($direct) && $raw_direct != "") {
+							$preview_errors[] = 'Chưa khớp hướng';
+						}
+					}
 					$arr_building_cached = [];
 					foreach($list_codes as $key_code=>$code) {
+						$row_act = '';
 						$stock_id = array_search($key_code, $arr_stock_project, true);
 						if (!empty($stock_id)) {
 							$more_information_save = $clsISO->to_array_json($arr_stock_update[$stock_id]["more_information"]);
@@ -1614,9 +1664,11 @@ function default_crawl_doc_sheet_by_link(){
 								'upd_date' => $time,
 							];
 							$data_save[] = $data_update;
+							$row_act = 'update';
+							++$total_update;
 //							echo "update {$key_code}<br>";
 //							$clsISO->print_pre($data_update);
-							 if (!empty($stock_id)) {
+							 if (!$is_preview) {
 								 if($clsStock->updateOne($stock_id, $data_update)){
 									 $kc ++;
 								 } else {
@@ -1630,10 +1682,6 @@ function default_crawl_doc_sheet_by_link(){
 //									 echo "Không update được ms_code: " . $key_code . " -> id: " . $stock_id;
 //									 echo "<br>";
 								 }
-							 } else {
-//								 echo "<br>";
-//								 echo "Không tồn tại ms_code: " . $key_code;
-//								 echo "<br>";
 							 }
 						} else if(trim($key_code) != ""){							
 							$more_information_save = [
@@ -1642,7 +1690,8 @@ function default_crawl_doc_sheet_by_link(){
 								'home_direction_id' => $direct,
 								'type_id' => $type
 							];
-							$new_stock_id = $clsStock->getMaxId();
+							// Xem trước chưa được cấp id thật, dùng khóa tạm để vẫn nhận diện được mã trùng ở các dòng sau
+							$new_stock_id = $is_preview ? '_preview_'.(++$preview_new_no) : $clsStock->getMaxId();
 							$data_create = [
 								"{$clsStock->pkey}"	=>	$new_stock_id,
 								'stock_type' => _BLOCK_TYPE_LOWFLOOR_SALE,
@@ -1661,10 +1710,16 @@ function default_crawl_doc_sheet_by_link(){
 								'upd_date' => $time,
 							];
 							$data_save[] = $data_create;
+							$row_act = 'insert';
+							++$total_insert;
 //							echo "insert <br>";
 //							$clsISO->print_pre($data_create);
 //							$dbconn->debug=true;
-							 if($clsStock->insert($data_create)){
+							 if($is_preview){
+								 // Ghi nhận mã vừa dựng: dòng sheet sau ra trùng mã sẽ hiện là cập nhật, đúng như luồng tạo thật
+								 $arr_stock_project[$new_stock_id] = $key_code;
+								 $arr_stock_update[$new_stock_id] = $data_create;
+							 } else if($clsStock->insert($data_create)){
 								 $kc ++;
 								 // Ghi nhận mã vừa tạo: dòng sheet sau ra trùng mã sẽ update chứ không insert lại
 								 $arr_stock_project[$new_stock_id] = $key_code;
@@ -1682,17 +1737,53 @@ function default_crawl_doc_sheet_by_link(){
 //								 echo "<br>";
 							 }
 						}
+						if($is_preview && $row_act != ''){
+							$preview_rows[] = array_merge($preview_labels, [
+								'act' => $row_act,
+								'ms_code' => $key_code,
+								'code' => $code,
+								'DT_TT' => $DT_TT,
+								'DT_Tim' => $DT_Tim,
+								'errors' => $preview_errors,
+								'notes' => $preview_notes
+							]);
+							if(!empty($preview_errors)){
+								++$total_error;
+							}
+						}
 					}
 				}
-				$data_return = [
-					'status' => 200,
-					'msg' => 'Tạo bảng hàng thành công',
-					'total_generated' => count($data_save),
-					'total_saved' => $kc,
-					'total_failed' => count($failed),
-					'failed' => $failed,
-					'data' => $data_save
-				];
+				if($is_preview){
+					$preview_total = count($preview_rows);
+					$smarty->assign('preview_rows', $preview_rows);
+					$smarty->assign('preview_total', $preview_total);
+					$smarty->assign('total_insert', $total_insert);
+					$smarty->assign('total_update', $total_update);
+					$smarty->assign('total_error', $total_error);
+					$data_return = [
+						'status' => 200,
+						'msg' => 'Đã dựng dữ liệu xem trước',
+						'total_generated' => $preview_total,
+						'total_insert' => $total_insert,
+						'total_update' => $total_update,
+						'total_error' => $total_error,
+						'html' => $core->build('preview_low_floor.tpl')
+					];
+				} else {
+					$msg = 'Tạo bảng hàng thành công: '.$kc.'/'.count($data_save).' căn';
+					if(!empty($failed)){
+						$msg .= ', lỗi: '.count($failed).' căn';
+					}
+					$data_return = [
+						'status' => 200,
+						'msg' => $msg,
+						'total_generated' => count($data_save),
+						'total_saved' => $kc,
+						'total_failed' => count($failed),
+						'failed' => $failed,
+						'data' => $data_save
+					];
+				}
 			} else {
 				$data_return = [
 					'status' => 400,

@@ -2720,3 +2720,17 @@ body.mod-setting .setting-general__savebar-actions input[type="submit"]:hover { 
 	overflow-y: auto;
 	resize: vertical;
 }
+
+.preview-lowfloor-scroll {
+	max-height: 55vh;
+	overflow: auto;
+}
+.preview-lowfloor-scroll thead th {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	background: #fff;
+}
+.js__preview_low_floor .badge:not(:last-child) {
+  margin-bottom: 5px;
+}
