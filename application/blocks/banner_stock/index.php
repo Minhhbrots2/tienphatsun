@@ -314,13 +314,15 @@
 
 	}else{	
 
-		$cond_project_meta .= " AND ((type = 'project' AND project_id = '{$project_id}') 
+		$cond_belong_project = $clsProjectMeta->condByProject($project_id);
 
-			OR (type = 'block' AND  project_id = '{$project_id}' AND `block_ids` <> ''
+		$cond_project_meta .= " AND ((type = 'project' AND {$cond_belong_project})
 
-			) OR (type = 'building' AND `project_id` = '{$project_id}' AND `block_ids` <> '' AND `building_ids` <> ''
+			OR (type = 'block' AND  {$cond_belong_project} AND `block_ids` <> ''
 
-		))";	
+			) OR (type = 'building' AND {$cond_belong_project} AND `block_ids` <> '' AND `building_ids` <> ''
+
+		))";
 
 	}
 

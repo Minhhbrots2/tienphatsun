@@ -1186,22 +1186,46 @@ function default_restore(){
 function _project_delete_related($project_id){
     global $core, $dbconn, $clsISO;
     $project_id = (int) $project_id;
-    $counts = array('ok' => false, 'meta' => 0, 'stock' => 0, 'stock_meta' => 0, 'block' => 0, 'building' => 0, 'policy_deleted' => 0, 'policy_updated' => 0);
+    $counts = array('ok' => false, 'meta' => 0, 'meta_updated' => 0, 'stock' => 0, 'stock_meta' => 0, 'block' => 0, 'building' => 0, 'policy_deleted' => 0, 'policy_updated' => 0);
     if($project_id <= 0){
         return $counts;
     }
     #- ADOdb không throw exception: Execute() trả false khi lỗi SQL nên phải tự gom cờ $ok từng bước
     $ok = true;
     $pre = DB_PREFIX;
-    #-- 1. Tài liệu (project_id=X) + mô tả (type='project', for_id=X) và 3 bảng junction theo meta_id
+    #-- 1. Tài liệu của dự án + mô tả (type='project', for_id=X) và 3 bảng junction theo meta_id
+    #-- 1 tài liệu có thể thuộc nhiều dự án: chỉ xoá khi không còn thuộc dự án nào khác,
+    #-- dùng chung thì chỉ gỡ dự án này ra (giống cách xử lý policy áp nhiều dự án bên dưới)
     $clsProjectMeta = new ProjectMeta();
-    $metaCond = "project_id='{$project_id}' or (type='project' and for_id='{$project_id}')";
-    $metaRows = $clsProjectMeta->getAll($metaCond, "id");
+    $metaCond = "(".$clsProjectMeta->condByProject($project_id).") or (type='project' and for_id='{$project_id}')";
+    $metaRows = $clsProjectMeta->getAll($metaCond, "id,type,for_id,project_id,project_ids");
+    $meta_ids = array();
     if(!empty($metaRows)){
-        $meta_ids = array();
         foreach($metaRows as $row){
-            $meta_ids[] = (int) $row['id'];
+            $meta_id = (int) $row['id'];
+            $project_list = !empty($row['project_ids']) ? $clsISO->getArrayByTextSlash($row['project_ids']) : array();
+            $project_remain = array_values(array_diff(array_map('intval', $project_list), array($project_id)));
+            if(empty($project_remain)){
+                $meta_ids[] = $meta_id;
+                continue;
+            }
+            $upd = array(
+                'project_ids' => $clsISO->makeSlashListFromArrayRoot($project_remain),
+                'upd_date' => time()
+            );
+            if((int) $row['project_id'] === $project_id){
+                $upd['project_id'] = $project_remain[0];
+            }
+            if($row['type'] == 'project' && (int) $row['for_id'] === $project_id){
+                $upd['for_id'] = 0;
+            }
+            if(!$clsProjectMeta->updateOne($meta_id, $upd)){
+                $ok = false;
+            }
+            $counts['meta_updated']++;
         }
+    }
+    if(!empty($meta_ids)){
         foreach(array_chunk($meta_ids, 500) as $chunk){
             $idList = implode(',', $chunk);
             if($dbconn->Execute("DELETE FROM `{$pre}project_meta_block` WHERE meta_id IN ({$idList})") === false){
@@ -1366,8 +1390,8 @@ function default_delete(){
     }
     if($clsClassTable->deleteOne($pvalTable)){
         #activity log
-        $log_title = sprintf('%s (kèm %d tài liệu, %d căn, %d ghi chú căn, %d phân khu, %d tòa, xoá %d / gỡ %d CSBH)',
-            $oneItem['title'], $related['meta'], $related['stock'], $related['stock_meta'],
+        $log_title = sprintf('%s (xoá %d / gỡ %d tài liệu, %d căn, %d ghi chú căn, %d phân khu, %d tòa, xoá %d / gỡ %d CSBH)',
+            $oneItem['title'], $related['meta'], $related['meta_updated'], $related['stock'], $related['stock_meta'],
             $related['block'], $related['building'], $related['policy_deleted'], $related['policy_updated']);
         $clsActivityLog = new ActivityLog();
         $log = $clsActivityLog->addActivityLog("Project","delete",['title' => $log_title]);

@@ -898,6 +898,14 @@ class ProjectMeta extends dbBasic{
 
 	}
 
+	function condByProject($project_id){
+
+		$project_id = (int) $project_id;
+
+		return "`project_ids` LIKE '%|{$project_id}|%'";
+
+	}
+
 	// Đồng bộ junction block/building/tag (dual-write; bảng default_project_meta_*)
 
 	function syncRelations($meta_id, $blocks=array(), $buildings=array(), $tags_slug=array(), $tags_name=array()){

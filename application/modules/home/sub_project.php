@@ -123,7 +123,7 @@ function project_default(){
 		$list_blocks = $clsProperty->getAll("for_id='{$project_id}' order by order_no ASC", $field);
 		$assign_list["list_blocks"] = $list_blocks;
 		###
-		$list_props = $clsProjectMeta->getAll("`type`='project' and `project_id`='{$for_id}' order by `order_no` ASC");
+		$list_props = $clsProjectMeta->getAll("`type`='project' and ".$clsProjectMeta->condByProject($for_id)." order by `order_no` ASC");
 		if(!empty($list_props)){
 			foreach($list_props as $key => $val){
 				$is_driver = $clsISO->checkContainer($val['content'],"drive.google.com","") ? 1 : 0;
@@ -3050,7 +3050,7 @@ function project_detail(){
 		}else if($show == "building") {
 			$cond.= " AND (`type`='building' OR `type`='block') AND (`building_ids` LIKE '%|{$building_id}|%' OR `block_ids` LIKE '%|{$block_id}|%')";
 		}else{
-			$cond.= " AND `project_id`='{$project_id}'";
+			$cond.= " AND ".$clsProjectMeta->condByProject($project_id);
 		}
 		$list_docs = $list_posts = array(); $total_docs = 0;
 		$field = "{$clsProperty->pkey},slug,title";
@@ -3108,9 +3108,9 @@ function project_detail(){
 					$tmp = $clsProjectMeta->getAll("`is_trash`='0' AND `type`='block' AND `block_ids` LIKE '%|{$block_id}|%' and `cat_id`='{$subcat_id}' order by `reg_date` DESC");
 					if(empty($tmp)) {
 						if($cat_id == _PROJECT_DOCS_POLICY_CATID || $cat_id == _PROJECT_DOCS_TRAINING_CATID) {
-							$cond_more= "`is_trash`='0' AND `project_id`='{$project_id}'";
+							$cond_more= "`is_trash`='0' AND ".$clsProjectMeta->condByProject($project_id);
 						}else{
-							$cond_more= "`is_trash`='0' AND `type`='project' AND `project_id`='{$project_id}'";
+							$cond_more= "`is_trash`='0' AND `type`='project' AND ".$clsProjectMeta->condByProject($project_id);
 						}
 						$tmp = $clsProjectMeta->getAll($cond_more." and `cat_id`='{$subcat_id}' order by `reg_date` DESC");
 					}
@@ -3147,9 +3147,9 @@ function project_detail(){
 					order by `reg_date` DESC");
 					if(empty($tmp)) {
 						if($cat_id == _PROJECT_DOCS_POLICY_CATID || $cat_id == _PROJECT_DOCS_TRAINING_CATID) {
-							$cond= "`is_trash`='0' AND `project_id`='{$project_id}'";
+							$cond= "`is_trash`='0' AND ".$clsProjectMeta->condByProject($project_id);
 						}else{
-							$cond= "`is_trash`='0' AND `type`='project' AND `project_id`='{$project_id}'";
+							$cond= "`is_trash`='0' AND `type`='project' AND ".$clsProjectMeta->condByProject($project_id);
 						}
 						$tmp = $clsProjectMeta->getAll($cond." and (`cat_id`='{$cat_id}' or cat_id='"._PROJECT_DOCS_BM_CATID."') 
 					order by `reg_date` DESC");
@@ -3165,9 +3165,9 @@ function project_detail(){
 					$tmp = $clsProjectMeta->getAll($cond." and `cat_id`='{$cat_id}' order by `reg_date` DESC");
 					if(empty($tmp)) {
 						if($cat_id == _PROJECT_DOCS_POLICY_CATID || $cat_id == _PROJECT_DOCS_TRAINING_CATID) {
-							$cond= "`is_trash`='0' AND `project_id`='{$project_id}'";
+							$cond= "`is_trash`='0' AND ".$clsProjectMeta->condByProject($project_id);
 						}else{
-							$cond= "`is_trash`='0' AND `type`='project' AND `project_id`='{$project_id}'";
+							$cond= "`is_trash`='0' AND `type`='project' AND ".$clsProjectMeta->condByProject($project_id);
 						}
 						$tmp = $clsProjectMeta->getAll($cond." and `cat_id`='{$cat_id}' order by `reg_date` DESC");
 					}
@@ -3327,7 +3327,7 @@ function project_view_docs_cat(){
 	}else if($block_id > 0) {
 		$cond .= "	AND `type`='block' AND `block_ids` LIKE '%|{$block_id}|%'";
 	}else if($block_id > 0) {
-		$cond .= "	AND `type`='project' AND `project_id`='{$project_id}'";
+		$cond .= "	AND `type`='project' AND ".$clsProjectMeta->condByProject($project_id);
 	}
 	$list_cat_child = $clsProperty->getAll("parent_id = '{$parent_id}'");
 	if(!empty($list_cat_child)) {
@@ -4270,10 +4270,11 @@ function project_open_model(){
 	}else if(!empty($block_id)) {
 		$cond.= " AND `t1`.`type`='block' AND `t1`.`block_ids` LIKE '%|{$block_id}|%'";
 	}else{	
+		$cond_belong_project = $clsProjectMeta->condByProject($project_id);
 		$cond .= " AND (
-		   (`t1`.type = 'project' AND `t1`.`project_id` = '{$project_id}')
-		   OR (`t1`.type = 'block' AND `t1`.`project_id` = '{$project_id}' AND `t1`.`block_ids` <> '')
-		   OR (`t1`.type = 'building' AND `t1`.`project_id` = '{$project_id}' AND `t1`.`block_ids` <> '' AND `t1`.`building_ids` <> '')
+		   (`t1`.type = 'project' AND {$cond_belong_project})
+		   OR (`t1`.type = 'block' AND {$cond_belong_project} AND `t1`.`block_ids` <> '')
+		   OR (`t1`.type = 'building' AND {$cond_belong_project} AND `t1`.`block_ids` <> '' AND `t1`.`building_ids` <> '')
 	  )";
 	}
 	$arr_cache = $list_docs = array();
@@ -4586,7 +4587,7 @@ function project_list_document() {
 		$cond.= " and (`cat_id`='{$cat_id}' or LOWER(`list_cat_id`) like LOWER('%|{$cat_id}|%'))";
 	}
 	if(!empty($project_id)) {
-		$cond.= " and `project_id`='{$project_id}'";
+		$cond.= " and ".$clsProjectMeta->condByProject($project_id);
 	}
 	if(!empty($tag_id)) {
 		$arrTag = explode(',', $tag_id);

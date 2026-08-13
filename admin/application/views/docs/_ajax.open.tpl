@@ -64,10 +64,9 @@
 						</div>
 						<div class="col-md-8">
 							<label class="col-form-label">Dự án</label>
-							<select name="project_id" onChange="$Core.docs.select_block(this, event)" toId="slb_Block_Id" class="form-control iso-select2">
-								<option value="0">Chọn dự án</option>
+							<select name="project_ids[]" id="slb_Project_Id" multiple data-placeholder="Chọn dự án" onChange="$Core.docs.select_block(this, event)" toId="slb_Block_Id" class="form-control iso-select2">
 								{foreach name=i from=$list_projects item = _project}
-								<option value="{$_project.project_id}" {if $project_id eq $_project.project_id}selected{/if}>{$_project.title}</option>
+								<option value="{$_project.project_id}" {if $clsISO->checkItemInArray($_project.project_id,$project_ids)}selected{/if}>{$_project.title|escape}</option>
 								{/foreach}
 							</select>
 						</div>
@@ -76,21 +75,13 @@
 						<div class="col-md-6">
 							<label class="col-form-label">Phân khu</label>
 							<select name="block_ids[]" id="slb_Block_Id" multiple data-placeholder="Chọn phân khu" onChange="$Core.docs.select_building(this, event)" toId="slb_Building_Id" class="form-control iso-select2">
-								{if !empty($list_blocks)}
-									{foreach from=$list_blocks item=_oBlock}
-									<option value="{$_oBlock.property_id}" {if $clsISO->checkItemInArray($_oBlock.property_id,$block_ids)}selected{/if}>{$_oBlock.title}</option>
-									{/foreach}
-								{/if}
+								{$html_block_options}
 							</select>
 						</div>
 						<div class="col-md-6">
 							<label class="col-form-label">Tòa nhà</label>
 							<select name="building_ids[]" id="slb_Building_Id" multiple data-placeholder="Chọn toà nhà" class="form-control iso-select2">
-								{if !empty($list_buildings)}
-									{foreach from=$list_buildings item=_oBuilding}
-									<option value="{$_oBuilding.property_id}" {if $clsISO->checkItemInArray($_oBuilding.property_id,$building_ids)}selected{/if}>{$_oBuilding.title}</option>
-									{/foreach}
-								{/if}
+								{$html_building_options}
 							</select>
 						</div>
 					</div>

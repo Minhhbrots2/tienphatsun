@@ -957,7 +957,7 @@ function default_default(){
 
 				);
 
-				$list_props = $clsProjectMeta->getAll("`type`='project' and `project_id`='{$project_id}' 
+				$list_props = $clsProjectMeta->getAll("`type`='project' and ".$clsProjectMeta->condByProject($project_id)."
 
 				and `is_hot`='1' order by `order_no` ASC", "title,content");
 

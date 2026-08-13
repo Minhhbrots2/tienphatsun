@@ -10,6 +10,146 @@
 || # http://www.vietiso.com | http://www.vietiso.com/license.html     # ||
 || #################################################################### ||
 \*======================================================================*/
+# Options phân khu của (nhiều) dự án — dùng chung cho lúc mở form và lúc AJAX đổi dự án,
+# nhờ vậy markup 2 nơi luôn giống nhau.
+function docs_getBlockOptions($project_ids, $selected_ids = array(), $is_multiple = 0){
+	global $clsISO;
+	$clsProject = new Project();
+	$clsProperty = new Property();
+	$html = $is_multiple ? "" : '<option value="0">Chọn phân khu</option>';
+	$project_ids = array_values(array_unique(array_filter(array_map('intval', (array) $project_ids))));
+	if(empty($project_ids)) return $html;
+	$field = "{$clsProperty->pkey},for_id,title";
+	$cond = "property_type='_BLOCK' and for_id IN(".implode(',', $project_ids).") order by `order_no` ASC";
+	$list_blocks = $clsProperty->getAll($cond, $field);
+	if(empty($list_blocks)) return $html;
+	$grouped = array();
+	foreach($list_blocks as $val){
+		$grouped[$val['for_id']][] = $val;
+	}
+	# Nhiều dự án → gom optgroup để phân biệt phân khu trùng tên giữa các dự án
+	$has_group = count($project_ids) > 1;
+	foreach($project_ids as $project_id){
+		if(empty($grouped[$project_id])) continue;
+		if($has_group) {
+			$html.= '<optgroup label="'.htmlspecialchars($clsProject->getTitle($project_id), ENT_QUOTES).'">';
+		}
+		foreach($grouped[$project_id] as $val){
+			$block_id = $val[$clsProperty->pkey];
+			$selected = $clsISO->checkItemInArray($block_id, (array) $selected_ids) ? ' selected="selected"' : '';
+			$html.= '<option value="'.$block_id.'"'.$selected.'>'.htmlspecialchars($val['title'], ENT_QUOTES).'</option>';
+		}
+		if($has_group) $html.= '</optgroup>';
+	}
+	return $html;
+}
+# Options toà nhà của (nhiều) phân khu
+function docs_getBuildingOptions($block_ids, $selected_ids = array(), $is_multiple = 0){
+	global $clsISO;
+	$clsProperty = new Property();
+	$html = $is_multiple ? "" : '<option value="0">Chọn toà nhà</option>';
+	$block_ids = array_values(array_unique(array_filter(array_map('intval', (array) $block_ids))));
+	if(empty($block_ids)) return $html;
+	$field = "{$clsProperty->pkey},for_id,title";
+	$cond = "property_type='_BUILDING' and for_id IN(".implode(',', $block_ids).") order by `order_no` ASC";
+	$list_buildings = $clsProperty->getAll($cond, $field);
+	if(empty($list_buildings)) return $html;
+	$grouped = array();
+	foreach($list_buildings as $val){
+		$grouped[$val['for_id']][] = $val;
+	}
+	$has_group = count($block_ids) > 1;
+	foreach($block_ids as $block_id){
+		if(empty($grouped[$block_id])) continue;
+		if($has_group) {
+			$html.= '<optgroup label="'.htmlspecialchars($clsProperty->getTitle($block_id), ENT_QUOTES).'">';
+		}
+		foreach($grouped[$block_id] as $val){
+			$building_id = $val[$clsProperty->pkey];
+			$selected = $clsISO->checkItemInArray($building_id, (array) $selected_ids) ? ' selected="selected"' : '';
+			$html.= '<option value="'.$building_id.'"'.$selected.'>'.htmlspecialchars($val['title'], ENT_QUOTES).'</option>';
+		}
+		if($has_group) $html.= '</optgroup>';
+	}
+	return $html;
+}
+# Dự án chính (cột project_id) — không còn chỗ nào đọc, chỉ ghi để cột legacy không bị lệch
+# với project_ids (phòng khi query tay). Giữ nguyên khi vẫn được chọn, chỉ đổi khi bị bỏ chọn.
+function docs_getPrimaryProjectId($project_ids_arr, $current_project_id = 0){
+	$current_project_id = (int) $current_project_id;
+	if($current_project_id > 0 && in_array($current_project_id, $project_ids_arr)) {
+		return $current_project_id;
+	}
+	return !empty($project_ids_arr) ? $project_ids_arr[0] : 0;
+}
+# Danh sách dự án của 1 tài liệu — đọc từ project_ids (mọi row đã backfill từ project_id)
+function docs_getProjectIds($oneItem){
+	global $clsISO;
+	return !empty($oneItem['project_ids']) ? $clsISO->getArrayByTextSlash($oneItem['project_ids']) : array();
+}
+# Tài liệu dùng chung nhiều dự án thì không cho xoá — xoá 1 phát là các dự án kia mất theo.
+# Trả về "" nếu được phép xoá, ngược lại là lý do để hiện cho người dùng.
+function docs_getBlockDeleteReason($project_meta_id){
+	$clsProjectMeta = new ProjectMeta();
+	$oneItem = $clsProjectMeta->getOne((int) $project_meta_id, "project_ids");
+	$project_ids = docs_getProjectIds($oneItem);
+	if(count($project_ids) <= 1) return "";
+	$clsProject = new Project();
+	$names = array();
+	foreach($project_ids as $project_id){
+		$names[] = $clsProject->getTitle($project_id);
+	}
+	return sprintf('Tài liệu đang thuộc %d dự án (%s). Hãy sửa tài liệu, bỏ bớt dự án rồi mới xoá được.',
+		count($project_ids), implode(', ', $names));
+}
+# Bổ sung tên dự án/phân khu/toà/danh mục cho bảng danh sách (dùng chung trang list và AJAX phân trang)
+function docs_decorateList($list_docs){
+	global $clsISO;
+	if(empty($list_docs)) return $list_docs;
+	$clsProject = new Project();
+	$clsProperty = new Property();
+	$arrCategoryDocs = $clsProperty->getArraySearchByKey("_CATEGORY_DOCS");
+	$arr_cache_project = $arr_cache_block = $arr_cache_building = array();
+	foreach($list_docs as $key => $val){
+		$tags = $val['tags'];
+		$list_docs[$key]['list_tags'] = !empty($tags) ? explode(',', $tags) : array();
+		$list_docs[$key]['image'] = !empty($val['thumb_image']) ? $val['thumb_image'] : '';
+		$list_docs[$key]['file_type'] = !empty($val['file_type']) ? $val['file_type'] : '';
+		# Dự án: gộp tên của tất cả dự án tài liệu đang thuộc về
+		$txt_project_name = "";
+		foreach(docs_getProjectIds($val) as $project_id){
+			if(!isset($arr_cache_project[$project_id])) {
+				$arr_cache_project[$project_id] = $clsProject->getTitle($project_id);
+			}
+			$txt_project_name.= ((($txt_project_name != "") ? ", " : "").$arr_cache_project[$project_id]);
+		}
+		$list_docs[$key]['project_name'] = $txt_project_name;
+		$txt_block_name = "";
+		if(!empty($val["block_ids"])) {
+			$block_ids = $clsISO->getArrayByTextSlash($val['block_ids']);
+			foreach($block_ids as $block_id){
+				if(!isset($arr_cache_block[$block_id])) {
+					$arr_cache_block[$block_id] = $clsProperty->getTitle($block_id);
+				}
+				$txt_block_name.= ((($txt_block_name != "") ? ", " : "").$arr_cache_block[$block_id]);
+			}
+		}
+		$list_docs[$key]['block_name'] = $txt_block_name;
+		$txt_building_name = "";
+		if(!empty($val["building_ids"])) {
+			$building_ids = $clsISO->getArrayByTextSlash($val['building_ids']);
+			foreach($building_ids as $building_id){
+				if(!isset($arr_cache_building[$building_id])) {
+					$arr_cache_building[$building_id] = $clsProperty->getTitle($building_id);
+				}
+				$txt_building_name.= ((($txt_building_name != "") ? ", " : "").$arr_cache_building[$building_id]);
+			}
+		}
+		$list_docs[$key]['building_name'] = $txt_building_name;
+		$list_docs[$key]['cat_name'] = !empty($arrCategoryDocs[$val['cat_id']]) ? $arrCategoryDocs[$val['cat_id']]["title"] : "";
+	}
+	return $list_docs;
+}
 function default_default(){
 	global $assign_list,$_CONFIG,$_SITE_ROOT,$mod ,$_LANG_ID,$act,$menu_current,$current_page,$oneSetting,$clsConfiguration;
 	global $core,$clsModule,$clsButtonNav,$oneSetting,$clsISO;
@@ -87,9 +227,9 @@ function default_default(){
 	#
 	$cond = ($type_list=='trash') ? "`is_trash`=1" : "`is_trash`=0";
 	if(!empty($project_id)){
-		$cond.= " and `project_id`='{$project_id}'";
+		$cond.= " and ".$clsProjectMeta->condByProject($project_id);
 		$pUrl.='&project_id='.$project_id;
-		
+
 		$list_blocks = $clsProperty->getAll("property_type='_BLOCK' and for_id='{$project_id}'", "{$clsProperty->pkey},title");
 		$assign_list["list_blocks"] = $list_blocks;
 	}
@@ -154,50 +294,10 @@ function default_default(){
 	$limit = " limit {$offset},{$record_per_page}";
 	#-------End Page Divide-----------------------------------------------------------
 	
-	$arr_cache_project = $arr_cache_block = $arr_cache_building = $arrCategoryDocs = $clsProperty->getArraySearchByKey("_CATEGORY_DOCS");
 	$list_docs = $clsProjectMeta->getAll($cond." order by reg_date DESC".$limit);
-	if(!empty($list_docs)){
-		$arr_property_cached = $arr_project_cached = array();
-		foreach($list_docs as $key => $val){
-			$type = $val['type'];
-			$for_id = $val['for_id'];
-			$tags = $val['tags'];
-			$list_tags = !empty($tags) ? explode(',',$tags) : array();
-			$list_docs[$key]['list_tags'] = $list_tags;
-			$list_docs[$key]['image'] = !empty($val['thumb_image']) ? $val['thumb_image'] : '';
-			$list_docs[$key]['file_type'] = !empty($val['file_type']) ? $val['file_type'] : '';
-			if(!$clsISO->checkItemInArray($val["project_id"],$arr_cache_project)) {
-				$arr_cache_project[$val["project_id"]] = $clsProject->getTitle($val["project_id"]);
-			}
-			$list_docs[$key]['project_name'] = $arr_cache_project[$val["project_id"]];
-			$txt_block_name = "";
-			if(!empty($val["block_ids"])) {
-				$block_ids = $clsISO->getArrayByTextSlash($val['block_ids']);
-				foreach ($block_ids as $block_id) {
-					if(!$clsISO->checkItemInArray($block_id,$arr_cache_block)) {
-						$arr_cache_block[$block_id] = $clsProperty->getTitle($block_id);
-					}
-					$txt_block_name .= ((($txt_block_name != "") ? ", ": "" ).$arr_cache_block[$block_id]);
-				}
-			}
-			$list_docs[$key]['block_name'] = $txt_block_name;
-			$txt_building_name = "";
-			if(!empty($val["building_ids"])) {
-				$building_ids = $clsISO->getArrayByTextSlash($val['building_ids']);
-				foreach ($building_ids as $building_id) {
-					if(!$clsISO->checkItemInArray($building_id,$arr_cache_building)) {
-						$arr_cache_building[$building_id] = $clsProperty->getTitle($building_id);
-					}
-					$txt_building_name .= ((($txt_building_name != "") ? ", ": "" ).$arr_cache_building[$building_id]);
-				}
-			}
-			$list_docs[$key]['building_name'] = $txt_building_name;
-			$list_docs[$key]['cat_name'] = !empty($arrCategoryDocs[$val['cat_id']]) ? $arrCategoryDocs[$val['cat_id']]["title"] : ""; 
-			
-		}
-	}
+	$list_docs = docs_decorateList($list_docs);
 	$assign_list["list_docs"] = $list_docs;
-	
+
 }
 function default_load_docs(){
 	global $smarty,$_CONFIG,$_SITE_ROOT,$mod ,$_LANG_ID,$act,$menu_current,$current_page,$oneSetting,$clsConfiguration;
@@ -211,16 +311,16 @@ function default_load_docs(){
 	#
 	$type_list = Input::post('type_list', "");
 	$cond = ($type_list=='trash') ? "`is_trash`=1" : "`is_trash`=0";
-	$project_id = Input::post('project_id', 0);
-	$block_id = Input::post('block_id', 0);
-	$building_id = Input::post('building_id', 0);
-	$cat_id = Input::post('cat_id', 0);
+	$project_id = (int) Input::post('project_id', 0);
+	$block_id = (int) Input::post('block_id', 0);
+	$building_id = (int) Input::post('building_id', 0);
+	$cat_id = (int) Input::post('cat_id', 0);
 	$keyword = Input::post('keyword', "");
 	$type = Input::post('type', "");
 	$current_page = (int) Input::post('page', 1);
 	$per_page = 20;
 	if(!empty($project_id)){
-		$cond.= " and `project_id`='{$project_id}'";
+		$cond.= " and ".$clsProjectMeta->condByProject($project_id);
 	}
 	if(!empty($block_id)){
 		$cond.= " and `id` IN (SELECT meta_id FROM ".DB_PREFIX."project_meta_block WHERE block_id='{$block_id}')";
@@ -237,52 +337,11 @@ function default_load_docs(){
 	if(!empty($cat_id)) {
 		$cond .= " and (`cat_id` = '{$cat_id}' or `list_cat_id` like '%|{$cat_id}|%')";
 	}
-	$arr_cache_project = $arr_cache_block = $arr_cache_building = $arrCategoryDocs = $clsProperty->getArraySearchByKey("_CATEGORY_DOCS");
 	$total_record = $clsProjectMeta->countItem($cond);
 	$total_page = @ceil($total_record / $per_page);
 	$offset = ($current_page-1) * $per_page;
 	$list_docs = $clsProjectMeta->getAll($cond." order by reg_date DESC limit {$offset},{$per_page}");
-	if(!empty($list_docs)){
-		$arr_property_cached = $arr_project_cached = array();
-		foreach($list_docs as $key => $val){
-			$type = $val['type'];
-			$for_id = $val['for_id'];
-			$tags = $val['tags'];
-			$list_tags = !empty($tags) ? explode(',',$tags) : array();
-			$list_docs[$key]['list_tags'] = $list_tags;
-			$list_docs[$key]['image'] = !empty($val['thumb_image']) ? $val['thumb_image'] : '';
-			$list_docs[$key]['file_type'] = !empty($val['file_type']) ? $val['file_type'] : '';
-			if(!$clsISO->checkItemInArray($val["project_id"],$arr_cache_project)) {
-				$arr_cache_project[$val["project_id"]] = $clsProject->getTitle($val["project_id"]);
-			}
-			$list_docs[$key]['project_name'] = $arr_cache_project[$val["project_id"]];
-			$txt_block_name = "";
-			if(!empty($val["block_ids"])) {
-				$block_ids = $clsISO->getArrayByTextSlash($val['block_ids']);
-				foreach ($block_ids as $block_id) {
-					if(!$clsISO->checkItemInArray($block_id,$arr_cache_block)) {
-						$arr_cache_block[$block_id] = $clsProperty->getTitle($block_id);
-					}
-					$txt_block_name .= ((($txt_block_name != "") ? ", ": "" ).$arr_cache_block[$block_id]);
-				}
-			}
-			$list_docs[$key]['block_name'] = $txt_block_name;
-			$txt_building_name = "";
-			if(!empty($val["building_ids"])) {
-				$building_ids = $clsISO->getArrayByTextSlash($val['building_ids']);
-				foreach ($building_ids as $building_id) {
-					if(!$clsISO->checkItemInArray($building_id,$arr_cache_building)) {
-						$arr_cache_building[$building_id] = $clsProperty->getTitle($building_id);
-					}
-					$txt_building_name .= ((($txt_building_name != "") ? ", ": "" ).$arr_cache_building[$building_id]);
-				}
-			}
-			$list_docs[$key]['building_name'] = $txt_building_name;
-			$list_docs[$key]['cat_name'] = !empty($arrCategoryDocs[$val['cat_id']]) ? $arrCategoryDocs[$val['cat_id']]["title"] : ""; 
-			
-		}
-	}
-	//$clsISO->print_pre($list_docs); die();
+	$list_docs = docs_decorateList($list_docs);
 	$smarty->assign('list_docs', $list_docs);
 	$smarty->assign('type_list', $type_list);
 	// Return
@@ -312,49 +371,41 @@ function default_open(){
 	$titlePage = "Thêm tài liệu";
 	$project_meta_id = (int) Input::post('project_meta_id', 0);
 	$project_id = (int) Input::post('project_id', 0);
+	$project_ids = !empty($project_id) ? array($project_id) : array();
 	$block_id = (int) Input::post('block_id', 0);
 	$block_ids = $building_ids = [];
 	if(!empty($block_id)) {
 		$block_ids[] = $block_id;
 	}
-	
+
 	$building_id = (int) Input::post('building_id', 0);
 	if(!empty($building_id)) {
 		$building_ids[] = $building_id;
 	}
 	$cat_id = (int) Input::post('cat_id', 0);
-	$oneItem = $more_information = $list_blocks = $list_buildings = array(
+	$oneItem = $more_information = array(
 		'is_expanded' => 1
 	);
-	
-	
+
+
 	if($project_meta_id > 0){
 		$action = "_edit";
 		$titlePage = "Sửa tài liệu";
 		$oneItem = $clsProjectMeta->getOne($project_meta_id);
-		$project_id = $oneItem["project_id"];
+		$project_ids = docs_getProjectIds($oneItem);
 		$block_ids = !empty($oneItem["block_ids"]) ? $clsISO->getArrayByTextSlash($oneItem["block_ids"]) : array();
 		$building_ids = !empty($oneItem["building_ids"]) ? $clsISO->getArrayByTextSlash($oneItem["building_ids"]) : array();
 		$type = $oneItem['type'];
 		$more_information = $oneItem['more_information'];
-		$more_information = !empty($more_information) 
-			? json_decode(html_entity_decode($more_information), true) 
-			: array();		
-	}	
-	if(!empty($project_id)) {
-		$list_blocks = $clsProperty->getAll("property_type='_BLOCK' and for_id='{$project_id}'", "{$clsProperty->pkey},title");	
-	}
-	if(!empty($project_id) && !empty($block_ids)) {
-		$list_buildings = $clsProperty->getAll("property_type='_BUILDING' and for_id IN(".implode(',',$block_ids).")", "{$clsProperty->pkey},title");	
+		$more_information = !empty($more_information)
+			? json_decode(html_entity_decode($more_information), true)
+			: array();
 	}
 //	$clsISO->print_pre($more_information);die;
-	$smarty->assign('project_id', $project_id);
-	$smarty->assign('list_blocks', $list_blocks);
-	$smarty->assign('list_buildings', $list_buildings);
-	$smarty->assign('block_ids', $block_ids);
-	$smarty->assign('building_ids', $building_ids);
-	$smarty->assign('block_id', $block_id);
-	$smarty->assign('building_id', $building_id);
+	# Phân khu/toà nhà phụ thuộc dự án đang chọn — dựng sẵn options bằng cùng helper mà AJAX dùng
+	$smarty->assign('project_ids', $project_ids);
+	$smarty->assign('html_block_options', docs_getBlockOptions($project_ids, $block_ids, 1));
+	$smarty->assign('html_building_options', docs_getBuildingOptions($block_ids, $building_ids, 1));
 	$smarty->assign('cat_id', $cat_id);
 	$smarty->assign('clsProperty', $clsProperty);
 	$smarty->assign('action', $action);
@@ -384,7 +435,10 @@ function default_save(){
 	$title = Input::post('title',"");
 	$cat_id = (int)Input::post('cat_id',0);
 	$project_meta_id = (int) Input::post('project_meta_id', 0);
-	$project_id = (int) Input::post('project_id', 0);
+	$project_ids = Input::post('project_ids',array()); // Array — 1 tài liệu có thể thuộc nhiều dự án
+	if(empty($project_ids)) $project_ids = Input::post('project_id', 0); // tương thích chỗ gọi cũ (1 dự án)
+	$project_ids_arr = array_values(array_unique(array_filter(array_map('intval', (array) $project_ids))));
+	$list_project_ids = $clsISO->makeSlashListFromArrayRoot($project_ids_arr);
 	$block_ids = Input::post('block_ids',array()); // Array
 	$building_ids = Input::post('building_ids',array()); // Array
 	$block_ids_arr = array_values(array_filter(array_map('intval', (array) $block_ids)));     // cho junction
@@ -414,12 +468,13 @@ function default_save(){
 //	$project_meta_id = 0;
 	// title_search = tiêu đề + tên dự án/phân khu/toà/danh mục/tags (cho tìm kiếm)
 	$title_search = trim($title);
-	if(!empty($project_id)) $title_search .= ' '.$clsProject->getTitle($project_id);
+	foreach($project_ids_arr as $_pid){ $title_search .= ' '.$clsProject->getTitle($_pid); }
 	if(!empty($block_ids) && is_array($block_ids)){ foreach($block_ids as $_bid){ if($_bid) $title_search .= ' '.$clsProperty->getTitle($_bid); } }
 	if(!empty($building_ids) && is_array($building_ids)){ foreach($building_ids as $_bid){ if($_bid) $title_search .= ' '.$clsProperty->getTitle($_bid); } }
 	if(!empty($cat_id)) $title_search .= ' '.$clsProperty->getTitle($cat_id);
 	if(!empty($tags)) $title_search .= ' '.$tags;
 	if($project_meta_id==0){
+		$project_id = docs_getPrimaryProjectId($project_ids_arr);
 		$more_information = array();
 		$more_information['intro'] = $intro;
 		$more_information['folder_id'] = $folder_id;
@@ -439,6 +494,7 @@ function default_save(){
 
 		$more_type = [
 			"project_id" =>	$project_id,
+			"project_ids" =>	$project_ids_arr,
 			"block_ids" =>	$block_ids,
 			"building_ids" =>	$building_ids,
 		];
@@ -452,6 +508,7 @@ function default_save(){
 			'type' => $type,
 			'for_id' => 0,
 			'project_id' => $project_id,
+			'project_ids' => $list_project_ids,
 			'block_ids' => $block_ids,
 			'building_ids' => $building_ids,
 			'title' => $title,
@@ -482,7 +539,8 @@ function default_save(){
 		}
 		
 	} else {
-		$oneOld = $clsProjectMeta->getOne($project_meta_id, "content,more_information");
+		$oneOld = $clsProjectMeta->getOne($project_meta_id, "project_id,content,more_information");
+		$project_id = docs_getPrimaryProjectId($project_ids_arr, $oneOld['project_id']);
 		$more_information = $clsISO->to_array_json($oneOld['more_information']);
 		$more_information['intro'] = $intro;
 		$more_information['folder_id'] = $folder_id;
@@ -490,6 +548,7 @@ function default_save(){
 		$more_information['is_model'] = $is_model;
 		$more_information['is_handoverSpecs'] = $is_handoverSpecs;
 		$more_information["project_id"] = $project_id;
+		$more_information["project_ids"] = $project_ids_arr;
 		$more_information["block_ids"] = $block_ids;
 		$more_information["building_ids"] = $building_ids;
 		// Chỉ crawl lại Google Drive khi link (content) thay đổi → tránh gọi Drive thừa
@@ -514,6 +573,7 @@ function default_save(){
 			'title_search' => $title_search,
 			'type' => $type,
 			'project_id' => $project_id,
+			'project_ids' => $list_project_ids,
 			'block_ids' => $block_ids,
 			'building_ids' => $building_ids,
 			'content' => $content,
@@ -545,13 +605,14 @@ function default_delete(){
 	#
 	$msg = "_error";
 	$project_meta_id = (int) Input::post('project_meta_id', 0);
-	if($clsProjectMeta->updateOne($project_meta_id, array('is_trash'=>1,'upd_date'=>time()))){
+	$message = docs_getBlockDeleteReason($project_meta_id);
+	if($message == "" && $clsProjectMeta->updateOne($project_meta_id, array('is_trash'=>1,'upd_date'=>time()))){
 		$msg = "_success";
 		$clsActivityLog = new ActivityLog();
 		$clsActivityLog->addActivityLog("ProjectMeta","trash");
 	}
 	// Return
-	echo $msg; die();
+	echo json_encode(array('msg' => $msg, 'message' => $message)); die();
 }
 function default_restore(){
 	global $core,$clsISO;
@@ -570,24 +631,38 @@ function default_force_delete(){
 	$clsProjectMeta = new ProjectMeta();
 	$msg = "_error";
 	$project_meta_id = (int) Input::post('project_meta_id', 0);
-	if($clsProjectMeta->deleteOne($project_meta_id)){
+	$message = docs_getBlockDeleteReason($project_meta_id);
+	if($message == "" && $clsProjectMeta->deleteOne($project_meta_id)){
 		$msg = "_success";
 		$clsActivityLog = new ActivityLog();
 		$clsActivityLog->addActivityLog("ProjectMeta","delete");
 	}
-	echo $msg; die();
+	echo json_encode(array('msg' => $msg, 'message' => $message)); die();
 }
 function default_delete_all(){
 	global $core,$clsISO;
 	$clsProjectMeta = new ProjectMeta();
-	$msg = "_error";
+	$msg = "_error"; $message = "";
 	$type_list = Input::post('type_list', "");
 	$p_key = Input::post('p_key', array());
 	if(!is_array($p_key)) $p_key = array($p_key);
-	$total = 0;
+	# Chặn cả lô nếu có tài liệu dùng chung — xoá một phần rồi báo lỗi thì người dùng không biết cái nào đã mất
+	$ids = array(); $total_blocked = 0;
 	foreach($p_key as $id){
 		$id = (int) $id;
 		if($id <= 0) continue;
+		if(docs_getBlockDeleteReason($id) != ""){
+			$total_blocked++;
+			continue;
+		}
+		$ids[] = $id;
+	}
+	if($total_blocked > 0){
+		$message = sprintf('Có %d tài liệu đang thuộc nhiều dự án nên không xoá được. Bỏ chọn chúng, hoặc sửa để bỏ bớt dự án, rồi thử lại.', $total_blocked);
+		echo json_encode(array('msg' => $msg, 'message' => $message)); die();
+	}
+	$total = 0;
+	foreach($ids as $id){
 		if($type_list == 'trash'){
 			if($clsProjectMeta->deleteOne($id)) $total++;                                          // trong thùng rác → xoá vĩnh viễn
 		} else {
@@ -599,7 +674,7 @@ function default_delete_all(){
 		$clsActivityLog = new ActivityLog();
 		$clsActivityLog->addActivityLog("ProjectMeta", ($type_list=='trash' ? "delete" : "trash"));
 	}
-	echo $msg; die();
+	echo json_encode(array('msg' => $msg, 'message' => $message)); die();
 }
 function default_db_cleanup_run(){
 	global $core, $clsISO;
@@ -608,7 +683,7 @@ function default_db_cleanup_run(){
 	$clsProperty = new Property();
 	$last_id = (int) Input::post('last_id', 0);
 	$limit = 10;
-	$field = "id,project_id,block_ids,building_ids,cat_id,title,tags,tags_slug,content,more_information";
+	$field = "id,project_id,project_ids,block_ids,building_ids,cat_id,title,tags,tags_slug,content,more_information";
 	$rows = $clsProjectMeta->getAll("`is_trash`=0 AND `id` > {$last_id} order by `id` ASC limit {$limit}", $field);
 	$processed = 0; $new_last = $last_id;
 	if(!empty($rows)){
@@ -627,14 +702,17 @@ function default_db_cleanup_run(){
 			$is_handover = !empty($more_information['is_handoverSpecs']) ? 1 : 0;
 			$block_arr = !empty($val['block_ids']) ? $clsISO->getArrayByTextSlash($val['block_ids']) : array();
 			$building_arr = !empty($val['building_ids']) ? $clsISO->getArrayByTextSlash($val['building_ids']) : array();
+			$project_arr = docs_getProjectIds($val); // đồng thời backfill project_ids cho dữ liệu cũ
 			$title_search = trim($val['title']);
-			if(!empty($val['project_id'])) $title_search .= ' '.$clsProject->getTitle($val['project_id']);
+			foreach($project_arr as $p){ if($p) $title_search .= ' '.$clsProject->getTitle($p); }
 			foreach($block_arr as $b){ if($b) $title_search .= ' '.$clsProperty->getTitle($b); }
 			foreach($building_arr as $b){ if($b) $title_search .= ' '.$clsProperty->getTitle($b); }
 			if(!empty($val['cat_id'])) $title_search .= ' '.$clsProperty->getTitle($val['cat_id']);
 			if(!empty($val['tags'])) $title_search .= ' '.$val['tags'];
+			$more_information['project_ids'] = array_map('intval', $project_arr);
 			$clsProjectMeta->updateOne($id, array(
 				'title_search' => $title_search,
+				'project_ids' => $clsISO->makeSlashListFromArrayRoot($project_arr),
 				'file_type' => $col_file_type,
 				'thumb_image' => $col_image,
 				'gg_id' => $col_gg_id,
@@ -673,48 +751,20 @@ function default_search_tag(){
 function default_load_block(){
 	global $assign_list,$_CONFIG,$core,$dbconn,$mod,$act,$_LANG_ID,$title_page,$description_page
 	,$keyword_page,$extLang,$clsISO;
-	$clsProperty = new Property();
-	
-	$project_id = (int) Input::post('project_id', 0);
-	$field = "{$clsProperty->pkey},title";
-	$list_blocks = $clsProperty->getAll("property_type='_BLOCK' and for_id='{$project_id}'", $field);
-	##
-	$html_options = '<option value="0">Phân khu/Block</option>';
-	if(!empty($list_blocks)){
-		foreach($list_blocks as $key => $val){
-			$html_options.= '<option value="'.$val[$clsProperty->pkey].'">'.$val['title'].'</option>'; 
-		}
-	}
+	$project_ids = Input::post('project_ids', array());
+	$selected_ids = Input::post('selected_ids', array());
+	$is_multiple = (int) Input::post('is_multiple', 0);
 	// Return
-	echo $html_options; die();
+	echo docs_getBlockOptions($project_ids, (array) $selected_ids, $is_multiple); die();
 }
 function default_load_building(){
 	global $assign_list,$_CONFIG,$core,$dbconn,$mod,$act,$_LANG_ID,$title_page,$description_page
 	,$keyword_page,$extLang,$clsISO;
-	$clsProperty = new Property();
-	
-	$html_options = '<option value="0">Chọn toà nhà</option>';
-	$list_block_ids = Input::post('list_block_ids');
-	if(!empty($list_block_ids)){
-		if(is_numeric($list_block_ids)){
-			$list_block_ids = (array) $list_block_ids;
-		}
-		foreach($list_block_ids as $key => $block_id){
-			$field = "{$clsProperty->pkey},title";
-			$cond = "property_type='_BUILDING' and for_id='{$block_id}'";
-			$list_buildings = $clsProperty->getAll($cond, $field);
-			if(!empty($list_buildings)){
-				$html_options.= '<optgroup label="'.$clsProperty->getTitle($block_id).'">';
-				foreach($list_buildings as $okey => $oval){
-					$html_options.= '<option value="'.$oval[$clsProperty->pkey].'">'.$oval['title'].'</option>';
-				}
-				unset($list_buildings);
-				$html_options.= '</optgroup>';
-			}
-		}
-	}
+	$list_block_ids = Input::post('list_block_ids', array());
+	$selected_ids = Input::post('selected_ids', array());
+	$is_multiple = (int) Input::post('is_multiple', 0);
 	// Return
-	echo $html_options; die();
+	echo docs_getBuildingOptions($list_block_ids, (array) $selected_ids, $is_multiple); die();
 }
 function default_create_folder(){
 	// ini_set('display_errors', '1');

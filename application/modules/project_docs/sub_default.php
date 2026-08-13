@@ -130,7 +130,7 @@ function default_default() {
 
 		foreach ($arr_project_care as $projectItemId) {
 
-			$arrCondProject[] = " `project_id`={$projectItemId}";
+			$arrCondProject[] = $clsProjectMeta->condByProject($projectItemId);
 
 		}
 
@@ -274,7 +274,7 @@ function default_list_docs() {
 
             } else if($project_property[0] == 'project') {
 
-                $cond.= " and `project_id` = '{$project_property[1]}'";
+                $cond.= " and ".$clsProjectMeta->condByProject($project_property[1]);
 
                 $is_search_filter_project = true;
 
@@ -296,7 +296,7 @@ function default_list_docs() {
 
 		foreach ($arrProject as $projectItemId) {
 
-		   $arrCondProject[] = " project_id = {$projectItemId}";
+		   $arrCondProject[] = $clsProjectMeta->condByProject($projectItemId);
 
 		}
 

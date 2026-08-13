@@ -39,7 +39,7 @@ function project_default1(){
 		foreach ($list_category_docs_project  as $k_cat_doc => $v_cat_doc) {
 			$menu_child = [];
 			if($v_cat_doc['property_id'] != _PROJECT_DOCS_LAYOUT_CATID) {
-				$cond = "`is_trash`='0' AND `type`='project' AND `project_id`='{$_oProject['project_id']}'";
+				$cond = "`is_trash`='0' AND `type`='project' AND ".$clsProjectMeta->condByProject($_oProject['project_id']);
 //				$clsProperty->setDeBug(1);
 				$list_childs = $clsProperty->getAll("`is_trash`=0 and `property_type`='_CATEGORY_DOCS' and `{$clsProperty->pkey}` not in(".implode(',', $arr_notins_project).") and `parent_id`='{$v_cat_doc["property_id"]}' order by order_no ASC", "{$clsProperty->pkey},title");
 				$pattern = sprintf('DA-%s', $_oProject['project_id']);

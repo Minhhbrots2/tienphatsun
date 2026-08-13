@@ -144,23 +144,33 @@ $Core.docs = {
 		return false;
 	},
 	select_block: function(_this, e){
-		var project_id = $(_this).val(),
-			toId = $(_this).attr('toId');
+		var toId = $(_this).attr('toId'),
+			$block = $('#'+toId),
+			buildingId = $block.attr('toId'); // toà phụ thuộc phân khu -> nạp lại theo phân khu còn lại
 		$.post(path_ajax_script+'/index.php?mod='+mod+'&act=load_block', {
-			'project_id' : project_id
+			'project_ids' : $(_this).val(),
+			'selected_ids' : $block.val(),
+			'is_multiple' : $block.prop('multiple') ? 1 : 0
 		}, function(html){
 			$Core.util.toggleIndicatior(0);
-			$('#'+toId).html(html).trigger("chosen:updated");
-			$('#slb_Building_Id').empty().trigger("chosen:updated");
+			$block.html(html).trigger("chosen:updated");
+			if(buildingId){
+				$Core.docs.load_building($block, $('#'+buildingId));
+			}
 		});
 	},
 	select_building: function(_this, e){
 		var toId = $(_this).attr('toId');
+		$Core.docs.load_building($(_this), $('#'+toId));
+	},
+	load_building: function($block, $building){
 		$.post(path_ajax_script+'/index.php?mod='+mod+'&act=load_building', {
-			'list_block_ids' : $(_this).val()
+			'list_block_ids' : $block.val(),
+			'selected_ids' : $building.val(),
+			'is_multiple' : $building.prop('multiple') ? 1 : 0
 		}, function(html){
 			$Core.util.toggleIndicatior(0);
-			$('#'+toId).html(html).trigger("chosen:updated");
+			$building.html(html).trigger("chosen:updated");
 		});
 	},
 	do_search: function(_this, e){
@@ -281,6 +291,14 @@ $Core.docs = {
 		}
 		return false;
 	},
+	// Tài liệu thuộc nhiều dự án bị server chặn xoá -> hiện lý do, không reload
+	after_delete: function(respJson){
+		if(respJson.msg.indexOf('_success') >= 0){
+			window.location.reload();
+		} else {
+			$Core.alert.error(respJson.message || 'Không thành công !');
+		}
+	},
 	delete: function(_this,e){
 		e.preventDefault();
 		var project_meta_id = $(_this).attr('project_meta_id');
@@ -288,10 +306,10 @@ $Core.docs = {
 			vietiso_loading(1);
 			$.post(path_ajax_script+'/index.php?mod='+mod+'&act=delete', {
 				'project_meta_id' : project_meta_id
-			}, function(html){
+			}, function(respJson){
 				vietiso_loading(0);
-				window.location.reload();
-			});
+				$Core.docs.after_delete(respJson);
+			}, 'json');
 		});
 		return false;
 	},
@@ -314,10 +332,10 @@ $Core.docs = {
 			vietiso_loading(1);
 			$.post(path_ajax_script+'/index.php?mod='+mod+'&act=force_delete', {
 				'project_meta_id' : project_meta_id
-			}, function(html){
+			}, function(respJson){
 				vietiso_loading(0);
-				window.location.reload();
-			});
+				$Core.docs.after_delete(respJson);
+			}, 'json');
 		});
 		return false;
 	},
@@ -332,10 +350,10 @@ $Core.docs = {
 			vietiso_loading(1);
 			$.post(path_ajax_script+'/index.php?mod='+mod+'&act=delete_all', {
 				'p_key' : ids, 'type_list' : type_list
-			}, function(html){
+			}, function(respJson){
 				vietiso_loading(0);
-				window.location.reload();
-			});
+				$Core.docs.after_delete(respJson);
+			}, 'json');
 		});
 		return false;
 	},
