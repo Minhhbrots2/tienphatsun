@@ -5210,6 +5210,12 @@ text-* utilities in the markup (no new hex here). *=============================
 	color: #444441;
 }
 
+/* Dòng trống người dùng gõ trong TinyMCE được lưu thành khối rỗng, không có chiều cao nên bị mất khi hiển thị */
+.tinyContent p:empty,
+.tinyContent div:empty {
+	min-height: 1em;
+}
+
 .modal-body-news .awe__post-gallery {
 	border-radius: 10px;
 }

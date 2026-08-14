@@ -424,13 +424,27 @@ class News extends dbBasic{
 
 		$content = html_entity_decode($content);
 
-		//$regex = '~(?<!src=["\'])(?:(https?)://([^\s<]+)|(www\.[^\s<]+?\.[^\s<]+))(?<![\.,:])~i'; 
+		$content = $this->restoreLineBreaks($content);
+
+		//$regex = '~(?<!src=["\'])(?:(https?)://([^\s<]+)|(www\.[^\s<]+?\.[^\s<]+))(?<![\.,:])~i';
 
 		//$content = preg_replace($regex, '<a href="$0" target="_blank">$0</a>', $content);
 
 		//$content = preg_replace('/((https?):\/\/[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?)/', '<a href="\1" target="_blank">\1</a>', $content);
 
 		return $content;
+
+	}
+
+	function restoreLineBreaks($content){
+
+		$blockTags = 'address|article|aside|blockquote|dd|div|dl|dt|figcaption|figure|footer|h[1-6]|header|hr|li|ol|p|pre|section|table|tbody|td|tfoot|th|thead|tr|ul';
+
+		$content = preg_replace('#(</?(?:'.$blockTags.')\b[^>]*>)[ \t]*(?:\r\n|\r|\n)+#i', '$1', $content);
+
+		$content = preg_replace('#(?:\r\n|\r|\n)+[ \t]*(?=</?(?:'.$blockTags.')\b)#i', '', $content);
+
+		return nl2br($content);
 
 	}
 
