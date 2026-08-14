@@ -85,7 +85,7 @@
 						{/if}
 					</a>
 				</li>
-				<li class="nav-item me-3 me-xl-1 {if $total_compare eq 0}d-none{/if}">
+				<li class="nav-item me-3 me-xl-1">
 					<a href="javascript:void(0)" class="nav-link" onClick="$Core.global.compare.compare_stock(this, event)" 
 						title="So sánh căn hộ">
 						<i class="bx bx-git-compare bx-sm"></i>
