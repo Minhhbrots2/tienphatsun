@@ -19,15 +19,21 @@
 	$oneUser = $clsProfile->getProfile($user_id);
 
 	//$clsISO->print_pre($oneUser);die;
+	$show_mileston = ($clsISO->getHomeScreen() !== "");
 
 	$cond = "`is_trash`=0 AND `is_cancel`='0' AND FROM_UNIXTIME(`deposit_date`,'%Y')='".date("Y")."'";
 
 	$limitCond = " LIMIT 0,20";
 
-	$total_record = $clsBilling->countItem($cond);
+	$total_record = $show_mileston ? $clsBilling->countItem($cond) : 0;
 
-	$lstBilling = $clsBilling->getAll($cond. " ORDER BY `deposit_date` DESC ".$limitCond,"`{$clsBilling->pkey}`,`more_information`,`billing_code`,`staff_id`,`deposit_date`,`project_id`,`totalgrand`");
+	$lstBilling = array();
 
+	if($show_mileston) {
+
+		$lstBilling = $clsBilling->getAll($cond. " ORDER BY `deposit_date` DESC ".$limitCond,"`{$clsBilling->pkey}`,`more_information`,`billing_code`,`staff_id`,`deposit_date`,`project_id`,`totalgrand`");
+
+	}
 	$arr_block = $clsProperty->getArraySearchByKey("_BLOCK");
 
 	$arr_bedroom = $clsProperty->getArraySearchByKey("_BEDROOM");

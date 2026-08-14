@@ -1006,6 +1006,29 @@ class ConfigDeclaration {
 					)
 				)
 			),
+			'customer_support' => array(
+				'label'       => 'Hỗ trợ khách hàng 24/7',
+				'description' => 'Thông tin hiển thị ở khối "Hỗ trợ khách hàng 24/7" tại chân trang website.',
+				'slug'        => 'customer-support',
+				'icon'        => 'headphones',
+				'value'       => array(
+					'support_hotline' => array(
+						'type'        => 'text',
+						'label'       => 'Hotline',
+						'placeholder' => 'Số hotline hỗ trợ, vd: 0983 886 538'
+					),
+					'support_email' => array(
+						'type'        => 'text',
+						'label'       => 'Email',
+						'placeholder' => 'Email hỗ trợ khách hàng, vd: hotro@fivestar.vn'
+					),
+					'support_zalo' => array(
+						'type'        => 'text',
+						'label'       => 'Zalo',
+						'placeholder' => 'Số hoặc link Zalo OA, vd: https://zalo.me/0983886538'
+					)
+				)
+			),
 			'theme' => array(
 				'label'       => 'Giao diện',
 				'description' => 'Lựa chọn giao diện phù hợp cho website.',

@@ -1,4 +1,9 @@
 {if $mod eq 'home' && $act ne 'share'}
+{if !empty($lstBilling)}
+	{assign var = box_col value = 'col-md-4'}
+{else}
+	{assign var = box_col value = 'col-md-6'}
+{/if}
 <div class="form-row mb-2">
 	{if !empty($lstBilling)}
 		<div class="col-12 col-md-4">
@@ -84,7 +89,7 @@
 	{/if}
 	{foreach from=$list_boxs key = _oKey item = _oBox}
 	{assign var = list_images value = $_oBox.images}
-	<div class="col-12 col-md-4">
+	<div class="col-12 {$box_col}">
 		<div class="card h-100">
 			<div class="card-header">
 				<div class="d-flex justify-content-between align-items-center">
