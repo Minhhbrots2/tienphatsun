@@ -16,7 +16,7 @@
 
 			<span class="text-warning lh-xs">{$_oneStaff.department_name}</span>
 
-			<span class="text-main">{$_oItem.total_price}</span>
+			{if $screen_sales}<span class="text-main">{$_oItem.total_price}</span>{/if}
 
 		</div>
 

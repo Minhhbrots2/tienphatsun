@@ -19,7 +19,7 @@
 	$oneUser = $clsProfile->getProfile($user_id);
 
 	//$clsISO->print_pre($oneUser);die;
-	$show_mileston = ($clsISO->getHomeScreen() !== "");
+	$show_mileston = $clsISO->screenSales();
 
 	$cond = "`is_trash`=0 AND `is_cancel`='0' AND FROM_UNIXTIME(`deposit_date`,'%Y')='".date("Y")."'";
 

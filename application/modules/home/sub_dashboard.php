@@ -2332,6 +2332,7 @@ function dashboard_load_department_billing(){
 			#
 			$ii = 1;
 			$cls_rank = ($deviceType == 'phone') ? "" : "mr-2";
+			$screen_sales = $clsISO->screenSales();
 			//$clsISO->print_pre($arr_departments);die;
 			foreach($arr_departments as $okey => $oval){
 				$stt = $ii;
@@ -2358,7 +2359,7 @@ function dashboard_load_department_billing(){
 					</div>
 					<div class="d-flex gap-2 text-white text-center align-items-center">
 						<div class="text-center w-px-40">'.$oval['total_billings'].'</div>
-						<div class="text-center w-px-80">'.$clsISO->shortNumberV2($oval['total_sales']).'</div>
+						'.($screen_sales ? '<div class="text-center w-px-80">'.$clsISO->shortNumberV2($oval['total_sales']).'</div>' : '').'
 					</div>
 				</div>';
 				++$ii;

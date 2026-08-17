@@ -2069,6 +2069,7 @@ function helper_load_top_ranking(){
 			);
 		}
 	}
+	$screen_sales = $clsISO->screenSales();
 	$html = '<div class="rank__block-column rank-top-'.$tp.' d-flex justify-content-center">';
 	$ii = 0; // Init
 	foreach($list_top_ranking as $key => $val){
@@ -2085,11 +2086,11 @@ function helper_load_top_ranking(){
 						'.$clsProfile->get_icon_verified($val[$clsProfile->pkey], $prof_infomration).'
 					</div>
 					<h3 class="rank__profile-name fs-13 text-white font-bold mb-1">'.$val['full_name'].'</h3>
-						<div clas="d-flex align-items-center justify-content-center">
+					'.($screen_sales ? '<div clas="d-flex align-items-center justify-content-center">
 						<span class="mb-0 mx-auto rank__profile-profit text-muted fs-12">
 							'.shortNumber($val['total_price']).'
 						</span>
-					</div>
+					</div>' : '').'
 				</div>
 			</div>';
 		}
@@ -2115,7 +2116,7 @@ function helper_load_top_ranking(){
 					</h3>
 					<div clas="d-flex align-items-center">
 						<span class="text-muted mr-2 fs-13">'.$val['department'].'</span>
-						<span class="text-danger fs-13">'.shortNumber($val['total_price']).'</span>
+						'.($screen_sales ? '<span class="text-danger fs-13">'.shortNumber($val['total_price']).'</span>' : '').'
 					</div>
 				</div>
 			</div>';
@@ -2272,6 +2273,8 @@ function helper_load_top_ranking25(){
 	$smarty->assign("lstItem",$lstItem);	
 	$smarty->assign("title_content",$title_content);
 	$smarty->assign("title_content_time",$title_content_time);
+	// Màn hình mặc định không xem doanh số: cột biểu đồ vẫn so sánh được, chỉ bỏ con số.
+	$smarty->assign("screen_sales", $clsISO->screenSales());
 	$html_text = '<h3 class="text-upper fs-3 mb-2">'.$title_content.'</h3>
 		<p class=" fs-16 text-white">('.$title_content_time.')</p>';
 	$html_chart = $core->build('helper'.DS.'_ajax.top_rank_25.tpl');

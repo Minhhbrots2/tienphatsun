@@ -293,6 +293,7 @@ function default_dashboard(){
 		}
 	} else if($tp=='top_billing'){
 		$html = '';
+		$screen_sales = $clsISO->screenSales();
 		$field = "{$clsBilling->pkey},`billing_code`,`billing_type`,`sold_to_type`,`staff_id`,`project_id`,`more_information`,`reg_date`,`totalgrand`";
 		$list_billings = $clsBilling->getAll("`is_trash`=0 and `is_cancel`=0 order by `reg_date` DESC limit 0,6", $field);
 		// skin=dbx: redesign dashboard — list GD mới (tên trên · dự án·loại căn · số tiền xanh); die sớm, nhánh cũ giữ nguyên
@@ -370,7 +371,7 @@ function default_dashboard(){
 							<div class="dbx-person__name">'.$staff_name.'</div>
 							<div class="dbx-person__meta"><i class="bx bx-building-house"></i>'.$sub_text.'</div>
 						</div>
-						<span class="dbx-person__amt dbx-person__amt--gain">'.shortNumber($val['totalgrand']).'</span>
+						'.($screen_sales ? '<span class="dbx-person__amt dbx-person__amt--gain">'.shortNumber($val['totalgrand']).'</span>' : '').'
 					</div>';
 				}
 				$html.= '</div>';
@@ -407,9 +408,9 @@ function default_dashboard(){
 					<div class="w-100">
 						<div class="d-flex w-100 flex-wrap align-items-center justify-content-between mb-1">
 							<small class="text-muted d-block">Dự án '.$arr_property_cached[$billing_type].'</small>
-							<div class="user-progress d-flex align-items-center gap-1">
+							'.($screen_sales ? '<div class="user-progress d-flex align-items-center gap-1">
 								<h6 class="mb-0 text-main">'.shortNumber($val['totalgrand']).'</h6>
-							</div>
+							</div>' : '').'
 						</div>
 						<h6 class="mb-0">
 							'.$clsProfile->getFullName($staff_id, $arr_profile_cached[$staff_id]).$sold_to_type_name.'
@@ -6191,6 +6192,7 @@ function default_top_staff(){
 		left join {$clsBilling->tbl} as`t2` on `t1`.`profile_id`=`t2`.`staff_id`{$cond} 
 		where `t1`.`is_trash`=0 and `t1`.`is_active`=1 and (`t1`.`list_department_id` NOT LIKE '%|12133|%') group by `t1`.`profile_id` 
 		having `total_billing`>0 order by `total_price` DESC limit 0,6");
+	$screen_sales = $clsISO->screenSales();
 	// skin=dbx: redesign dashboard — list NV xuất sắc (tên · mã·phòng · doanh số navy + N GD); die sớm, nhánh cũ giữ nguyên
 	$skin = Input::post('skin', '');
 	if($skin == 'dbx'){
@@ -6225,7 +6227,7 @@ function default_top_staff(){
 						<div class="dbx-person__meta"><i class="bx bx-user"></i>'.$sub_text.'</div>
 					</div>
 					<div class="dbx-person__right">
-						<span class="dbx-person__amt">'.shortNumber($val['total_price']).'</span>
+						'.($screen_sales ? '<span class="dbx-person__amt">'.shortNumber($val['total_price']).'</span>' : '').'
 						<div class="dbx-person__sub">'.(int) $val['total_billing'].' GD</div>
 					</div>
 				</div>';
@@ -6261,9 +6263,9 @@ function default_top_staff(){
 				<div class="w-100">
 					<div class="d-flex w-100 flex-wrap align-items-center justify-content-between mb-1">
 						<small class="text-muted d-block">'.$val['code'].'-'.$department_name.'</small>
-						<div class="user-progress d-flex align-items-center gap-1">
+						'.($screen_sales ? '<div class="user-progress d-flex align-items-center gap-1">
 							<h6 class="mb-0 text-main">'.shortNumber($val['total_price']).'</h6>
-						</div>
+						</div>' : '').'
 					</div>
 					<h6 class="mb-0">'.$val['full_name'].'</h6>
 				</div>

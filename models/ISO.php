@@ -3056,8 +3056,14 @@ class ISO{
 		return '';
 	}
 	/**
-	 * Danh s�ch id d� c?u h�nh cho 1 key c?a nh�m home_screen.
-	 * Chua c?u h�nh (ho?c b? xo� tr?ng) th� tr? v? $default d? lu?t cu c�n hi?u l?c.
+	 *
+	 * @return bool
+	 */
+	function screenSales(){
+		return $this->getHomeScreen() !== '';
+	}
+	/**
+	 *
 	 * @return array
 	 */
 	function getHomeScreenIds($keyword, $default = array()){

@@ -1,4 +1,6 @@
-{if $type eq 'area' || $type == ""}
+{assign var = screen_sales value = $clsISO->screenSales()}
+{assign var = has_business_area value = $clsConfiguration->getValue('has_business_area','1')}
+{if ($type eq 'area' || $type == "") && $has_business_area eq '1'}
 	<div class="ranking-gbox ranking-regional rounded-2 mb-2">
 		<div class="ranking-dept-header mb-3">
 			<div class="d-flex align-items-center gap-3">
@@ -24,7 +26,9 @@
 				<div class="text-upper text-white text-fs-12">Phòng ban</div>
 				<div class="d-flex gap-1 text-fs-12 pr-2 text-white align-items-center">
 					<div class="text-upper text-center w-px-40">Số GD</div>
+					{if $screen_sales}
 					<div class="text-upper text-center w-px-80">Doanh số</div>
+					{/if}
 				</div>
 			</div>
 			<div class="ajax" gId="regional_{$gId}" data-url="{$PCMS_URL}/index.php?mod={$mod}&sub=dashboard&act=load_department_billing&tp=regional" 
@@ -46,9 +50,11 @@
 						<div class="d-flex justify-content-center text-center w-px-40">
 							<div class="animate-bg w-px-30 rounded-pill h-px-15"></div>
 						</div>
+						{if $screen_sales}
 						<div class="d-flex justify-content-center text-center w-px-90">
 							<div class="animate-bg w-px-50 rounded-pill h-px-15"></div>
 						</div>
+						{/if}
 					</div>
 				</div>
 				{/section}
@@ -82,7 +88,9 @@
 			<div class="text-upper text-white text-fs-12">Phòng ban</div>
 			<div class="d-flex gap-1 text-fs-12 pr-2 text-white align-items-center">
 				<div class="text-upper text-center w-px-40">Số GD</div>
+				{if $screen_sales}
 				<div class="text-upper text-center w-px-80">Doanh số</div>
+				{/if}
 			</div>
 		</div>
 		<div class="ajax" gId="{$gId}" data-url="{$PCMS_URL}/index.php?mod={$mod}&sub=dashboard&act=load_department_billing&tp=department" 
@@ -104,9 +112,11 @@
 					<div class="d-flex justify-content-center text-center w-px-40">
 						<div class="animate-bg w-px-30 rounded-pill h-px-15"></div>
 					</div>
+					{if $screen_sales}
 					<div class="d-flex justify-content-center text-center w-px-90">
 						<div class="animate-bg w-px-50 rounded-pill h-px-15"></div>
 					</div>
+					{/if}
 				</div>
 			</div>
 			{/section}
