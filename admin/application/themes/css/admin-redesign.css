@@ -2734,3 +2734,556 @@ body.mod-setting .setting-general__savebar-actions input[type="submit"]:hover { 
 .js__preview_low_floor .badge:not(:last-child) {
   margin-bottom: 5px;
 }
+
+/* ============================================================
+   Man sua du an - giao dien moi (?mod=project&act=editv2)
+   Rail trai + luong the nhom lien tuc, mot form mot lan luu
+   (cung pattern voi man Cau hinh he thong). Prefix .pe- de
+   khong dung cham CSS cua man edit cu hay man setting.
+   ============================================================ */
+.pe-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 4px 0 18px;
+}
+.pe-hero__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.pe-hero__main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.pe-hero__heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.pe-hero__title {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--fh-text);
+  line-height: 1.25;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.pe-hero__code {
+  flex: 0 0 auto;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(29, 68, 107, .08);
+  color: var(--fh-crimson);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+.pe-hero__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ---------- khung 2 cot: rail + groups ---------- */
+.pe-layout {
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+.pe-groups { min-width: 0; }
+
+/* ---------- rail trai ---------- */
+.pe-rail {
+  position: sticky;
+  top: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pe-rail__search { position: relative; }
+.pe-rail__search > i {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--fh-muted-2);
+  font-size: 13px;
+  pointer-events: none;
+}
+.pe-rail__search .form-control {
+  padding-left: 33px;
+  border-radius: 999px;
+}
+.pe-rail__nav {
+  padding: 6px;
+  background: var(--fh-card);
+  border: 1px solid var(--fh-border);
+  border-radius: var(--fh-radius);
+}
+.pe-rail__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: var(--fh-radius-sm);
+  color: var(--fh-muted);
+  font-size: 12.5px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.pe-rail__item:hover {
+  background: var(--fh-bg);
+  color: var(--fh-text);
+  text-decoration: none;
+}
+.pe-rail__item.is-active {
+  background: rgba(29, 68, 107, .08);
+  color: var(--fh-crimson);
+  font-weight: 600;
+}
+.pe-rail__item.is-empty { opacity: .35; }
+.pe-rail__item > i {
+  width: 16px;
+  font-size: 15px;
+  text-align: center;
+}
+.pe-rail__item > span {
+  flex: 1 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ---------- the nhom ---------- */
+.pe-group {
+  margin-bottom: 16px;
+  background: var(--fh-card);
+  border: 1px solid var(--fh-border);
+  border-radius: var(--fh-radius);
+  box-shadow: var(--fh-shadow);
+  scroll-margin-top: 100px;
+}
+.pe-group.is-hidden { display: none; }
+.pe-group__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--fh-border-2);
+}
+.pe-group__icon {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(29, 68, 107, .08);
+  color: var(--fh-crimson);
+}
+.pe-group__icon > i { font-size: 17px; }
+.pe-group__meta { flex: 1 1 auto; min-width: 0; }
+.pe-group__title {
+  margin: 0 0 2px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--fh-text);
+}
+.pe-group__desc {
+  margin: 0;
+  color: var(--fh-muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.pe-group__actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pe-group__body { padding: 16px 20px 20px; }
+
+/* ---------- luoi field ---------- */
+.pe-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 18px;
+}
+.pe-grid + .pe-grid { margin-top: 14px; }
+.pe-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pe-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.pe-field { min-width: 0; }
+.pe-field + .pe-field { margin-top: 0; }
+.pe-group__body > .pe-field + .pe-field { margin-top: 14px; }
+.pe-field__label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--fh-text);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.pe-field__req { color: #c0392b; font-weight: 700; }
+.pe-field .chosen-container,
+.pe-field .select2-container { width: 100% !important; }
+.pe-field textarea.form-control { resize: vertical; }
+.pe-color { max-width: 120px; height: 34px; padding: 3px 5px; }
+
+/* ---------- divider phu de trong nhom ---------- */
+.pe-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 12px;
+}
+.pe-divider > span {
+  flex: 0 0 auto;
+  color: var(--fh-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.pe-divider::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--fh-border-2);
+}
+.pe-divider > .btn { flex: 0 0 auto; }
+
+/* ---------- radio pill + checkbox ---------- */
+.pe-pills {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  background: var(--fh-bg);
+  border: 1px solid var(--fh-border);
+  border-radius: 999px;
+}
+.pe-pill { position: relative; margin: 0; cursor: pointer; }
+.pe-pill input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.pe-pill span {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 999px;
+  color: var(--fh-muted);
+  font-size: 12.5px;
+  font-weight: 500;
+  transition: all .15s;
+}
+.pe-pill input:checked + span {
+  background: var(--fh-card);
+  color: var(--fh-crimson);
+  font-weight: 600;
+  box-shadow: var(--fh-shadow);
+}
+.pe-checks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px 18px;
+}
+.pe-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--fh-text);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.pe-check input { margin: 0; flex: 0 0 auto; }
+.pe-check span { min-width: 0; }
+
+/* ---------- hinh anh ---------- */
+.pe-media {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.pe-media__item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pe-media__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.pe-media__head .pe-field__label { margin-bottom: 0; }
+.pe-media__preview {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border: 1px dashed var(--fh-border);
+  border-radius: var(--fh-radius-sm);
+  background: var(--fh-bg);
+  overflow: hidden;
+  cursor: pointer;
+}
+.pe-media__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.pe-media__preview img[src=""] { visibility: hidden; }
+/* lop phu khi ro chuot: bao hieu bam vao anh de doi anh */
+.pe-media__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(31, 36, 48, .45);
+  color: #fff;
+  opacity: 0;
+  transition: opacity .15s;
+  pointer-events: none;
+}
+.pe-media__overlay > i { font-size: 26px; }
+.pe-media__preview:hover { border-color: var(--fh-crimson); }
+.pe-media__preview:hover .pe-media__overlay { opacity: 1; }
+
+/* ---------- bang hang (spreadsheet + admin) ---------- */
+.pe-sheets {
+  border: 1px solid var(--fh-border);
+  border-radius: var(--fh-radius-sm);
+  overflow: hidden;
+}
+.pe-sheets__head,
+.pe-sheets__row {
+  display: grid;
+  grid-template-columns: minmax(90px, 15%) minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 10px;
+  align-items: center;
+  padding: 8px 12px;
+}
+.pe-sheets__head {
+  background: var(--fh-bg);
+  border-bottom: 1px solid var(--fh-border);
+  color: var(--fh-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.pe-sheets__row + .pe-sheets__row { border-top: 1px solid var(--fh-border-2); }
+.pe-sheets__name {
+  color: var(--fh-text);
+  font-weight: 600;
+}
+
+/* ---------- khoi cau hinh nang cao (collapse) ---------- */
+.pe-advanced { margin-top: 18px; }
+.pe-advanced__toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--fh-text);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.pe-advanced__toggle:hover { color: var(--fh-crimson); text-decoration: none; }
+.pe-advanced__toggle > i { font-size: 16px; transition: transform .15s; }
+.pe-advanced__toggle[aria-expanded="true"] > i { transform: rotate(90deg); }
+.pe-advanced__hint {
+  color: var(--fh-muted);
+  font-weight: 400;
+}
+.pe-advanced__body {
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: var(--fh-bg);
+  border: 1px solid var(--fh-border-2);
+  border-radius: var(--fh-radius-sm);
+}
+.pe-advanced__body .pe-field + .pe-field,
+.pe-advanced__body .pe-field + .pe-grid,
+.pe-advanced__body .pe-switches + .pe-field { margin-top: 12px; }
+.pe-switches {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.pe-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.pe-switch .switch { margin: 0; }
+
+/* ---------- SOP (khoi noi dung trang) ----------
+   Moi khoi phai noi bat han khoi nen chung: thanh accent trai +
+   badge so thu tu + header pha mau nhan, de khong lan voi field khac. */
+.pe-sop {
+  margin-bottom: 18px;
+  border: 1px solid var(--fh-border);
+  border-left: 3px solid var(--fh-crimson);
+  border-radius: var(--fh-radius-sm);
+  background: var(--fh-card);
+  box-shadow: var(--fh-shadow);
+  overflow: hidden;
+}
+.pe-sop:hover { box-shadow: var(--fh-shadow-md); }
+.pe-sop__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: linear-gradient(90deg, rgba(29, 68, 107, .08), rgba(29, 68, 107, .02));
+  border-bottom: 1px solid var(--fh-border-2);
+}
+.pe-sop__index {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--fh-crimson);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.pe-sop__title {
+  flex: 1 1 auto;
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--fh-crimson);
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.pe-sop__tools {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.pe-sop__options {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--fh-border-2);
+}
+.pe-sop__options .pe-check { padding-bottom: 7px; }
+.pe-sop__opt {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  font-weight: 400;
+}
+.pe-sop__opt--grow { flex: 1 1 220px; min-width: 200px; }
+.pe-sop__opt input[type="color"] {
+  width: 60px;
+  height: 30px;
+  padding: 2px 3px;
+  border: 1px solid var(--fh-border);
+  border-radius: 6px;
+  background: var(--fh-card);
+}
+.pe-sop__content { padding: 12px 14px; }
+.pe-sop__note {
+  margin: 0 14px 10px;
+  padding: 8px 12px;
+  background: rgba(29, 68, 107, .05);
+  border-left: 3px solid var(--fh-crimson);
+  border-radius: 4px;
+  color: var(--fh-muted);
+  font-size: 12px;
+}
+.pe-sop .holder_list_sop { padding: 0 14px 14px; }
+
+/* ---------- cac khoi ui-card long trong group (map block) ---------- */
+.pe-group--map .ui-card {
+  margin-top: 16px;
+  border: 1px solid var(--fh-border);
+  box-shadow: none;
+}
+
+/* ---------- bang trong group ---------- */
+.pe-table thead th {
+  font-size: 11px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--fh-muted);
+}
+
+/* ---------- trang thai rong khi tim ---------- */
+.pe-empty {
+  display: none;
+  margin: 0;
+  padding: 34px 20px;
+  background: var(--fh-card);
+  border: 1px dashed var(--fh-border);
+  border-radius: var(--fh-radius);
+  color: var(--fh-muted);
+  text-align: center;
+}
+.pe-empty.is-open { display: block; }
+
+/* ---------- thanh luu bam day ---------- */
+.pe-savebar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 4px;
+  padding: 10px 16px;
+  background: var(--fh-card);
+  border: 1px solid var(--fh-border);
+  border-radius: var(--fh-radius) var(--fh-radius) 0 0;
+  box-shadow: 0 -4px 12px rgba(16, 24, 40, .06);
+}
+.pe-savebar__left { display: flex; align-items: center; gap: 10px; }
+.pe-savebar__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 1280px) {
+  .pe-grid--3, .pe-grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pe-media { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pe-checks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 1024px) {
+  .pe-layout { grid-template-columns: minmax(0, 1fr); }
+  .pe-rail { position: static; }
+  .pe-sheets__head { display: none; }
+  .pe-sheets__row { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 768px) {
+  .pe-grid, .pe-grid--3, .pe-grid--4, .pe-media, .pe-checks { grid-template-columns: minmax(0, 1fr); }
+}

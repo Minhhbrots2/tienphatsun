@@ -95,7 +95,7 @@ function default_update_layout(){
 }
 function default_default(){
     global $assign_list,$_CONFIG,$_SITE_ROOT,$mod,$_LANG_ID,$act,$menu_current,$current_page,$oneSetting;
-    global $core,$clsModule,$clsButtonNav,$oneSetting,$clsISO;
+    global $core,$clsModule,$clsButtonNav,$oneSetting,$clsISO,$dbconn;
     $assign_list["clsModule"] = $clsModule;
     $user_id = $core->_USER['user_id'];
     $clsProperty = new Property();
@@ -135,8 +135,12 @@ function default_default(){
     }
     $orderBy = " reg_date desc";
     #-------Page Divide---------------------------------------------------------------
-    $recordPerPage 	= 20;
-    $currentPage = isset($_GET["page"])? $_GET["page"] : 1;
+    # per_page qua URL (?per_page=): whitelist để chặn giá trị lạ đẩy limit lớn gây nặng query.
+    $allowPerPage = array(20, 50, 100, 200);
+    $recordPerPage = (int) (isset($_GET['per_page']) ? $_GET['per_page'] : 50);
+    if(!in_array($recordPerPage, $allowPerPage, true)){ $recordPerPage = 50; }
+    $currentPage = isset($_GET["page"]) ? (int) $_GET["page"] : 1;
+    if($currentPage < 1){ $currentPage = 1; }
     $start_limit = ($currentPage-1)*$recordPerPage;
     $limit = " limit $start_limit,$recordPerPage";
     $totalRecord = (int) $clsClassTable->countItem($cond);
@@ -145,13 +149,10 @@ function default_default(){
     $assign_list['recordPerPage'] = $recordPerPage;
     $assign_list['totalPage'] = $totalPage;
     $assign_list['currentPage'] = $currentPage;
-    $listPageNumber =  array();
-    for ($i=1; $i<=$totalPage; $i++){
-        $listPageNumber[] = $i;
-    }
-    $assign_list['listPageNumber'] = $listPageNumber;
+    $assign_list['allowPerPage'] = $allowPerPage;
     $query_string = $_SERVER['QUERY_STRING'];
     $lst_query_string = explode('&',$query_string);
+    # Link nền cho nút trang: bỏ 'page', GIỮ 'per_page' (đổi trang không mất cỡ trang).
     $link_page_current = '';
     for($i=0;$i<count($lst_query_string);$i++){
         $tmp = explode('=',$lst_query_string[$i]);
@@ -167,13 +168,42 @@ function default_default(){
             $link_page_current_2 .= ($i==0)?'?'.$lst_query_string[$i]:'&'.$lst_query_string[$i];
     }
     $assign_list['link_page_current_2'] = $link_page_current_2;
+    # Link nền cho ô chọn cỡ trang: bỏ cả 'page' lẫn 'per_page' → đổi cỡ thì về trang 1.
+    $link_page_perpage = '';
+    for($i=0;$i<count($lst_query_string);$i++){
+        $tmp = explode('=',$lst_query_string[$i]);
+        if($tmp[0]!='page'&&$tmp[0]!='per_page')
+            $link_page_perpage .= ($i==0)?'?'.$lst_query_string[$i]:'&'.$lst_query_string[$i];
+    }
+    $assign_list['link_page_perpage'] = $link_page_perpage;
+    # Nút bấm trang — tái dùng Pagination (chuẩn hệ thống, style .paginate_button có sẵn ở admin.css).
+    $clsPagination = new Pagination();
+    $clsPagination->initianize(array(
+        'total'           => $totalRecord,
+        'current_page'    => $currentPage,
+        'number_per_page' => $recordPerPage,
+        'link'            => PCMS_URL.'/'.$link_page_current,
+    ));
+    $assign_list['html_pager'] = $clsPagination->create_links();
     #-------End Page Divide-----------------------------------------------------------
     $allItem = $clsClassTable->getAll($cond." order by ".$orderBy.$limit);
+	$clsCity = new City();
+	$lstCity = $clsCity->getAll("country_id='1'");
+	$arr_slug_city = [];
+	foreach($lstCity as $key => $val) {
+		$arr_slug_city[$val["slug"]] = $val["city_id"];
+	}
     if(!empty($allItem)){
         foreach($allItem as $key => $val){
             $more_project = $clsISO->to_array_json($val["more_information"]);
             $allItem[$key]["is_lock"] = !empty($more_project["is_lock"]) ? $more_project["is_lock"] : 0;
-            $allItem[$key]["is_menu"] = !empty($more_project["is_menu"]) ? $more_project["is_menu"] : 0;
+			
+			/*$project_area_slug = $core->replaceSpace($more_project["project_area"]);
+			if(!empty($arr_slug_city[$project_area_slug])) {
+				$city_id = $arr_slug_city[$project_area_slug];
+				$more_project["city_id"] = $city_id;
+				$clsClassTable->updateOne($val[$clsClassTable->pkey],["more_information" => json_encode($more_project,JSON_UNESCAPED_UNICODE)]);
+			}*/
         }
     }
     $assign_list["allItem"] = $allItem;
@@ -203,6 +233,7 @@ function default_overview(){
     $list_block_type = isset($oneItem['list_block_type']) ? $oneItem['list_block_type'] : '';
     $block_type_arrs = !empty($list_block_type) ? $clsISO->getArrayByTextSlash($list_block_type) : array();
     $assign_list["block_type_arrs"] = $block_type_arrs;
+	$list_status_contract = $clsProperty->getAll("`property_type`='_STATUS_CONTRACT' AND `is_trash`='0' AND `property_id` <> '"._CONTRACT_STATUS_DONE_ID."'");
     # Cây Phân khu -> Tòa + thống kê (dùng chung helper)
     $aBlocks = _project_overview_blocks($project_id);
     $assign_list["list_blocks"] = $aBlocks['list_blocks'];
@@ -213,6 +244,7 @@ function default_overview(){
     $smarty->assign('list_blocks', $aBlocks['list_blocks']);
     $smarty->assign('clsProperty', $clsProperty);
     $smarty->assign('core', $core);
+    $smarty->assign('list_status_contract', $list_status_contract);
     $assign_list["blocks_html"] = $core->build('_overview_blocks.tpl');
 }
 // Reload AJAX phần cây Phân khu -> Tòa (giữ toggle quick-menu)
@@ -465,12 +497,14 @@ function default_edit(){
     $clsSetting = new Setting();
     $clsProjectSop = new ProjectSop();
     $clsProjectMeta = new ProjectMeta();
+    $clsCity = new City();
     $clsStock = new Stock();
     $assign_list["clsProfile"] = $clsProfile;
     $assign_list["clsProperty"] = $clsProperty;
     $assign_list["clsSetting"] = $clsSetting;
     $assign_list["clsProjectSop"] = $clsProjectSop;
     $assign_list["clsProjectMeta"] = $clsProjectMeta;
+    $assign_list["clsCity"] = $clsCity;
     ##
     $classTable = "Project";
     $clsClassTable = new $classTable;
@@ -708,6 +742,7 @@ function default_edit(){
         $more_information['notes'] = trim(Input::post('notes'));
         $more_information['address'] = trim(Input::post('address'));
         $more_information['project_area'] = trim(Input::post('project_area'));
+		$more_information['city_id'] = (int)Input::post('city_id',0);
         $more_information['vr_link'] = trim(Input::post('vr_link'));
         $more_information['vr_source'] = trim(Input::post('vr_source'));
         $more_information['is_tiles'] = Input::post('is_tiles',0);
@@ -1128,6 +1163,146 @@ function default_edit(){
 
     $assign_list['modal_icon'] = $modal_icon;
 }
+function default_map_project(){
+    global $assign_list,$_CONFIG,$_SITE_ROOT,$mod,$_LANG_ID,$act,$oneSetting;
+    global $core,$clsModule,$clsButtonNav,$dbconn,$clsISO,$clsConfiguration;
+    $assign_list["clsModule"] = $clsModule;
+    $user_id = $core->_USER['user_id'];
+    $clsProfile = new Profile();
+    $clsProperty = new Property();
+    $clsSetting = new Setting();
+    $clsProjectSop = new ProjectSop();
+    $clsProjectMeta = new ProjectMeta();
+    $clsStock = new Stock();
+    $assign_list["clsProfile"] = $clsProfile;
+    $assign_list["clsProperty"] = $clsProperty;
+    $assign_list["clsSetting"] = $clsSetting;
+    $assign_list["clsProjectSop"] = $clsProjectSop;
+    $assign_list["clsProjectMeta"] = $clsProjectMeta;
+    ##
+    $classTable = "Project";
+    $clsClassTable = new $classTable;
+    $tableName = $clsClassTable->tbl;
+    $pkeyTable = $clsClassTable->pkey ;
+    $assign_list['pkeyTable'] = $pkeyTable;
+    $assign_list["clsClassTable"] = $clsClassTable;
+    ##
+    $project_id = isset($_GET["project_id"])? ($_GET["project_id"]) : 0;
+    $assign_list['project_id'] = $project_id;
+    $oneItem = $clsClassTable->getOne($project_id);
+    $list_block_type = $oneItem['list_block_type'];
+    $more_information = $oneItem['more_information'];
+    $more_information = $clsISO->to_array_json($more_information);
+    $block_type_arrs = !empty($list_block_type)
+        ? $clsISO->getArrayByTextSlash($list_block_type) : array();
+    // $clsISO->print_pre($more_information); die();
+    $project_cat_menu_def = [_PROJECT_DOCS_IMGVIDEO_CATID,_PROJECT_DOCS_LAYOUT_CATID];
+    $project_cat_menu = $core->get_field($more_information, "project_cat_menu", $project_cat_menu_def);
+    $assign_list["oneItem"] = $oneItem;
+    $assign_list["project_cat_menu"] = $project_cat_menu;
+    $assign_list["block_type_arrs"] = $block_type_arrs;
+    $assign_list["more_information"] = $more_information;
+    # map khoanh vùng
+    $info_map_territory = $core->get_field($more_information, "map_territory", []);
+    $assign_list["info_map_territory"] = $info_map_territory;
+    if(isset($_POST['submit']) && $_POST['submit'] =='Update'){
+        $firstAdd = 0;
+        #--Special Field: #date
+        $value= "`upd_date`='".time()."',`user_id`='{$user_id}'";
+        #
+        $map_address = Input::post('map_address');
+        $map_la = Input::post('map_la');
+        $map_lo = Input::post('map_lo');
+        $more_information['map_address'] = $map_address;
+        $more_information['map_la'] = $map_la;
+        $more_information['map_lo'] = $map_lo;
+
+        # map phân khu
+        $map_block_id_arr = Input::post('map_block_id');
+        $map_block_lat_arr = Input::post('map_block_lat');
+        $map_block_lng_arr = Input::post('map_block_lng');
+        $map_address_block_arr = Input::post('map_address_block');
+        if (!empty($map_block_id_arr)
+            && !empty($map_block_lat_arr)
+            && !empty($map_block_lng_arr)
+            && !empty($map_address_block_arr)) {
+            $map_block = [];
+            foreach ($map_block_id_arr as $key=>$item) {
+                if (!empty($map_block_lat_arr[$key]) && !empty($map_block_lng_arr[$key]) ) {
+                    $map_block[$item] = array(
+                        'block_id' => $item,
+                        'lat' =>  $map_block_lat_arr[$key],
+                        'lng' =>  $map_block_lng_arr[$key],
+                        'address' => $map_address_block_arr[$key]
+                    );
+                }
+            }
+            $more_information['location_block'] = $map_block;
+        }
+        # địa điểm nổi bật
+        $map_Highlight_name_arr = Input::post('map_highlight_name');
+        $map_highlight_lat_arr = Input::post('map_highlight_lat');
+        $map_highlight_lng_arr = Input::post('map_highlight_lng');
+        $map_address_highlight_arr = Input::post('map_address_highlight');
+        $map_zoom = Input::post('map_zoom');
+        if (isset($map_zoom) ) {
+            if(empty($map_zoom)) {
+                $more_information['map_zoom'] = '';
+            } elseif (is_numeric($map_zoom)){
+                $more_information['map_zoom'] = $map_zoom;
+            }
+        }
+        if (!empty($map_Highlight_name_arr)
+            && !empty($map_highlight_lat_arr)
+            && !empty($map_highlight_lng_arr)
+            && !empty($map_address_highlight_arr)) {
+            $map_highligh = [];
+            foreach ($map_Highlight_name_arr as $key=>$item) {
+                if (!empty($map_highlight_lat_arr[$key]) && !empty($map_highlight_lng_arr[$key]) ) {
+                    $map_highligh[] = array(
+                        'name' => $item,
+                        'lat' =>  $map_highlight_lat_arr[$key],
+                        'lng' =>  $map_highlight_lng_arr[$key],
+                        'address' => $map_address_highlight_arr[$key]
+                    );
+                }
+            }
+            $more_information['location_highlight'] = $map_highligh;
+        }
+        # khoanh vùng vị trí
+        $map_territory_lat_arr = Input::post('map_territory_lat');
+        $map_territory_lng_arr = Input::post('map_territory_lng');
+        if (!empty($map_territory_lat_arr) && !empty($map_territory_lng_arr)) {
+            $map_territory = [];
+            foreach ($map_territory_lat_arr as $key_territory=>$item_territory) {
+                foreach ($item_territory as $key => $item) {
+                    if (!empty($map_territory_lng_arr[$key_territory][$key]) ) {
+                        $map_territory[$key_territory][] = array($item, $map_territory_lng_arr[$key_territory][$key]);
+                    }
+                }
+                $map_territory[$key_territory][] = array($map_territory_lat_arr[$key_territory][0], $map_territory_lng_arr[$key_territory][0]);
+            }
+            $more_information['map_territory'] = $map_territory;
+        } else if (empty($map_territory_lat_arr) && empty($map_territory_lng_arr)) {
+            $more_information['map_territory'] = [];
+        }
+        $map_address_territory = Input::post('map_address_territory');
+        $more_information['map_address_territory'] = $map_address_territory;
+        $value.= ",more_information='".json_encode($more_information, JSON_UNESCAPED_UNICODE)."'";
+        if($clsClassTable->updateOne($project_id,$value)){
+            if($_POST['button'] == '_EDIT') {
+                header('location: '.PCMS_URL.'/?mod='.$mod.'&act=map_project&project_id='.$project_id.'&message=UpdateSuccess');
+                exit();
+            }else {
+                header('location: '.PCMS_URL.'/?mod='.$mod.'&act=overview&message=UpdateSuccess');
+                exit();
+            }
+        }else{
+            header('location: '.PCMS_URL.'/?mod='.$mod.'&act=overview&message=updateFailed');
+            exit();
+        }
+    }
+}
 function default_trash(){
     global $assign_list,$_CONFIG,$_SITE_ROOT,$mod,$act;
     global $core,$clsModule,$clsButtonNav,$oneSetting;
@@ -1390,8 +1565,8 @@ function default_delete(){
     }
     if($clsClassTable->deleteOne($pvalTable)){
         #activity log
-        $log_title = sprintf('%s (xoá %d / gỡ %d tài liệu, %d căn, %d ghi chú căn, %d phân khu, %d tòa, xoá %d / gỡ %d CSBH)',
-            $oneItem['title'], $related['meta'], $related['meta_updated'], $related['stock'], $related['stock_meta'],
+        $log_title = sprintf('%s (kèm %d tài liệu, %d căn, %d ghi chú căn, %d phân khu, %d tòa, xoá %d / gỡ %d CSBH)',
+            $oneItem['title'], $related['meta'], $related['stock'], $related['stock_meta'],
             $related['block'], $related['building'], $related['policy_deleted'], $related['policy_updated']);
         $clsActivityLog = new ActivityLog();
         $log = $clsActivityLog->addActivityLog("Project","delete",['title' => $log_title]);
@@ -1524,6 +1699,8 @@ function default_open_block(){
     $list_profile = $clsProfile->getAll("is_trash=0 and status_id <> '"._STATUS_STAFF_OFF_ID."'", $field);
     $smarty->assign('list_profile', $list_profile);
     $list_price_fields = $clsStock->getPriceField($stock_type);
+	$list_status_contract = $clsProperty->getAll("`property_type`='_STATUS_CONTRACT' AND `is_trash`='0' AND `property_id` <> '"._CONTRACT_STATUS_DONE_ID."'");
+    $smarty->assign('list_status_contract', $list_status_contract);
     $smarty->assign('list_price_fields', $list_price_fields);
     // $clsISO->print_pre($list_price_fields); die();
     $smarty->assign('info_more', $info_more);
@@ -1589,6 +1766,7 @@ function default_pop_save_block(){
     $is_booking = (int) Input::post('is_booking', 0);
     $start_booking = Input::post('start_booking', "");
     $end_booking = Input::post('end_booking', "");
+    $status_contract = Input::post('status_contract', []);
     $start_booking = (!empty($is_booking) && !empty($start_booking)) ? strtotime($start_booking) : "";
     $end_booking = (!empty($is_booking) && !empty($end_booking)) ? strtotime($end_booking) : "";
 
@@ -1615,6 +1793,7 @@ function default_pop_save_block(){
         $more_information['project_manager'] = $project_manager;
         $more_information['project_admins'] = $project_admins;
         $more_information['info_more'] = $info_more;
+        $more_information['status_contract'] = $status_contract;
         $more_information['project_admins_slash'] = $clsISO->makeSlashListFromArrayRoot($project_admins);
         // $more_information['construction_type'] = $construction_type;
         // $more_information['construction_style'] = $construction_style;
@@ -1671,6 +1850,7 @@ function default_pop_save_block(){
         $more_information['project_manager'] = $project_manager;
         $more_information['project_admins'] = $project_admins;
         $more_information['info_more'] = $info_more;
+        $more_information['status_contract'] = $status_contract;
         $more_information['project_admins_slash'] = $clsISO->makeSlashListFromArrayRoot($project_admins);
         // $more_information['construction_type'] = $construction_type;
         // $more_information['construction_style'] = $construction_style;
@@ -2023,9 +2203,9 @@ function default_progress_add_link(){
     } else if($clsISO->checkContainer($link, 'drive.google.com', '')){
         $id = $clsISO->getGoogleId($link);
         if(!empty($id)){
-			$clsGoogleUpload = new GoogleUpload();
+            $clsGoogleUpload = new GoogleUpload();
 			$file_type = $clsGoogleUpload->getFileType($id);
-			$isVid = ($file_type != "" && str_contains($file_type, "video")) ? true : false;
+			$isVid = ($file_type != "" && $file_type == "video/mp4") ? true : false;
             //$isVid = $clsISO->checkContainer($link, '/preview', '') ? true : false;
             $item = array('source'=>'drive','type'=>($isVid?'video':'image'),'ref'=>$id,
                 'url'=> $isVid ? sprintf('https://drive.google.com/file/d/%s/preview',$id) : sprintf('https://drive.google.com/file/d/%s/view',$id),
@@ -4570,6 +4750,7 @@ function default_saveUtilities(){
                 'user_id'	=> $core->_USER['user_id'],
                 'user_id_update'	=> $core->_USER['user_id'],
                 'image'		=> Input::post('image'),
+                'icon'		=> Input::post('icon'),
             );
             $action_log = "insert";
         }else{
@@ -4581,6 +4762,7 @@ function default_saveUtilities(){
             $utilities[$utilities_id]['upd_date'] = time();
             $utilities[$utilities_id]['user_id_update'] = $core->_USER['user_id'];
             $utilities[$utilities_id]['image'] = Input::post('image');
+            $utilities[$utilities_id]['icon'] = Input::post('icon');
             // Image
             /*if(!empty($_FILES['image']['name'])){
 				$image = array();
@@ -6469,7 +6651,6 @@ function default_pop_save_sop(){
         $more_information['field_type'] = Input::post('field_type');
         $more_information['template_type'] = Input::post('template_type', '_tab');
         $more_information['is_background'] = Input::post('is_background', 0);
-        $dbconn->debug = true;
         if($clsProjectSop->updateOne($sop_id, array(
             'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE)
         ))){
@@ -6477,6 +6658,99 @@ function default_pop_save_sop(){
         }
     }
     // Return
+    echo $msg; die();
+}
+function default_open_data_picker(){
+    global $smarty, $core, $clsISO;
+    $clsProject = new Project();
+    $clsProjectSopItem = new ProjectSopItem();
+    $sop_id = (int) Input::post('sop_id', 0);
+    $project_id = (int) Input::post('project_id', 0);
+    // Danh sách tiện ích của dự án (cột utilities)
+    $utilities = $clsISO->to_array_json($clsProject->getOneField('utilities', $project_id));
+    // Pre-check theo TIÊU ĐỀ: tiện ích được tick nếu sop đã có item cùng tiêu đề
+    $existing_titles = array();
+    $items = $clsProjectSopItem->getAll("`sop_id`='{$sop_id}' AND `is_trash`=0");
+    if(!empty($items)){
+        foreach($items as $it){
+            if(isset($it['title']) && $it['title'] !== '') $existing_titles[$it['title']] = 1;
+        }
+    }
+    $checked = array();
+    if(!empty($utilities) && is_array($utilities)){
+        foreach($utilities as $uid => $u){
+            if(isset($u['title']) && isset($existing_titles[$u['title']])) $checked[$uid] = 1;
+        }
+    }
+    $smarty->assign('sop_id', $sop_id);
+    $smarty->assign('project_id', $project_id);
+    $smarty->assign('utilities', $utilities);
+    $smarty->assign('checked', $checked);
+    $smarty->assign('core', $core);
+    $html = $core->build('_ajax.data_picker.tpl');
+    echo $html; die();
+}
+function default_save_data_items(){
+    global $core, $clsISO;
+    $user_id = $core->_USER['user_id'];
+    $clsProject = new Project();
+    $clsProjectSopItem = new ProjectSopItem();
+    $sop_id = (int) Input::post('sop_id', 0);
+    $project_id = (int) Input::post('project_id', 0);
+    $utilities_ids = Input::post('utilities_ids', array());
+    $msg = '_error';
+    if($sop_id > 0){
+        $utilities = $clsISO->to_array_json($clsProject->getOneField('utilities', $project_id));
+        // Tập tiêu đề thuộc danh sách tiện ích (để nhận diện item cũ cần xoá)
+        $util_titles = array();
+        if(!empty($utilities) && is_array($utilities)){
+            foreach($utilities as $u){
+                if(isset($u['title']) && $u['title'] !== '') $util_titles[$u['title']] = 1;
+            }
+        }
+        // Chỉ xoá item cũ THUỘC danh sách tiện ích (match theo tiêu đề), giữ nguyên item khác
+        $old_items = $clsProjectSopItem->getAll("`sop_id`='{$sop_id}'");
+        if(!empty($old_items)){
+            foreach($old_items as $it){
+                if(isset($util_titles[$it['title']])){
+                    $clsProjectSopItem->deleteOne($it[$clsProjectSopItem->pkey]);
+                }
+            }
+        }
+        if(!empty($utilities_ids) && is_array($utilities_ids)){
+            $item_id = $clsProjectSopItem->getMaxId();
+            $order_no = $clsProjectSopItem->getMaxOrderNo();
+            foreach($utilities_ids as $uid){
+                if(!isset($utilities[$uid])) continue;
+                $u = $utilities[$uid];
+                $title = isset($u['title']) ? $u['title'] : '';
+                $icon = isset($u['icon']) ? trim($u['icon']) : '';
+                $image = isset($u['image']) ? $u['image'] : '';
+                $use_icon = ($icon !== '') ? 1 : 0;
+                $more_information = array(
+                    'title' => $title,
+                    'content' => isset($u['content']) ? $u['content'] : '',
+                    'image' => $use_icon ? $icon : $image,
+                    'position' => 'left',
+                    'is_icon' => $use_icon,
+                    'data_source' => 'utilities',
+                    'data_key' => $uid,
+                );
+                $clsProjectSopItem->insert(array(
+                    $clsProjectSopItem->pkey => $item_id,
+                    'sop_id' => $sop_id,
+                    'order_no' => $order_no,
+                    'title' => $title,
+                    'more_information' => json_encode($more_information, JSON_UNESCAPED_UNICODE),
+                    'is_trash' => 0,
+                    'user_id' => $user_id,
+                ));
+                $item_id++;
+                $order_no++;
+            }
+        }
+        $msg = '_success';
+    }
     echo $msg; die();
 }
 function default_move_sop(){
@@ -6548,15 +6822,21 @@ function default_open_sop_item(){
     }
     $oneItem = $clsProjectSopItem->getOne($sop_item_id);
     $oneSop = $clsProjectSop->getOne($sop_id);
-    $more_information = $oneSop['more_information'];
-    $more_information = $clsISO->to_array_json($more_information);
+	if(!empty($oneItem)) {
+		$more_information = $clsISO->to_array_json($oneItem["more_information"]);
+	}else{
+    	$more_information = $oneSop['more_information'];	
+    	$more_information = $clsISO->to_array_json($more_information);	
+	}	
+	$sop_more_information = $clsISO->to_array_json($oneSop['more_information']);
     #
+	$more_information["content"] = preg_replace('/<!--(.*?)-->/s', '', $more_information["content"]);
     $smarty->assign('sop_id', $sop_id);
     $smarty->assign('project_id', $project_id);
     $smarty->assign('sop_item_id', $sop_item_id);
     $smarty->assign('oneItem', $oneItem);
     $smarty->assign('more_information', $more_information);
-    $smarty->assign('sop_info', $more_information);
+    $smarty->assign('sop_info', $sop_more_information);
     $smarty->assign('oneSop', $oneSop);
     $smarty->assign('titlePage', $titlePage);
     // Return
@@ -6657,7 +6937,7 @@ function default_load_sop_items(){
 				</td>
 				<td>'.$sopItem['title'].'</td>
 				<td class="text-center">
-					<div class="btn-group btn-group-xs">'.$editAction.$deleteAction.'</div>
+					<div class="btn-group btn-group-xs d-flex">'.$editAction.$deleteAction.'</div>
 				</td>
 			</tr>';
             ++$ii;
