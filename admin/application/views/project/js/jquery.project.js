@@ -1545,6 +1545,54 @@ $Core.project = {
 			$(_this).closest('tr').remove();
 		});
 		return false;
+	}, open_import_template_excel : (_this, e) => {
+		e.preventDefault();
+		var toId = $(_this).attr('toId'),
+			_file = $('#file_import_template_'+toId);
+		// Reset trước khi mở để chọn lại đúng file vừa chọn vẫn bắn được sự kiện change
+		_file.val('').trigger('click');
+		return false;
+	}, start_import_template_excel : (_this, e) => {
+		var _file = $(_this),
+			toId = _file.attr('toId'),
+			building_id = _file.attr('building_id'),
+			key = $(".nav-item_tab_floor.active").attr('key');
+		if(!_this.files || !_this.files.length) return false;
+		var formData = new FormData();
+		formData.append('fileimport', _this.files[0]);
+		formData.append('toId', toId);
+		formData.append('key', key);
+		formData.append('building_id', building_id);
+		$Core.alert.confirm("Xác nhận import", "Toàn bộ dòng đang có ở tab này sẽ bị thay bằng dữ liệu trong file excel. Tiếp tục?", function(){
+			vietiso_loading(1);
+			$.ajax({
+				type: 'POST',
+				url: path_ajax_script+'/index.php?mod=project&act=import_template_excel',
+				data: formData,
+				dataType: 'json',
+				processData: false,
+				contentType: false,
+				success: function(respJson){
+					vietiso_loading(0);
+					_file.val('');
+					if(respJson.status != 1){
+						$Core.alert.error(respJson.msg);
+						return false;
+					}
+					$("#tab_"+key).find("tbody").html(respJson.html);
+					$Core.alert.success(respJson.msg);
+					if(respJson.warning){
+						$Core.alert.error(respJson.warning);
+					}
+				},
+				error: function(){
+					vietiso_loading(0);
+					_file.val('');
+					$Core.alert.error('Lỗi! Không import được file excel.');
+				}
+			});
+		});
+		return false;
 	}, handle_floor_type_changed : (_this, e) => {
 		var _value = $(_this).val(),
 			_tr = $(_this).closest('tr.tr_floor_range_config');

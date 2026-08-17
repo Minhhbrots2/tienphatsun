@@ -654,6 +654,12 @@
 
 							<button type="button" class="btn btn-default mr-2" toId="{$toId}" onClick="add_template_line(this, event)" building_id="{$building_id}" project_id="{$project_id}">{$core->makeIcon('plus-circle','Thêm dòng')}</button>
 
+							<button type="button" class="btn btn-default" toId="{$toId}" building_id="{$building_id}" onClick="$Core.project.open_import_template_excel(this, event)" title="Nạp danh sách căn từ file excel vào tab đang mở">{$core->makeIcon('upload','Import Excel')}</button>
+
+							<input type="file" id="file_import_template_{$toId}" class="d-none" toId="{$toId}" building_id="{$building_id}" accept=".xls,.xlsx" onChange="$Core.project.start_import_template_excel(this, event)" />
+
+							<a href="{$url_template_excel}" class="mr-2 ml-2 text-nowrap small" target="_blank" title="Tải file excel mẫu về để điền dữ liệu">{$core->makeIcon('download','Tải file mẫu')}</a>
+
 							<button type="button" block_id="{$block_id}" toId="{$toId}" building_id="{$building_id}" class="btn btn-default mr-2" onClick="$Core.project.open_copyfrom_building(this, event)" project_id="{$project_id}">{$core->makeIcon('clipboard','Copy từ tòa khác')}</button>
 
 							<button type="button" block_id="{$block_id}" toId="{$toId}" class="btn btn-default mr-2 d-none" onClick="open_copypaste_excel(this, event)" project_id="{$project_id}">{$core->makeIcon('clipboard','Copy/Paste')}</button>

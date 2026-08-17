@@ -2441,6 +2441,7 @@ function default_open_building(){
     $smarty->assign('floor_level_configs', $floor_level_configs);
     $smarty->assign('more_information', $more_information);
     $smarty->assign('titlePgae', $titlePgae);
+    $smarty->assign('url_template_excel', DOMAIN_URL.'/templates/MAU_THUOC_TINH_CAN_HO.xlsx');
     // Return
     $smarty->assign('core', $core);
     $html = $core->build('_ajax.building.tpl');
@@ -4432,6 +4433,255 @@ function default_add_template_line(){
     }
     // Return
     echo $html; die();
+}
+/* ===== Import excel cho tab [Mẫu thuộc tính căn hộ] =====
+   Cột được nhận diện theo tiêu đề ở dòng 1 nên file không cần đúng thứ tự cột.
+   Text ở Số PN/Hướng BC/View phải quy đổi về property_id thì select mới chọn đúng dòng. */
+function project_import_normalize_text($value){
+    $value = trim((string) $value);
+    if($value === '') return '';
+    $accents = array(
+        'a' => 'àáạảãâầấậẩẫăằắặẳẵ',
+        'e' => 'èéẹẻẽêềếệểễ',
+        'i' => 'ìíịỉĩ',
+        'o' => 'òóọỏõôồốộổỗơờớợởỡ',
+        'u' => 'ùúụủũưừứựửữ',
+        'y' => 'ỳýỵỷỹ',
+        'd' => 'đ'
+    );
+    $value = mb_strtolower($value, 'UTF-8');
+    foreach($accents as $plain => $group){
+        $chars = preg_split('//u', $group, -1, PREG_SPLIT_NO_EMPTY);
+        $value = str_replace($chars, $plain, $value);
+    }
+    // Bỏ hết ký tự trang trí (khoảng trắng, gạch, dấu chấm, "(m2)"...) cho việc so khớp
+    return preg_replace('/[^a-z0-9]/', '', $value);
+}
+/* Lập bảng tra [tên thuộc tính đã chuẩn hoá] => property_id */
+function project_import_map_property($list_props, $pkey){
+    $map = array();
+    if(empty($list_props)) return $map;
+    foreach($list_props as $one_prop){
+        $norm = project_import_normalize_text($one_prop['title']);
+        if($norm === '') continue;
+        if(isset($map[$norm])) continue;
+        $map[$norm] = $one_prop[$pkey];
+    }
+    return $map;
+}
+/* Trả về property_id khớp với ô excel, 0 nếu không tìm thấy */
+function project_import_match_property($value, $map){
+    $norm = project_import_normalize_text($value);
+    if($norm === '') return 0;
+    if(isset($map[$norm])) return (int) $map[$norm];
+    // Cho phép người dùng điền thẳng ID thay vì tên
+    if(ctype_digit($norm) && in_array((int) $norm, $map)) return (int) $norm;
+    return 0;
+}
+/* Chuẩn hoá ô diện tích: bỏ đơn vị, chấp nhận dấu phẩy thập phân */
+function project_import_number($value){
+    $value = str_ireplace(array('m2', 'm²'), '', (string) $value);
+    $value = str_replace(array(' ', ','), array('', '.'), trim($value));
+    if($value === '' || !is_numeric($value)) return '';
+    return (string) round((float) $value, 2);
+}
+function default_import_template_excel(){
+    global $core;
+    $clsProperty = new Property();
+    $toId = preg_replace('/[^a-zA-Z0-9_]/', '', Input::post('toId', ''));
+    $key = preg_replace('/[^a-zA-Z0-9_]/', '', Input::post('key', 'general'));
+    $building_id = (int) Input::post('building_id', 0);
+    if($key === '') $key = 'general';
+    ###
+    $fileimport = isset($_FILES['fileimport']) ? $_FILES['fileimport'] : array();
+    if(empty($fileimport['tmp_name']) || !@is_uploaded_file($fileimport['tmp_name'])){
+        echo json_encode(array('status' => 0, 'msg' => 'Lỗi! Chưa chọn được file excel.'));
+        die();
+    }
+    $file_ext = strtolower(pathinfo($fileimport['name'], PATHINFO_EXTENSION));
+    if(!in_array($file_ext, array('xls', 'xlsx'))){
+        echo json_encode(array('status' => 0, 'msg' => 'Lỗi! Chỉ hỗ trợ file .xls hoặc .xlsx.'));
+        die();
+    }
+    $target_file = PCMS_DIR.'/tmp/import_template_'.time().'_'.mt_rand(1000, 9999).'.'.$file_ext;
+    if(!@move_uploaded_file($fileimport['tmp_name'], $target_file)){
+        echo json_encode(array('status' => 0, 'msg' => 'Lỗi! Không lưu được file tải lên.'));
+        die();
+    }
+    ###
+    require_once DIR_INCLUDES.'/PhpSpreadsheet/autoload.php';
+    $rows = array();
+    $error = '';
+    try {
+        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($target_file);
+        $reader->setReadDataOnly(true);
+        $spreadsheet = $reader->load($target_file);
+        $rows = $spreadsheet->getSheet(0)->toArray(null, true, false, false);
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
+    } catch(\Throwable $e){
+        $error = $e->getMessage();
+    }
+    @unlink($target_file);
+    if($error !== ''){
+        echo json_encode(array('status' => 0, 'msg' => 'Lỗi! Không đọc được file excel: '.$error), JSON_UNESCAPED_UNICODE);
+        die();
+    }
+    if(count($rows) < 2){
+        echo json_encode(array('status' => 0, 'msg' => 'Lỗi! File excel không có dòng dữ liệu nào.'), JSON_UNESCAPED_UNICODE);
+        die();
+    }
+    ###
+    $column_alias = array(
+        'canso' => 'code', 'macan' => 'code', 'sohieucan' => 'code',
+        'symbol' => 'symbol', 'kyhieu' => 'symbol',
+        'sopn' => 'bedroom_id', 'sophongngu' => 'bedroom_id', 'loaican' => 'bedroom_id',
+        'huongbc' => 'home_direction_id', 'huongbancong' => 'home_direction_id', 'huong' => 'home_direction_id',
+        'dttt' => 'DT_TT', 'dtttm2' => 'DT_TT', 'dientichthongthuy' => 'DT_TT',
+        'dttim' => 'DT_Tim', 'dttimm2' => 'DT_Tim', 'dientichtimtuong' => 'DT_Tim',
+        'view' => 'view_id',
+        'layout' => 'layout',
+        'layoutchitiet' => 'layout_ns',
+        'video' => 'video'
+    );
+    $header = array_shift($rows);
+    $map_column = array();
+    foreach($header as $index => $title){
+        $norm = project_import_normalize_text($title);
+        if(!isset($column_alias[$norm])) continue;
+        $map_column[$column_alias[$norm]] = $index;
+    }
+    if(!isset($map_column['code'])){
+        echo json_encode(array(
+            'status' => 0,
+            'msg' => 'Lỗi! Dòng 1 của file phải là tiêu đề cột (Căn số, Symbol, Số PN, Hướng BC...). Tải file mẫu để đối chiếu.'
+        ), JSON_UNESCAPED_UNICODE);
+        die();
+    }
+    ###
+    $field = "{$clsProperty->pkey},title";
+    $arrViews = $clsProperty->getAll("property_type='_VIEW' order by order_no ASC", $field);
+    $arrBedRooms = $clsProperty->getAll("property_type='_BEDROOM' order by order_no ASC", $field);
+    $arrDirections = $clsProperty->getAll("property_type='_DIRECTION' order by order_no ASC", $field);
+    $map_bedroom = project_import_map_property($arrBedRooms, $clsProperty->pkey);
+    $map_direction = project_import_map_property($arrDirections, $clsProperty->pkey);
+    $map_view = project_import_map_property($arrViews, $clsProperty->pkey);
+    ###
+    $max_rows = 2000;
+    $max_warnings = 10;
+    $html = '';
+    $i = 0;
+    $unmatched = array();
+    foreach($rows as $row){
+        if($i >= $max_rows) break;
+        $one = array();
+        foreach($map_column as $field_name => $index){
+            $one[$field_name] = isset($row[$index]) ? trim((string) $row[$index]) : '';
+        }
+        // Bỏ qua dòng trống (excel hay thừa dòng rỗng ở cuối sheet)
+        if(implode('', $one) === '') continue;
+        ###
+        $bedroom_id = project_import_match_property($one['bedroom_id'], $map_bedroom);
+        $home_direction_id = project_import_match_property($one['home_direction_id'], $map_direction);
+        $view_id = project_import_match_property($one['view_id'], $map_view);
+        if($bedroom_id == 0 && $one['bedroom_id'] !== '') $unmatched['Số PN: "'.$one['bedroom_id'].'"'] = 1;
+        if($home_direction_id == 0 && $one['home_direction_id'] !== '') $unmatched['Hướng BC: "'.$one['home_direction_id'].'"'] = 1;
+        if($view_id == 0 && $one['view_id'] !== '') $unmatched['View: "'.$one['view_id'].'"'] = 1;
+        ###
+        $code = htmlspecialchars($one['code'], ENT_QUOTES, 'UTF-8');
+        $symbol = htmlspecialchars($one['symbol'], ENT_QUOTES, 'UTF-8');
+        $DT_TT = project_import_number($one['DT_TT']);
+        $DT_Tim = project_import_number($one['DT_Tim']);
+        $layout = htmlspecialchars($one['layout'], ENT_QUOTES, 'UTF-8');
+        $layout_ns = htmlspecialchars($one['layout_ns'], ENT_QUOTES, 'UTF-8');
+        $video = htmlspecialchars($one['video'], ENT_QUOTES, 'UTF-8');
+        ###
+        $name_prefix = ($key == 'general') ? 'template['.$i.']' : 'template_specical['.$key.']['.$i.']';
+        $uid_field = ($key == 'general') ? $i.'_'.$toId : $key.'_'.$i.'_'.$toId;
+        $html .= '<tr class="tr_template_'.$building_id.'">
+			<td class="text-left">
+				<input type="text" name="'.$name_prefix.'[code]" class="form-control" value="'.$code.'" />
+			</td>
+			<td class="text-left">
+				<input type="text" name="'.$name_prefix.'[symbol]" class="form-control" value="'.$symbol.'" />
+			</td>
+			<td class="text-left">
+				<select class="form-control" name="'.$name_prefix.'[bedroom_id]">
+					'.$clsProperty->getSelectOptimizeProperty('_BEDROOM', $bedroom_id, $arrBedRooms).'
+				</select>
+			</td>
+			<td class="text-left">
+				<select class="form-control" name="'.$name_prefix.'[home_direction_id]">
+					'.$clsProperty->getSelectOptimizeProperty('_DIRECTION', $home_direction_id, $arrDirections).'
+				</select>
+			</td>
+			<td class="text-left">
+				<div class="input-group-suffix">
+					<input type="text" name="'.$name_prefix.'[DT_TT]" class="form-control w-100px" value="'.$DT_TT.'" />
+					<span class="suffix">m2</span>
+				</div>
+			</td>
+			<td class="text-left">
+				<div class="input-group-suffix">
+					<input type="text" name="'.$name_prefix.'[DT_Tim]" class="form-control w-100px" value="'.$DT_Tim.'" />
+					<span class="suffix">m2</span>
+				</div>
+			</td>
+			<td class="text-left">
+				<select class="form-control" name="'.$name_prefix.'[view_id]">
+					'.$clsProperty->getSelectOptimizeProperty('_VIEW', $view_id, $arrViews).'
+				</select>
+			</td>
+			<td width="15%">
+				<div class="input-group">
+					<input type="text" id="layout_'.$uid_field.'" name="'.$name_prefix.'[layout]" class="form-control"
+						value="'.$layout.'" placeholder="URL Layout" />
+					<div class="input-group-btn">
+						<button type="button" onClick="$Core.project.select_image(this, event)" gId="layout_'.$uid_field.'"
+							toId="'.$toId.'" class="btn btn-default">'.$core->makeIcon('upload','&nbsp;').'</button>
+					</div>
+				</div>
+			</td>
+			<td width="15%">
+				<div class="input-group">
+					<input type="text" id="layout_ns_'.$uid_field.'" name="'.$name_prefix.'[layout_ns]" class="form-control"
+						value="'.$layout_ns.'" placeholder="URL Layout" />
+					<div class="input-group-btn">
+						<button type="button" onClick="$Core.project.select_image(this, event)" gId="layout_ns_'.$uid_field.'"
+							toId="'.$toId.'" class="btn btn-default">'.$core->makeIcon('upload','&nbsp;').'</button>
+					</div>
+				</div>
+			</td>
+			<td width="15%">
+				<input type="text" name="'.$name_prefix.'[video]" class="form-control" value="'.$video.'"
+					maxlength="255" placeholder="URL Youtube" />
+			</td>
+			<td class="text-center">
+				<button type="button" class="btn btn-icon btn-default" onClick="$Core.project.delete_template_line(this, event)">
+					<i class="fa fa-trash"></i></button>
+			</td>
+		</tr>';
+        ++$i;
+    }
+    if($i == 0){
+        echo json_encode(array('status' => 0, 'msg' => 'Lỗi! File excel không có dòng dữ liệu nào.'), JSON_UNESCAPED_UNICODE);
+        die();
+    }
+    ###
+    $warning = '';
+    if(!empty($unmatched)){
+        $list_unmatched = array_slice(array_keys($unmatched), 0, $max_warnings);
+        $warning = 'Chưa khớp được: '.implode('; ', $list_unmatched).'. Vui lòng chọn lại thủ công.';
+    }
+    // Return
+    echo json_encode(array(
+        'status' => 1,
+        'total' => $i,
+        'msg' => 'Đã nạp '.$i.' căn từ file excel. Bấm [Cập nhật] để lưu lại.',
+        'warning' => $warning,
+        'html' => $html
+    ), JSON_UNESCAPED_UNICODE);
+    die();
 }
 /* ===== Ảnh căn hộ theo LOẠI CĂN (_BEDROOM) × TYPE (vd "Type 5") cho Tòa/Phân khu: Bóc mái + Nội thất =====
    Ưu tiên Tòa → fallback Phân khu (ApartmentMedia::getEffective). Tái dùng component media Tiến độ (.pm-*). */
