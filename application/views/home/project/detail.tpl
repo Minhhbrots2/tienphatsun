@@ -262,8 +262,8 @@
 										{/foreach}
 									</ul>
 								</div>
-							{else}
-								{$core->getBlock('project_map', ['more_information' => $more_information])}
+							{elseif $more_information.is_tiles eq '1'}
+ 								{$core->getBlock('project_map', ['more_information' => $more_information])}
 							{/if}
 							<div class="img-container zoom-wrapper relative rounded-1 overflow-hidden">
 								<div id="panzoom-container" class="d-block panzoom-container">

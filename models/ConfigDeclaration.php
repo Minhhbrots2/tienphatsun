@@ -647,6 +647,15 @@ class ConfigDeclaration {
 						'placeholder' => 'Chọn văn phòng',
 						'source'      => 'office',
 						'help'        => 'Văn phòng mặc định của hệ thống. Danh sách khai ở Danh mục → Văn phòng.'
+					),
+					'agency' => array(
+						'type'        => 'select2',
+						'label'       => 'Đại lý',
+						'placeholder' => 'Chọn đại lý',
+						'multiple'    => true,
+						'json'        => true,
+						'source'      => 'agency',
+						'help'        => 'Đại lý mặc định của hệ thống. Danh sách khai ở Danh mục → Đại lý.'
 					)
 				)
 			),

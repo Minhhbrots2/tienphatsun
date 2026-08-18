@@ -894,7 +894,8 @@ function config_general_sources(){
 		'app_template'  => array(),
 		'role'          => array(),
 		'department'    => array(),
-		'office'        => array()
+		'office'        => array(),
+		'agency'        => array()
 	);
 	$clsProfile = new Profile();
 	$field = "{$clsProfile->pkey},full_name,role_id,status_id";
@@ -938,6 +939,12 @@ function config_general_sources(){
 	if(!empty($list_departments)){
 		foreach($list_departments as $_oDepartment){
 			$sources['department'][$_oDepartment['property_id']] = $_oDepartment['title'];
+		}
+	}
+	$list_agencies = $clsProperty->getCacheItems('_AGENCY');
+	if(!empty($list_agencies)){
+		foreach($list_agencies as $_oAgency){
+			$sources['agency'][$_oAgency['property_id']] = $_oAgency['title'];
 		}
 	}
 	/** Danh sách giao diện do tầng khác nạp; không có thì nhóm Giao diện tự ẩn */
