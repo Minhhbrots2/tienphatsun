@@ -1,6 +1,6 @@
 <div class="container-sm flex-grow-1 container-p-y pt-2">	
 	<div class="form-row">
-		<div class="col-xxl-12 mx-auto">
+		<div class="col-xxl-10 mx-auto">
 			<div class="d-flex align-items-center justify-content-between mb-3">
 				<h4 class="fw-bold mb-0 fs-20">Danh sách dự án</h4>
 				<div class="dropdown">
@@ -61,45 +61,60 @@
 			{if !empty($lstArea)}
 				{foreach from=$lstArea item=_oItem key=key name=i}
 					{if !empty($arr_project_area[$_oItem.setting_id])}
+						{assign var=_areaId value=$_oItem.setting_id}
 						<div class="divider my-2">
 							<div class="divider-text text-upper fs-2 fw-semibold text-main">
-								{$_oItem.title} <span class="fs-16">({$arr_project_area[$_oItem.setting_id]|@count} dự án)</span>
+								{$_oItem.title} <span class="fs-16">({$arr_project_area[$_areaId]|@count} dự án)</span>
 							</div>
 						</div>
-						<div class="form-row">
-							{foreach from = $arr_project_area[$_oItem.setting_id] item = _oProject}
-							<div class="col-12 col-lg-4 col-xl-4 col-xxxl-3 mb-2">
-								<div class="card project-card h-100 no-shadow">
-									<a class="d-block" href="{$clsProject->getLinkDetail($_oProject.project_id,0,0,'overview',$_oProject)}" title="{$_oProject.title}">
-										<div class="position-relative text-white">
-											<span class="position-absolute top-px-20 right-px-20 bg-success rounded-pill py-1 px-3 fs-12">Đang mở bán</span>
-											<img decoding="async" class="card-img-top img-project img-fluid"  onerror="this.src='{$URL_IMAGES}/no-image.png'" src="{$clsISO->resize_image_url($_oProject.image, 400, 300)}" loading="lazy">
-										</div>
-										<div class="card-body">
-											<div class="d-flex align-items-center justify-content-between gap-2">
-												<div class="awe__project-info">
-													<h4 class="card-title mb-2" title="{$_oProject.title}" >
-														<span class="text-dark text-fs-22 fw-semibold limit_1line">{$_oProject.title}</span>
-													</h4>
-													<p class="text-dark mb-1 text-fs-13 limit_2line" title="{$_oProject.address}" >
-														<i class='bx bx-map'></i> {$_oProject.address}
-													</p>
-													<div class="mb-1 text-fs-13 text-muted limit_2line" title="{$_oProject.apartment}" >
-														<i class='bx bx-home-alt'></i> Quy mô: {$_oProject.apartment}
-													</div>
-													<div class="text-fs-13 align-items-center text-muted limit_1line" title="{$_oProject.arcreage}" >
-														<i class='bx bx-code'></i> Diện tích: {$_oProject.arcreage}
-													</div>	
-												</div>
-												<div class="awe__project-icon d-none d-lg-block">
-													<img class="img-fluid h-px-50" src="{$clsISO->resize_image_url($_oProject.logo, 0, 50)}"  onerror="this.src='{$URL_IMAGES}/no-image.png'" loading="lazy" />
-												</div>
-											</div>	
-										</div>
-									</a>
+						<div class="js__project-area" data-area="{$_areaId}">
+							{if !empty($arr_area_cities[$_areaId])}
+								<div class="d-flex flex-wrap justify-content-center gap-1 mb-3">
+									<a href="javascript:void(0);" data-city="0"
+										class="btn btn-sm btn-outline-primary active js__project-city-tab"
+										onClick="$Core.project.filter_city(this, event)">Tất cả ({$arr_project_area[$_areaId]|@count})</a>
+									{foreach from=$arr_area_cities[$_areaId] item=_oCity}
+									<a href="javascript:void(0);" data-city="{$_oCity.city_id}"
+										class="btn btn-sm btn-outline-default js__project-city-tab"
+										onClick="$Core.project.filter_city(this, event)">{$_oCity.title} ({$_oCity.total})</a>
+									{/foreach}
 								</div>
+							{/if}
+							<div class="form-row">
+								{foreach from = $arr_project_area[$_areaId] item = _oProject}
+								<div class="col-12 col-lg-4 col-xl-4 col-xxxl-3 mb-2 js__project-card" data-city="{if !empty($_oProject.city_id)}{$_oProject.city_id}{else}0{/if}">
+									<div class="card project-card h-100 no-shadow">
+										<a class="d-block" href="{$clsProject->getLinkDetail($_oProject.project_id,0,0,'overview',$_oProject)}" title="{$_oProject.title}">
+											<div class="position-relative text-white">
+												<span class="position-absolute top-px-20 right-px-20 bg-success rounded-pill py-1 px-3 fs-12">Đang mở bán</span>
+												<img decoding="async" class="card-img-top img-project img-fluid"  onerror="this.src='{$URL_IMAGES}/no-image.png'" src="{$clsISO->resize_image_url($_oProject.image, 400, 300)}" loading="lazy">
+											</div>
+											<div class="card-body">
+												<div class="d-flex align-items-center justify-content-between gap-2">
+													<div class="awe__project-info">
+														<h4 class="card-title mb-2" title="{$_oProject.title}" >
+															<span class="text-dark text-fs-22 fw-semibold limit_1line">{$_oProject.title}</span>
+														</h4>
+														<p class="text-dark mb-1 text-fs-13 limit_2line" title="{$_oProject.address}" >
+															<i class='bx bx-map'></i> {$_oProject.address}
+														</p>
+														<div class="mb-1 text-fs-13 text-muted limit_2line" title="{$_oProject.apartment}" >
+															<i class='bx bx-home-alt'></i> Quy mô: {$_oProject.apartment}
+														</div>
+														<div class="text-fs-13 align-items-center text-muted limit_1line" title="{$_oProject.arcreage}" >
+															<i class='bx bx-code'></i> Diện tích: {$_oProject.arcreage}
+														</div>	
+													</div>
+													<div class="awe__project-icon d-none d-lg-block">
+														<img class="img-fluid h-px-50" src="{$clsISO->resize_image_url($_oProject.logo, 0, 50)}"  onerror="this.src='{$URL_IMAGES}/no-image.png'" loading="lazy" />
+													</div>
+												</div>	
+											</div>
+										</a>
+									</div>
+								</div>
+								{/foreach}
 							</div>
-							{/foreach}
 						</div>
 					{/if}
 				{/foreach}
