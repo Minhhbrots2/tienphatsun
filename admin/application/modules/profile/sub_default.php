@@ -1775,11 +1775,13 @@ function _profile_import_row_empty($row){
 #- Đổi link Google Sheet -> URL export CSV (tách id + gid)
 function _profile_import_csv_url($url){
 	$id = '';
-	$gid = '0';
+	$gid = '';
 	if(preg_match('#/spreadsheets/d/([a-zA-Z0-9_-]+)#', $url, $m)) $id = $m[1];
-	if(preg_match('#[?&#]gid=([0-9]+)#', $url, $m)) $gid = $m[1];
+	if(preg_match('#[?&\#]gid=([0-9]+)#', $url, $m)) $gid = $m[1];
 	if(empty($id)) return '';
-	return 'https://docs.google.com/spreadsheets/d/'.$id.'/export?format=csv&gid='.$gid;
+	$export = 'https://docs.google.com/spreadsheets/d/'.$id.'/export?format=csv';
+	if($gid !== '') $export .= '&gid='.$gid;
+	return $export;
 }
 #- Tải nội dung 1 URL (curl -> fallback file_get_contents)
 function _profile_import_http_get($url, $timeout = 30){

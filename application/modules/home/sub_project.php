@@ -3248,9 +3248,10 @@ function project_detail(){
 							$list_policy_docs[$okey]['more_information'] = $more_information;
 						}
 					}
-				}elseif($show == "project"){		
-					$list_policy_docs = $clsPolicy->getAll("`is_trash`=0 and `block_type` IN (".implode(',',$arr_block_type).") 
-						and `scope_slash` like '%|{$project_id}_%' order by `ms_date` DESC");
+				}elseif($show == "project"){
+					$json_project = sprintf('"project_id":"%s"', $project_id);
+					$list_policy_docs = $clsPolicy->getAll("`is_trash`=0 and `block_type` IN (".implode(',',$arr_block_type).")
+						and (`scope_slash` like '%|{$project_id}!_%' escape '!' or `scope` like '%{$json_project}%') order by `ms_date` DESC");
 					if(!empty($list_policy_docs)){
 						foreach($list_policy_docs as $okey => $oval){
 							$link_ns = $oval['link_ns'];

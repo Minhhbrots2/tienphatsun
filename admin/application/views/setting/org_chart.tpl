@@ -23,15 +23,14 @@
 									<div class="img_node"><img class="avatar m-0" src="{$clsProfile->getAvatar($staff_id,$oneStaff)}" onerror="this.src='{$URL_IMAGES}/no-avatar.svg'"></div>
 									<div class="box_content">
 										<h3 class="txt_name m-0 fs-16 fw-bold">{$clsProfile->getFullname($staff_id,$oneStaff)}</h3>
-										<!--<span class="txt_role fs-11">{$oneRole["title"]}{if !empty({$_oNode["text_name"]})}-{$_oNode["text_name"]}{/if}</span>-->
-										<span class="txt_role fs-11">{if !empty({$_oNode["text_name"]})}{$_oNode["text_name"]}{else}{$oneRole["title"]}{/if}</span>
+										{if !empty($_oNode.text_name)}<span class="txt_role fs-11">{$_oNode.text_name|escape}</span>{/if}
 									</div>
 								</div>
 							{else}
 								<div id="{$_oNode.id}" class="node" data-id="{$_oNode.id}" data-level="{$_oNode.level}" data-parent-id="{$_oNode.parentId}" data-common-parent-ids="{$_oNode.commonParentIds}" data-role_id="{$_oNode.role_id}" data-staff_id="{$_oNode.staff_id}" data-text_name="{$_oNode.text_name}" style="left: {$_oNode.position.left}%; top: {$_oNode.position.top}%;">
 									<div class="img_node"><img class="avatar m-0" src="{$URL_IMAGES}/no-avatar.svg" onerror="this.src='{$URL_IMAGES}/no-avatar.svg'"></div>
 									<div class="box_content">
-										<span class="txt_role fs-11">{$oneRole["title"]}{if !empty({$_oNode["text_name"]})}-{$_oNode["text_name"]}{/if}</span>
+										{if !empty($_oNode.text_name)}<span class="txt_role fs-11">{$_oNode.text_name|escape}</span>{/if}
 									</div>
 								</div>
 							{/if}
