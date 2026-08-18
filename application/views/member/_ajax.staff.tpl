@@ -262,6 +262,8 @@
 								</div>
 							</div>
 						</div>
+						{if $clsISO->_DEV()}
+						{/if}
 						<!-- End -->
 					</div>
 				</div>
@@ -402,7 +404,7 @@
 											{else}
 												--
 											{/if}
-											{if $permiss_edit_full eq '1' && $permis_edit neq 1}<a class="editInlineField" onClick="$Core.member.editInlineField(this,{ldelim}p_field:'department_id', 'p_id':{$_profile_id}{rdelim})" p_field="department_id" p_id="{$_profile_id}">{$clsISO->makeIcon('bx-pencil')}</a>{/if}
+											{if $permiss_edit_full eq '1' || $permiss_edit_full eq '1'}<a class="editInlineField" onClick="$Core.member.editInlineField(this,{ldelim}p_field:'department_id', 'p_id':{$_profile_id}{rdelim})" p_field="department_id" p_id="{$_profile_id}">{$clsISO->makeIcon('bx-pencil')}</a>{/if}
 										</td>
 									</tr>
 									<tr class="trPotentialEdit">
@@ -413,7 +415,7 @@
 											{else}
 												--
 											{/if}
-											{if $permiss_edit_full eq '1' && $permis_edit neq 1}<a class="editInlineField" onClick="$Core.member.editInlineField(this,{ldelim}p_field:'role_id', 'p_id':{$_profile_id}{rdelim})" p_field="role_id" p_id="{$_profile_id}">{$clsISO->makeIcon('bx-pencil')}</a>{/if}
+											{if $permiss_edit_full eq '1' || $permiss_edit_full eq '1'}<a class="editInlineField" onClick="$Core.member.editInlineField(this,{ldelim}p_field:'role_id', 'p_id':{$_profile_id}{rdelim})" p_field="role_id" p_id="{$_profile_id}">{$clsISO->makeIcon('bx-pencil')}</a>{/if}
 										</td>
 									</tr>
 									<tr class="trPotentialEdit">

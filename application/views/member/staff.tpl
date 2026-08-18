@@ -219,9 +219,6 @@
 						<th class="algin-center h-px-35 bg-lighter text-center">Login</th>
 						{/if}
 						<th class="algin-center h-px-35 bg-lighter text-left">Ngày tạo</th>
-						{if $clsISO->_DEV()}
-						<th class="algin-center h-px-35 bg-lighter text-left">Version</th>
-						{/if}
 						<th class="algin-center h-px-35 bg-lighter text-left w-px-50"></th>
 					</tr></thead>
 					<tbody class="table-border-bottom-0">
@@ -301,14 +298,6 @@
 								<i class="material-icons-outlined">more_time</i>
 								{$clsISO->convertTimeToText($list_staffs[i].reg_date, true)}
 							</td>
-							{if $clsISO->_DEV()}
-							<td class="text-center">
-								<label class="switch">
-									<input type="checkbox"{if $_more_information.is_active_new_version eq '1'} checked="checked"{/if} onChange="$Core.member.active_new_version(this, event)" profile_id="{$_profile_id}" value="1">
-									<span class="slider round"></span>
-								</label>
-							</td>
-							{/if}
 							<td class="text-center w-px-50">
 								<a class="btn d-flex align-items-center justify-content-center btn-outline-default btn-icon btn-sm" 
 									onClick="$Core.member.view_profile(this, event)" profile_id="{$_profile_id}" href="javascript:void(0);">
