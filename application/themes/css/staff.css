@@ -1,0 +1,516 @@
+/* ============================================================
+   Man danh sach nhan vien (/staff.html) - giao dien moi.
+   Tone thuong hieu #BF171D. File rieng de khong dung cham
+   crm.css / style.css. Moi class prefix .stf- va scope duoi
+   .stf-page nen khong anh huong man khac.
+   ============================================================ */
+.stf-page {
+	--stf-brand: var(--main-color);
+	--stf-brand-700: var(--rank-1);
+	--stf-brand-tint: rgba(191, 23, 29, .08);
+	--stf-brand-tint-2: rgba(191, 23, 29, .14);
+	--stf-card: #ffffff;
+	--stf-bg: #f5f6f8;
+	--stf-ink: #23272f;
+	--stf-muted: #6c727f;
+	--stf-muted-2: #9aa0ab;
+	--stf-border: #e6e8ec;
+	--stf-border-2: #f0f1f4;
+	--stf-good: #1a8a4f;
+	--stf-good-tint: rgba(26, 138, 79, .10);
+	--stf-off: #6c727f;
+	--stf-off-tint: rgba(108, 114, 127, .12);
+	--stf-radius: 12px;
+	--stf-radius-sm: 9px;
+	--stf-shadow: 0 1px 3px rgba(16, 24, 40, .07), 0 1px 2px rgba(16, 24, 40, .04);
+}
+
+/* ---------- nut dung chung trong man ---------- */
+.stf-page .stf-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	padding: 8px 15px;
+	border: 1px solid var(--stf-border);
+	border-radius: var(--stf-radius-sm);
+	background: var(--stf-card);
+	color: var(--stf-ink);
+	font-weight: 600;
+	white-space: nowrap;
+	transition: all .15s;
+}
+.stf-page .stf-btn:hover {
+	border-color: var(--stf-brand) !important;
+	color: var(--stf-brand);
+	background: var(--stf-card);
+}
+.stf-page .stf-btn--brand {
+	background: var(--stf-brand);
+	border-color: var(--stf-brand);
+	color: #fff;
+	box-shadow: 0 2px 6px rgba(191, 23, 29, .25);
+    height: 36px;
+}
+.stf-page .stf-btn--brand:hover {
+	background: var(--stf-brand-700);
+	border-color: var(--stf-brand-700);
+	color: #fff;
+}
+.stf-page .stf-btn--icon { padding: 8px 10px; }
+.stf-page .stf-btn--ghost {
+	border-color: transparent;
+	background: transparent;
+	color: var(--stf-muted);
+	padding: 5px 8px;
+}
+.stf-page .stf-btn--ghost:hover {
+	background: var(--stf-brand-tint);
+	color: var(--stf-brand);
+	border-color: transparent;
+}
+.stf-page .stf-btn--ghost[disabled] { opacity: .45; pointer-events: none; }
+
+/* ---------- header ---------- */
+.stf-head {
+	display: flex;
+	align-items: flex-end;
+	gap: 16px;
+	flex-wrap: wrap;
+	margin-bottom: 16px;
+}
+.stf-head__titles { flex: 1 1 auto; min-width: 0; }
+.stf-head__title {
+	margin: 0 0 4px;
+	font-size: 21px;
+	font-weight: 800;
+	letter-spacing: -.01em;
+	color: var(--stf-ink);
+}
+.stf-head__sub { margin: 0; color: var(--stf-muted); }
+.stf-head__actions {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+}
+
+/* ---------- KPI stat tiles: 1 accent thong nhat, so dung muc chu ---------- */
+.stf-stats {
+	display: grid;
+	grid-template-columns: repeat(6, minmax(0, 1fr));
+	gap: 12px;
+	margin-bottom: 14px;
+}
+.stf-stat {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 13px 15px;
+	background: var(--stf-card);
+	border: 1px solid var(--stf-border);
+	border-radius: var(--stf-radius);
+	box-shadow: var(--stf-shadow);
+}
+.stf-stat__icon {
+	flex: 0 0 auto;
+	width: 40px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 10px;
+	background: var(--stf-brand-tint);
+	color: var(--stf-brand);
+	font-size: 20px;
+}
+.stf-stat__label {
+	margin: 0 0 2px;
+	color: var(--stf-muted);
+	font-size: 12px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+.stf-stat__value {
+	margin: 0;
+	font-size: 20px;
+	font-weight: 800;
+	letter-spacing: -.01em;
+	line-height: 1.1;
+	color: var(--stf-ink);
+}
+
+/* ---------- toolbar loc ---------- */
+.stf-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	padding: 12px 14px;
+	background: var(--stf-card);
+	border: 1px solid var(--stf-border);
+	border-radius: var(--stf-radius) var(--stf-radius) 0 0;
+	border-bottom: 0;
+}
+.stf-toolbar__search { position: relative; flex: 1 1 240px; max-width: 340px; }
+.stf-toolbar__search > i {
+	position: absolute;
+	left: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: var(--stf-muted-2);
+	font-size: 16px;
+	pointer-events: none;
+	z-index: 1;
+}
+.stf-toolbar__search .form-control { width: 100%; padding-left: 35px; }
+.stf-toolbar__spacer { flex: 1 1 auto; }
+.stf-toolbar__dept { min-width: 200px; }
+
+/* chip trang thai */
+.stf-seg {
+	display: inline-flex;
+	padding: 3px;
+	gap: 3px;
+	background: var(--stf-bg);
+	border: 1px solid var(--stf-border);
+	border-radius: 999px;
+}
+.stf-seg button {
+	border: 0;
+	background: transparent;
+	padding: 6px 14px;
+	border-radius: 999px;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--stf-muted);
+	cursor: pointer;
+	white-space: nowrap;
+	transition: all .15s;
+}
+.stf-seg button.on {
+	background: var(--stf-card);
+	color: var(--stf-brand);
+	box-shadow: var(--stf-shadow);
+}
+
+/* ---------- panel loc nang cao (hieu ung slide down) ----------
+   display:none va height:auto khong animate duoc - dung max-height
+   + opacity + padding de truot muot; khong con display:none nen
+   select2 ben trong cung init dung width ngay tu dau. */
+.stf-advfilter {
+	max-height: 0;
+	opacity: 0;
+	overflow: hidden;
+	padding: 0 14px;
+	background: #fbfbfc;
+	border: 0 solid var(--stf-border);
+	transition: max-height .22s ease, opacity .18s ease, padding .22s ease;
+}
+.stf-advfilter.open {
+	max-height: 640px;
+	opacity: 1;
+	padding: 14px;
+	border: 1px solid var(--stf-border);
+	border-top: 1px dashed var(--stf-border);
+	border-bottom: 0;
+	background: white;
+}
+.stf-advfilter__grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
+}
+/* 2 nut Tim kiem/Xoa luon nam o cot 3, cung hang voi "Toi ngay" */
+.stf-advfilter__actions { grid-column: 3; }
+.stf-advfilter__label {
+	margin-bottom: 5px;
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--stf-muted);
+}
+.stf-advfilter__grid .form-control,
+.stf-advfilter__grid .form-select { width: 100%; height:36px;}
+.stf-advfilter__grid .form-select:focus { box-shadow: none; }
+.stf-advfilter__grid .select2-container { width: 100% !important; }
+
+/* Chong giat khi trang moi tai: select native (nhat la multi-select cao)
+   hien ra truoc roi select2 moi thay the lam layout nhay. An + ghim
+   chieu cao 1 dong cho toi khi select2 init xong (select2 gan class
+   select2-hidden-accessible vao select goc). */
+.stf-page select.iso-select2:not(.select2-hidden-accessible) {
+	visibility: hidden;
+	height: 38px;
+	max-height: 38px;
+	overflow: hidden;
+}
+/* nut Tim kiem / Xoa nam cung hang voi o "Toi ngay" */
+.stf-advfilter__btns {
+	display: flex;
+	gap: 8px;
+}
+/* cham do bao dang co loc nang cao tren nut Bo loc */
+.stf-btn__dot {
+	flex: 0 0 auto;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: var(--stf-brand);
+}
+.stf-btn--brand .stf-btn__dot { background: #fff; }
+
+/* ---------- bang nhan vien ---------- */
+.stf-tablecard {
+	background: var(--stf-card);
+	border: 1px solid var(--stf-border);
+	border-radius: 0 0 var(--stf-radius) var(--stf-radius);
+	box-shadow: var(--stf-shadow);
+	overflow: hidden;
+}
+.stf-scroll { overflow-x: auto; }
+.stf-tbl {
+	width: 100%;
+	border-collapse: collapse;
+	min-width: 980px;
+	font-size: 13px;
+}
+.stf-tbl thead th {
+	padding: 10px 14px;
+	background: #fafbfc;
+	border-bottom: 1px solid var(--stf-border);
+	color: var(--stf-muted);
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .05em;
+	text-transform: uppercase;
+	text-align: left;
+	white-space: nowrap;
+}
+.stf-tbl td {
+	padding: 9px 14px;
+	border-bottom: 1px solid var(--stf-border-2);
+	vertical-align: middle;
+	white-space: nowrap;
+}
+.stf-tbl tbody tr { transition: background .12s; }
+.stf-tbl tbody tr:hover { background: var(--stf-brand-tint); }
+/* Chong sup chieu cao trang: gioi han san 25 dong dau ngay tu luc render,
+   khop voi co trang mac dinh; JS phan trang gan .stf-ready va tiep quan. */
+.stf-tbl:not(.stf-ready) tbody tr:nth-child(n+26) { display: none; }
+
+/* cot nhan vien */
+.stf-emp {
+	display: flex;
+	align-items: center;
+	gap: 11px;
+	min-width: 0;
+	text-decoration: none;
+}
+.stf-emp__avatar {
+	flex: 0 0 auto;
+	width: 36px;
+	height: 36px;
+	display: block;
+}
+.stf-emp__avatar img {
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	object-fit: cover;
+	display: block;
+}
+.stf-emp__meta {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	line-height: 1.3;
+}
+/* ten + badge "Moi" nam cung mot hang, badge khong bi keo gian */
+.stf-emp__namerow {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	min-width: 0;
+}
+/* ap cho ca truong hop badge nam truc tiep trong __meta (flex-column)
+   de khong bi keo gian het chieu ngang du markup o phien ban nao */
+.stf-emp__meta .badge {
+	flex: 0 0 auto;
+	align-self: flex-start;
+	width: auto;
+	padding: 2px 8px;
+	font-size: 10.5px;
+	line-height: 1.3;
+	font-weight: 600;
+}
+.stf-emp__name { font-weight: 700; color: var(--stf-ink); }
+.stf-emp:hover .stf-emp__name { color: var(--stf-brand); }
+.stf-emp__sub { color: var(--stf-muted-2); font-size: 12px; }
+
+/* chip phong ban */
+.stf-chip {
+	display: inline-block;
+	padding: 3px 10px;
+	border-radius: 999px;
+	background: var(--stf-bg);
+	border: 1px solid var(--stf-border);
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--stf-muted);
+}
+.stf-muted { color: var(--stf-muted); }
+
+/* ngay thang */
+.stf-dt { color: var(--stf-muted); font-size: 12.5px; }
+.stf-dt i {
+	font-size: 13px;
+	vertical-align: -2px;
+	margin-right: 3px;
+	color: var(--stf-muted-2);
+}
+
+/* badge trang thai: cham mau + nhan chu, khong dung mau tran lan */
+.stf-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 700;
+}
+.stf-badge::before {
+	content: "";
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: currentColor;
+}
+.stf-badge--on { background: var(--stf-good-tint); color: var(--stf-good); }
+.stf-badge--off { background: var(--stf-off-tint); color: var(--stf-off); }
+
+/* cot thao tac */
+.stf-tbl__actions-th { width: 60px; }
+.stf-tbl__actions {
+	text-align: center;
+}
+.stf-tbl__actions .stf-btn { vertical-align: middle; }
+
+/* form login ho nam trong o bang */
+.stf-tbl td form { margin: 0; display: inline-block; }
+
+/* cot dau tien dinh trai khi cuon ngang (thay the sticky cot 2 cua ban cu) */
+@media screen and (min-width: 768px) {
+	.stf-tbl th:first-child,
+	.stf-tbl td:first-child {
+		position: sticky;
+		left: 0;
+		z-index: 2;
+	}
+	.stf-tbl th:first-child { background: #fafbfc; }
+	/* cung transition .12s voi tr va mau hover = trang + brand-tint 8%
+	   (#faeced) de cot sticky doi mau dong nhip, dong tong voi cac cot khac */
+	.stf-tbl td:first-child {
+		background: var(--stf-card);
+		transition: background .12s;
+	}
+	.stf-tbl tbody tr:hover td:first-child { background: #faeced; }
+}
+
+/* ---------- footer / phan trang ---------- */
+.stf-tfoot {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+	padding: 12px 14px;
+	border-top: 1px solid var(--stf-border);
+	color: var(--stf-muted);
+	font-size: 12.5px;
+}
+.stf-perpage {
+	width: auto;
+	padding: 5px 28px 5px 10px;
+	font-size: 12.5px;
+}
+.stf-pager {
+	display: flex;
+	gap: 4px;
+	margin-left: auto;
+}
+.stf-pager button {
+	min-width: 32px;
+	height: 32px;
+	padding: 0 6px;
+	border: 1px solid var(--stf-border);
+	border-radius: 8px;
+	background: var(--stf-card);
+	font-weight: 600;
+	font-size: 12.5px;
+	color: var(--stf-muted);
+	cursor: pointer;
+	transition: all .15s;
+}
+.stf-pager button:hover {
+	border-color: var(--stf-brand);
+	color: var(--stf-brand);
+}
+.stf-pager button.cur {
+	background: var(--stf-brand);
+	border-color: var(--stf-brand);
+	color: #fff;
+}
+.stf-pager button[disabled] {
+	cursor: default;
+	opacity: .6;
+	pointer-events: none;
+}
+.stf-tfoot--server { border-top: 1px dashed var(--stf-border); }
+.stf-tfoot .pagination { margin: 0 0 0 auto; }
+
+/* ---------- skeleton loading khi doi bo loc ----------
+   Dung dung hieu ung shimmer cua he thong (/tool.html, crm.css .crm-skel)
+   de dong nhat: gradient #ebedf0 -> #f4f5f7, sweep 1.4s. */
+@keyframes stf-skel-sweep {
+	0% { background-position: 100% 0; }
+	100% { background-position: 0 0; }
+}
+.stf-skel-bar {
+	display: block;
+	height: 12px;
+	border-radius: 6px;
+	background: linear-gradient(90deg, #ebedf0 25%, #f4f5f7 37%, #ebedf0 63%);
+	background-size: 400% 100%;
+	animation: stf-skel-sweep 1.4s ease infinite;
+}
+.stf-skel-tr td { padding: 14px; }
+.stf-skel-tr td:first-child .stf-skel-bar { height: 14px; }
+.stf-tfoot .pagination .page-link,
+.stf-tfoot .pagination a,
+.stf-tfoot .pagination span {
+	border-radius: 8px;
+}
+.stf-tfoot .pagination .page-item.active .page-link,
+.stf-tfoot .pagination .active > a,
+.stf-tfoot .pagination .active > span {
+	background: var(--stf-brand);
+	border-color: var(--stf-brand);
+	color: #fff;
+}
+.stf-tfoot .pagination .page-link:hover,
+.stf-tfoot .pagination a:hover {
+	color: var(--stf-brand);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 1200px) {
+	.stf-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 991px) {
+	.stf-advfilter__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.stf-advfilter__actions { grid-column: auto; }
+}
+@media (max-width: 760px) {
+	.stf-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.stf-advfilter__grid { grid-template-columns: minmax(0, 1fr); }
+	.stf-toolbar__search { max-width: none; }
+	.stf-toolbar__dept { min-width: 0; flex: 1 1 100%; }
+}
