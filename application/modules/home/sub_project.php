@@ -142,7 +142,21 @@ function project_project(){
 	,$description_page,$keyword_page,$clsConfiguration,$clsISO,$profile_id,$loggedIn,$list_projects;
 	$arr_project = [_PROJECT_VHOP3_ID,_PROJECT_VHOP2_ID,_PROJECT_VHGG_ID,_PROJECT_VWC_ID];
 	$clsSetting = new Setting();
-	
+	$clsProject = new Project();
+	$clsProperty = new Property();
+	# Ten chu dau tu: hien tren the du an + lam bo loc
+	$arr_investor_titles = [];
+	$tmp_inv = $clsProperty->getAll("`is_trash`=0 AND `property_type`='_INVESTOR'", "`{$clsProperty->pkey}`,`title`");
+	if(!empty($tmp_inv)){
+		foreach($tmp_inv as $oval){
+			$arr_investor_titles[(int) $oval[$clsProperty->pkey]] = $oval['title'];
+		}
+		unset($tmp_inv);
+	}
+	# KPI dau trang + du lieu cho cac select loc
+	$arr_kpis = ['total' => 0, 'open' => 0, 'soon' => 0];
+	$arr_filter_investors = $arr_filter_cities = $arr_kpi_investors = $arr_kpi_cities = [];
+
 	$lstArea = $clsSetting->getArraySearchByKey("_AREA");
 	$arr_project_area = $arr_area_cities = [];
 	if(!empty($list_projects)) {
@@ -170,6 +184,57 @@ function project_project(){
 				}
 				++$arr_area_cities[$area_id][$city_id]['total'];
 			}
+			# Lam giau du lieu cho the du an (giao dien moi)
+			$mi = $val["more_information"];
+			$val["city_title"] = ($city_id > 0) ? $arr_city_titles[$city_id] : "";
+			$val["building"] = $core->get_field($mi, "building", "");
+			$val["apartment"] = $core->get_field($mi, "apartment", "");
+			$val["arcreage"] = $core->get_field($mi, "arcreage", "");
+			$val["building_density"] = $core->get_field($mi, "building_density", "");
+			$val["vr_link"] = trim($core->get_field($mi, "vr_link", ""));
+			$project_status = $core->get_field($mi, "project_status", "open");
+			if(!in_array($project_status, array("open", "soon", "research"), true)){
+				$project_status = "open";
+			}
+			$val["project_status"] = $project_status;
+			$investor_id = (int) $core->get_field($mi, "investor_id", 0);
+			$val["investor_id"] = $investor_id;
+			$val["investor_name"] = ($investor_id > 0 && isset($arr_investor_titles[$investor_id])) ? $arr_investor_titles[$investor_id] : "";
+			# Loai hinh: suy tu list_block_type cua du an
+			# _header da convert list_block_type thanh mang san - chi explode khi con la chuoi
+			if(is_array($val["list_block_type"])){
+				$block_types = $val["list_block_type"];
+			} else {
+				$block_types = !empty($val["list_block_type"]) ? $clsISO->getArrayByTextSlash($val["list_block_type"]) : array();
+			}
+			$has_high = $clsISO->checkItemInArray(_BLOCK_TYPE_HIGHLEVEL_SALE, $block_types);
+			$has_low = $clsISO->checkItemInArray(_BLOCK_TYPE_LOWFLOOR_SALE, $block_types);
+			if($has_high && $has_low){
+				$val["type_key"] = "mix";
+				$val["type_label"] = "Cao + Thấp tầng";
+			} else if($has_low){
+				$val["type_key"] = "thap";
+				$val["type_label"] = "Thấp tầng";
+			} else {
+				$val["type_key"] = "cao";
+				$val["type_label"] = "Cao tầng";
+			}
+			# Dem tien ich: cot `utilities` la JSON tren bang project
+			$utilities_raw = isset($val["utilities"]) ? $val["utilities"] : $clsProject->getOneField('utilities', $val[$clsProject->pkey]);
+			$tmp_utl = $clsISO->to_array_json($utilities_raw);
+			$val["total_utilities"] = !empty($tmp_utl) ? count($tmp_utl) : 0;
+			# Cong don KPI + du lieu bo loc
+			++$arr_kpis['total'];
+			if($project_status == 'open') ++$arr_kpis['open'];
+			if($project_status == 'soon') ++$arr_kpis['soon'];
+			if($investor_id > 0){
+				$arr_kpi_investors[$investor_id] = 1;
+				$arr_filter_investors[$investor_id] = $val["investor_name"];
+			}
+			if($city_id > 0){
+				$arr_kpi_cities[$city_id] = 1;
+				$arr_filter_cities[$city_id] = $arr_city_titles[$city_id];
+			}
 			$arr_project_area[$area_id][] = $val;
 		}
 		// Sắp tab theo city_id để thứ tự bám đúng thứ tự tỉnh đã đánh trong bảng default_city.
@@ -181,6 +246,11 @@ function project_project(){
 	}
 	//$clsISO->print_pre($arr_area_cities);die;
 
+	$arr_kpis['investors'] = count($arr_kpi_investors);
+	$arr_kpis['cities'] = count($arr_kpi_cities);
+	$assign_list["arr_kpis"] = $arr_kpis;
+	$assign_list["arr_filter_investors"] = $arr_filter_investors;
+	$assign_list["arr_filter_cities"] = $arr_filter_cities;
 	$assign_list["lstArea"] = $lstArea;
 	$assign_list["arr_project_area"] = $arr_project_area;
 	$assign_list["arr_area_cities"] = $arr_area_cities;

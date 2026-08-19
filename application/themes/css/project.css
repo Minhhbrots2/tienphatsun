@@ -1,0 +1,497 @@
+/* ============================================================
+   Man danh sach du an (/thong-tin/) - giao dien moi theo mockup.
+   File rieng, moi class prefix .ptl- va scope duoi .ptl-page
+   nen khong dung cham CSS man khac (cung pattern voi staff.css).
+   ============================================================ */
+.ptl-page {
+	--ptl-brand: var(--main-color, #BF171D);
+	--ptl-brand-700: var(--rank-1, #9E1217);
+	--ptl-brand-tint: rgba(191, 23, 29, .08);
+	--ptl-card: #ffffff;
+	--ptl-ink: #23272f;
+	--ptl-muted: #6c727f;
+	--ptl-muted-2: #9aa0ab;
+	--ptl-border: #e6e8ec;
+	--ptl-border-2: #f0f1f4;
+	--ptl-good: #1e9e5a;
+	--ptl-good-bg: rgba(30, 158, 90, .12);
+	--ptl-warn: #f97316;
+	--ptl-warn-bg: rgba(249, 115, 22, .12);
+	--ptl-info: #2563a8;
+	--ptl-info-bg: rgba(37, 99, 168, .12);
+	--ptl-purple: #7c3aed;
+	--ptl-purple-bg: rgba(124, 58, 237, .12);
+	--ptl-blue: #0284c7;
+	--ptl-blue-bg: rgba(2, 132, 199, .12);
+	--ptl-radius: 12px;
+	--ptl-radius-sm: 9px;
+	--ptl-shadow: 0 1px 3px rgba(16, 24, 40, .07), 0 1px 2px rgba(16, 24, 40, .04);
+	--ptl-shadow-md: 0 8px 20px rgba(16, 24, 40, .12);
+}
+
+/* ---------- nut ---------- */
+.ptl-page .ptl-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	padding: 8px 15px;
+	border: 1px solid var(--ptl-border);
+	border-radius: var(--ptl-radius-sm);
+	background: var(--ptl-card);
+	color: var(--ptl-ink);
+	font-weight: 600;
+	white-space: nowrap;
+	transition: all .15s;
+}
+.ptl-page .ptl-btn:hover {
+	border-color: var(--ptl-brand);
+	color: var(--ptl-brand);
+	background: var(--ptl-card);
+}
+.ptl-page .ptl-btn--brand {
+	background: var(--ptl-brand);
+	border-color: var(--ptl-brand);
+	color: #fff;
+	box-shadow: 0 2px 6px rgba(191, 23, 29, .25);
+}
+.ptl-page .ptl-btn--brand:hover {
+	background: var(--ptl-brand-700);
+	border-color: var(--ptl-brand-700);
+	color: #fff;
+}
+.ptl-page .ptl-btn--disabled {
+	opacity: .45;
+	pointer-events: none;
+}
+
+/* ---------- header ---------- */
+.ptl-head {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	flex-wrap: wrap;
+	margin-bottom: 16px;
+}
+.ptl-head__title {
+	flex: 1 1 auto;
+	margin: 0;
+	font-size: 21px;
+	font-weight: 800;
+	letter-spacing: -.01em;
+	color: var(--ptl-ink);
+}
+
+/* ---------- KPI: icon tron, mau theo y nghia ---------- */
+.ptl-stats {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 13px;
+	margin-bottom: 15px;
+}
+.ptl-stat {
+	display: flex;
+	align-items: center;
+	gap: 13px;
+	padding: 15px 17px;
+	background: var(--ptl-card);
+	border: 1px solid var(--ptl-border);
+	border-radius: var(--ptl-radius);
+	box-shadow: var(--ptl-shadow);
+}
+.ptl-stat__icon {
+	flex: 0 0 auto;
+	width: 60px;
+	height: 60px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	font-size: 22px;
+}
+.ptl-stat__icon i{
+	font-size: 30px;
+}
+.ptl-stat__icon.c1 { background: var(--ptl-border-2); color: var(--ptl-muted); }
+.ptl-stat__icon.c2 { background: var(--ptl-good-bg); color: var(--ptl-good); }
+.ptl-stat__icon.c3 { background: var(--ptl-warn-bg); color: var(--ptl-warn); }
+.ptl-stat__icon.c4 { background: var(--ptl-purple-bg); color: var(--ptl-purple); }
+.ptl-stat__icon.c5 { background: var(--ptl-blue-bg); color: var(--ptl-blue); }
+.ptl-stat__label {
+	margin: 0 0 3px;
+	color: var(--ptl-muted);
+	font-size: 12.5px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+.ptl-stat__value {
+	margin: 0;
+	font-size: 22px;
+	font-weight: 800;
+	line-height: 1;
+	color: var(--ptl-ink);
+}
+.ptl-stat__value small {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--ptl-muted);
+	margin-left: 3px;
+}
+
+/* ---------- tab vung: capsule dong bo voi man /staff ---------- */
+.ptl-regions {
+	display: inline-flex;
+	padding: 3px;
+	gap: 3px;
+    background: white;
+	border: 1px solid var(--ptl-border);
+	border-radius: 999px;
+	margin-bottom: 12px;
+	flex-wrap: wrap;
+}
+.ptl-regions button {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	border: 0;
+	background: transparent;
+	padding: 7px 16px;
+	border-radius: 999px;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--ptl-muted);
+	cursor: pointer;
+	transition: all .15s;
+	white-space: nowrap;
+}
+.ptl-regions button.on {
+	background: var(--ptl-brand);
+	color: var(--ptl-card);
+	box-shadow: var(--ptl-shadow);
+}
+
+/* ---------- hang filter: select co icon ---------- */
+.ptl-filters {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	margin-bottom: 16px;
+}
+.ptl-filters__selects {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+.ptl-fsel { position: relative; flex: 0 0 auto; }
+.ptl-fsel > i {
+	position: absolute;
+	left: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: var(--ptl-muted);
+	font-size: 15px;
+	pointer-events: none;
+}
+.ptl-fsel select {
+	appearance: none;
+	-webkit-appearance: none;
+	min-width: 156px;
+	padding: 9px 30px 9px 34px;
+	border: 1px solid var(--ptl-border);
+	border-radius: var(--ptl-radius-sm);
+	background: var(--ptl-card);
+	font-weight: 600;
+	font-size: 12.5px;
+	color: var(--ptl-ink);
+	cursor: pointer;
+}
+.ptl-fsel select:focus { outline: 0; border-color: var(--ptl-brand); }
+.ptl-fsel::after {
+	content: "\ea4a";
+	font-family: boxicons;
+	position: absolute;
+	right: 9px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: var(--ptl-muted-2);
+	pointer-events: none;
+}
+/* chi hien khi dang co filter ap dung (JS gan class .on) */
+.ptl-clearfilter {
+	display: none;
+	align-items: center;
+	gap: 6px;
+	color: var(--ptl-muted);
+	font-weight: 600;
+	font-size: 12.5px;
+	cursor: pointer;
+	background: none;
+	border: 0;
+	font-family: inherit;
+	padding: 9px 6px;
+}
+.ptl-clearfilter.on { display: inline-flex; }
+.ptl-clearfilter:hover { color: var(--ptl-brand); }
+.ptl-filters__spacer { flex: 1 1 auto; }
+.ptl-viewtoggle {
+	display: inline-flex;
+	border: 1px solid var(--ptl-border);
+	border-radius: var(--ptl-radius-sm);
+	overflow: hidden;
+	background: var(--ptl-card);
+}
+.ptl-viewtoggle button {
+	border: 0;
+	background: transparent;
+	padding: 9px 16px;
+	font-weight: 700;
+	font-size: 12.5px;
+	color: var(--ptl-muted);
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	font-family: inherit;
+}
+.ptl-viewtoggle button + button { border-left: 1px solid var(--ptl-border); }
+.ptl-viewtoggle button.on { color: var(--ptl-brand); }
+
+/* ---------- the du an ---------- */
+/* 4 the / hang de moi the rong rai hon */
+.ptl-grid {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 15px;
+}
+.ptl-card {
+	background: var(--ptl-card);
+	border: 1px solid var(--ptl-border);
+	border-radius: var(--ptl-radius);
+	box-shadow: var(--ptl-shadow);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	transition: box-shadow .15s, transform .15s;
+}
+.ptl-card:hover {
+	box-shadow: var(--ptl-shadow-md);
+	transform: translateY(-2px);
+}
+.ptl-card__media {
+	position: relative;
+	aspect-ratio: 16 / 10;
+	overflow: hidden;
+	background: var(--ptl-border-2);
+}
+.ptl-card__img {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+.ptl-badge {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	padding: 4px 11px;
+	border-radius: 7px;
+	font-size: 11px;
+	font-weight: 700;
+	color: #fff;
+}
+.ptl-badge--open { background: var(--ptl-good); }
+.ptl-badge--soon { background: var(--ptl-warn); }
+.ptl-badge--research { background: var(--ptl-info); }
+/* logo cong ty: goc duoi ben phai; nut tim chiem goc tren */
+.ptl-card__logo {
+	position: absolute;
+	bottom: 8px;
+	right: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 3px 6px;
+	border-radius: 8px;
+	background: rgba(255, 255, 255, .92);
+}
+.ptl-card__fav {
+	position: absolute;
+	top: 9px;
+	right: 9px;
+	width: 30px;
+	height: 30px;
+	border: 0;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, .92);
+	color: var(--ptl-muted);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 16px;
+	transition: all .15s;
+	box-shadow: var(--ptl-shadow);
+}
+.ptl-card__fav:hover { color: var(--ptl-brand); transform: scale(1.08); }
+.ptl-card__fav.on { color: var(--ptl-brand); }
+.ptl-card__logo img {
+	height: 22px;
+	max-width: 74px;
+	object-fit: contain;
+	display: block;
+}
+.ptl-card__body { padding: 13px 14px 12px; }
+.ptl-card__title {
+	margin: 0 0 3px;
+	font-size: 15px;
+	font-weight: 800;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.ptl-card__title a { color: var(--ptl-ink); text-decoration: none; }
+.ptl-card__title a:hover { color: var(--ptl-brand); }
+/* dia chi toi da 2 dong; ghim chieu cao = 2 dong de the 1 dong va
+   2 dong cao bang nhau (khong vo khoi); icon dung cot rieng */
+.ptl-card__addr {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	margin: 0 0 11px;
+	color: var(--ptl-muted);
+	font-size: 12px;
+	line-height: 1.45;
+	min-height: 2.9em;
+}
+.ptl-card__addr i {
+	flex: 0 0 auto;
+	color: var(--ptl-muted-2);
+	margin-top: 2px;
+}
+.ptl-card__addr span {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	min-width: 0;
+}
+
+/* luoi thong so co duong ke chia o */
+.ptl-pstats {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 1px;
+	background: var(--ptl-border-2);
+	border: 1px solid var(--ptl-border-2);
+	border-radius: 9px;
+	overflow: hidden;
+}
+.ptl-pstat {
+	min-width: 0;
+	background: var(--ptl-card);
+	padding: 8px 9px;
+}
+/* gia tri dai (vd so can ho) cat bang "..." thay vi bi xen cung;
+   flex khong ellipsis duoc text node nen dung block + icon inline */
+.ptl-pstat b {
+	display: block;
+	font-size: 12.5px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	color: var(--ptl-ink);
+}
+.ptl-pstat b i {
+	color: var(--ptl-muted);
+	font-size: 14px;
+	margin-right: 5px;
+	vertical-align: -2px;
+}
+.ptl-pstat span {
+	display: block;
+	color: var(--ptl-muted-2);
+	font-size: 10.5px;
+	font-weight: 600;
+	padding-left: 19px;
+}
+.ptl-card__foot {
+	display: flex;
+	gap: 6px;
+	padding: 11px 14px 14px;
+	margin-top: auto;
+}
+.ptl-card__foot .ptl-btn {
+	flex: 1 1 0;
+	justify-content: center;
+	padding: 7px 4px;
+	font-size: 12px;
+	border-radius: 8px;
+}
+.ptl-card__foot .ptl-btn i { font-size: 13px; }
+
+/* ---------- che do Gon ----------
+   Chi giu nut Thong tin (an Bang hang + VR360), anh du an to hon */
+.ptl-grid.list-view { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.list-view .ptl-card { flex-direction: row; align-items: center; }
+.list-view .ptl-card__media {
+	width: 210px;
+	aspect-ratio: 16 / 10;
+	flex: 0 0 auto;
+	border-radius: 9px;
+	margin: 10px 0 10px 10px;
+}
+.list-view .ptl-card__body { flex: 1 1 auto; padding: 10px 16px; }
+.list-view .ptl-pstats { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.list-view .ptl-card__foot {
+	margin: 0;
+	padding: 10px 14px;
+	width: auto;
+	min-width: 150px;
+	flex: 0 0 auto;
+}
+.list-view .ptl-card__foot .ptl-btn:not(.ptl-btn--brand) { display: none; }
+.list-view .ptl-card:hover { transform: none; }
+
+/* ---------- trang thai rong ---------- */
+.ptl-empty {
+	display: none;
+	padding: 40px;
+	text-align: center;
+	color: var(--ptl-muted);
+	background: var(--ptl-card);
+	border: 1px dashed var(--ptl-border);
+	border-radius: var(--ptl-radius);
+}
+.ptl-empty.on { display: block; }
+.ptl-empty i { font-size: 34px; color: var(--ptl-muted-2); }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1280px) {
+	.ptl-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+	.ptl-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 800px) {
+	.ptl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.ptl-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.list-view .ptl-card { flex-direction: column; align-items: stretch; }
+	.list-view .ptl-card__media { width: auto; margin: 0; border-radius: 0; }
+	.list-view .ptl-card__foot { width: auto; }
+	.list-view .ptl-pstats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+	/* mobile: cac select nam 1 hang cuon ngang; hang duoi la
+	   "Xoa bo loc" ---space-between--- "Luoi/Gon" (nho spacer co san) */
+	.ptl-filters__selects {
+		flex: 0 0 100%;
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		padding-bottom: 2px;
+		scrollbar-width: none;
+	}
+	.ptl-filters__selects::-webkit-scrollbar { display: none; }
+	.ptl-clearfilter { padding-left: 0; }
+}
+@media (max-width: 560px) {
+	.ptl-grid { grid-template-columns: minmax(0, 1fr); }
+}
