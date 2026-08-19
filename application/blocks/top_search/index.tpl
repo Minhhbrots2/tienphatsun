@@ -36,34 +36,25 @@
 		</div>
 	{else}
 		<div class="d-flex align-items-center nav-item position-relative">
-			{if $deviceType eq 'phone'}
-				<div class="btn-froup w-px-80">
-					<select name="stock_type" class="form-select form-control no-focus form-option-sm" onchange="$Core.helper.handle_stock_type(this, event)">
+			{* radio an: helper.min.js search_all doc input[name=stock_type]:checked -> phai giu, dong bo tu select *}
+			<input type="radio" class="d-none" name="stock_type" value="{$smarty.const._BLOCK_TYPE_HIGHLEVEL_SALE}"{if $get_stock_type eq $smarty.const._BLOCK_TYPE_HIGHLEVEL_SALE} checked="checked"{/if}>
+			<input type="radio" class="d-none" name="stock_type" value="{$smarty.const._BLOCK_TYPE_LOWFLOOR_SALE}"{if $get_stock_type eq $smarty.const._BLOCK_TYPE_LOWFLOOR_SALE} checked="checked"{/if}>
+			<input type="radio" class="d-none" name="stock_type" value="1"{if $get_stock_type eq '1'} checked="checked"{/if}>
+			<div class="search_header search_combo position-relative">
+				<div class="search_combo__scope">
+					<select class="search_combo__select" title="Phạm vi tìm kiếm" onchange="$('input[name=stock_type]').val([this.value]);$Core.helper.handle_stock_type(this, event)">
 						<option value="{$smarty.const._BLOCK_TYPE_HIGHLEVEL_SALE}"{if $get_stock_type eq $smarty.const._BLOCK_TYPE_HIGHLEVEL_SALE} selected{/if}>Cao tầng</option>
 						<option value="{$smarty.const._BLOCK_TYPE_LOWFLOOR_SALE}"{if $get_stock_type eq $smarty.const._BLOCK_TYPE_LOWFLOOR_SALE} selected{/if}>Thấp tầng</option>
 						<option value="1"{if $get_stock_type eq '1'} selected{/if}>Thông tin</option>
 					</select>
 				</div>
-			{else}
-				<div class="btn-group text-nowrap " role="group" aria-label="Hiển thị" {$deviceType}>
-					{assign var = gId value = $clsISO->getUniqid()}
-					<input type="radio" class="btn-check" name="stock_type" onchange="$Core.helper.handle_stock_type(this, event)" id="{$gId}" value="{$smarty.const._BLOCK_TYPE_HIGHLEVEL_SALE}"{if $get_stock_type eq $smarty.const._BLOCK_TYPE_HIGHLEVEL_SALE} checked="checked"{/if}>
-					<label data-toggle="ripple" title="Cao tầng" class="btn btn-sm js__search-stock-type btn-outline-default{if $get_stock_type eq $smarty.const._BLOCK_TYPE_HIGHLEVEL_SALE} active{else}{/if}" for="{$gId}" title="Cao tầng">{if $deviceType eq 'phone'}CT{else}Cao tầng{/if}</label>
-					{assign var = gId value = $clsISO->getUniqid()}
-					<input type="radio" class="btn-check" name="stock_type" id="{$gId}" onchange="$Core.helper.handle_stock_type(this, event)" value="{$smarty.const._BLOCK_TYPE_LOWFLOOR_SALE}"{if $get_stock_type eq $smarty.const._BLOCK_TYPE_LOWFLOOR_SALE} checked="checked"{/if}>
-					<label data-toggle="ripple" title="Thấp tầng" class="btn btn-sm js__search-stock-type btn-outline-default{if $get_stock_type eq $smarty.const._BLOCK_TYPE_LOWFLOOR_SALE} active{/if}" for="{$gId}" title="Thấp tầng">{if $deviceType eq 'phone'}TT{else}Thấp tầng{/if}</label>
-					{assign var = gId value = $clsISO->getUniqid()}
-					<input type="radio" class="btn-check" name="stock_type" id="{$gId}" onchange="$Core.helper.handle_stock_type(this, event)" value="1"{if $get_stock_type eq '1'} checked="checked"{/if}>
-					<label data-toggle="ripple" title="Thông tin" class="btn btn-sm js__search-stock-type btn-outline-default{if $get_stock_type eq '1'}  active{/if}" for="{$gId}" title="Thông tin">Thông tin</label>
-				</div>
-			{/if}
-			<div class="search_header position-relative">
-				<input type="text" class="form-control border-0 js__top-search-input top_select_all shadow-none" 
+				<input type="text" class="form-control border-0 js__top-search-input top_select_all shadow-none"
 				placeholder="Tìm bất cứ thứ gì..." onkeyup="$Core.helper.search_all(this, event)" value="{$keyword}" onfocus="$Core.helper.search_suggest_focus(this, event)"  onblur="$Core.helper.search_suggest_blur(this, event)" />
+				<i class="bx bx-search"></i>
 				<div class="search_suggest" style="display:none">
 					<div class="ss-empty">Đang tải gợi ý...</div>
 				</div>
-			</div>		
+			</div>
 		</div>
 	{/if}
 </div>

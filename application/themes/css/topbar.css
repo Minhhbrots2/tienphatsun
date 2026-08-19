@@ -1,0 +1,182 @@
+/* ============================================================
+   Header full-width + aside tut xuong duoi (chi desktop >=1200px).
+   Duoi nguong nay giu nguyen 100% layout cu (header-mobile,
+   menu off-canvas khong bi anh huong).
+   Logo chuyen tu aside len header; nut thu gon menu thiet ke
+   roi (van mang class layout-menu-toggle nen menu.js hoat dong
+   nhu cu, ke ca trang thai layoutCollapsed da luu).
+   ============================================================ */
+@media (min-width: 1200px) {
+	:root {
+		--tb-h: 4.5rem;          /* bang chieu cao navbar goc cua Sneat */
+		--tb-aside-w: 262px;    /* bang be rong .layout-menu */
+	}
+
+	/* ---------- navbar keo full-width, ghim tren cung ---------- */
+	#layout-navbar.layout-navbar {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		width: 100%;
+		max-width: none;
+		height: var(--tb-h);
+		margin: 0 !important;
+		padding-left: 0;
+		border-radius: 0;
+		background: #fff;
+		box-shadow: 0 1px 0 rgba(16, 24, 40, .08), 0 2px 10px rgba(16, 24, 40, .04);
+		z-index: 1030;
+	}
+
+	/* ---------- khoi logo: cot trai co dinh; logo can GIUA,
+	   nut thu gon absolute sat duong vien ngan cach (vien = mep aside) ---------- */
+	.tb-brand {
+		position: relative;
+		align-items: center;
+		width: var(--tb-aside-w);
+		padding: 0 12px;
+		flex: 0 0 auto;
+		justify-content: center;
+		height: 100%;
+		border-right: 1px solid #e6e8ec;
+	}
+	.tb-brand__link { display: flex; align-items: center; }
+	.tb-brand__link img {
+		display: block;
+	}
+	/* khoi logo giu be rong CO DINH o ca 2 trang thai ->
+	   thu gon aside khong lam header xe dich */
+
+	/* ---------- nut thu gon: icon-only, absolute sat vien ngan cach ---------- */
+	.tb-toggle {
+		display: flex;
+		position: absolute;
+		right: 10px;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 36px;
+		height: 36px;
+		align-items: center;
+		justify-content: center;
+		border: 1px solid #e6e8ec;
+		border-radius: 9px;
+		background: #fff;
+		color: #6c727f;
+		transition: all .15s;
+	}
+	.tb-toggle:hover {
+		color: var(--main-color, #BF171D);
+		border-color: var(--main-color, #BF171D);
+		background: rgba(191, 23, 29, .05);
+	}
+	.tb-toggle i { font-size: 19px; transition: transform .25s; }
+	html.layout-menu-collapsed .tb-toggle i { transform: rotate(180deg); }
+
+	/* ---------- o search gop pham vi: [scope][input][icon phai],
+	   dich ra khoi vien ngan cach ---------- */
+	.search_header.search_combo {
+		display: flex;
+		align-items: center;
+		margin-left: 18px;
+		border: 1px solid #e6e8ec;
+		border-radius: 10px;
+		background: #f5f6f8;
+		transition: border-color .15s, background .15s;
+	}
+	.search_header.search_combo:focus-within {
+		border-color: var(--main-color, #BF171D);
+		background: #fff;
+	}
+	.search_combo__scope {
+		position: relative;
+		flex: 0 0 auto;
+		align-self: stretch;
+		display: flex;
+	}
+	.search_combo__select {
+		appearance: none;
+		-webkit-appearance: none;
+		border: 0;
+		border-right: 1px solid #e6e8ec;
+		background: transparent;
+		padding: 0 26px 0 13px;
+		font-weight: 700;
+		font-size: 12.5px;
+		color: var(--main-color, #BF171D);
+		cursor: pointer;
+		outline: 0;
+	}
+	.search_combo__scope::after {
+		content: "\ea4a";
+		font-family: boxicons;
+		position: absolute;
+		right: 9px;
+		top: 50%;
+		transform: translateY(-50%);
+		color: #9aa0ab;
+		pointer-events: none;
+		font-size: 14px;
+	}
+	.search_header.search_combo input.form-control {
+		border: 0 !important;
+		background: transparent !important;
+		flex: 1 1 auto;
+		min-width: 0;
+		padding: 8px 40px 8px 12px;
+	}
+	/* icon kinh lup chuyen sang BEN PHAI o search */
+	.search_header.search_combo > i {
+		left: auto;
+		right: 12px;
+	}
+
+	/* ---------- aside: tut xuong duoi header ---------- */
+	#layout-menu {
+		top: var(--tb-h) !important;
+		height: calc(100vh - var(--tb-h)) !important;
+	}
+	/* logo cu trong aside: an o desktop (mobile drawer van giu logo) */
+	#layout-menu .app-brand { display: none !important; }
+	#layout-menu .menu-inner { margin-top: .35rem; }
+
+	/* navbar von nam trong flow (sticky) cua .layout-page -
+	   chuyen sang fixed thi bu lai dung 1 khoang chieu cao */
+	.layout-page { padding-top: var(--tb-h) !important; }
+}
+.search_header input{
+	width: 100%;
+    padding: 8px 12px 8px 36px;
+    border: 1px solid #e6e8ec !important;
+    border-radius: 9px;
+    background: #f5f6f8;
+}
+.layout-navbar .btn-group{
+	margin-right: 20px;
+}
+.search_header {
+    position: relative;
+    flex: 1 1 auto;
+    width: 520px;
+}
+.search_header > i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted-2);
+    font-size: 16px;
+}
+/* o search gop: icon kinh lup nam BEN PHAI o moi be rong man hinh */
+.search_header.search_combo > i {
+	left: auto;
+	right: 12px;
+}
+.search_header.search_combo input {
+	padding: 8px 40px 8px 12px;
+}
+.search_header input:focus {
+	outline: none;
+	border-color: var(--main-color) !important;
+	box-shadow: 0 0 0 0.2rem rgba(191, 23, 29, .25);
+}

@@ -2,7 +2,7 @@
     <div class="app-brand demo">
         <a href="{$PCMS_URL}" class="app-brand-link pb-1 mx-auto d-flex flex-column justify-content-center">
             <span class="app-brand-logo demo">
-				<img src="{$clsConfiguration->getValue('HeaderLogo')}" height="{$clsConfiguration->getImageHeight('HeaderLogo')}" alt="{$header_configs.CompanyName}" />
+				<img src="{$header_configs.HeaderLogo}" height="50" alt="{$PAGE_NAME}" />
 			</span>
         </a>
         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block">
@@ -19,11 +19,11 @@
 			</a>
 		</li>
 		<!--		==========Bán hàng===============-->
-		<li class="menu-item open {if $mod eq 'data_central'} active{/if}">
+		<li class="menu-item open">
 			{assign var=gId value=$clsISO->getUniqid()}
-			<a data-toggle="ripple" href="javascript:void(0);" class="menu-link w-100 d-block mx-0 text-left">
+			<a data-toggle="ripple" href="javascript:void(0);" class="menu-link w-100 d-block menu-toggle mx-0 text-left">
 				<i class="menu-icon tf-icons bx bx-tag text-main"></i>
-				<span class="menu-header-text text-upper text-main fs-11 fw-semibold">Bán hàng (<span id="{$gId}" >0</span>)</span>
+				{if $menu_v2}<span class="menu-header-text">Bán hàng</span><span class="menu-count" id="{$gId}">0</span>{else}<span class="menu-header-text text-upper text-main fs-11 fw-semibold">Bán hàng (<span id="{$gId}" >0</span>)</span>{/if}
 			</a>
 			<ul class="menu-sub no-before" toId="{$gId}" >
 				<li class="menu-item {if $mod eq 'stock'} active{/if}">
@@ -46,12 +46,12 @@
 					</a>
 				</li>
 				{if $clsISO->checkPermission('access_crm')}
-				<!-- <li class="menu-item{if $mod eq 'crm' && $sub eq 'default' && $act eq 'default'} active{/if}">
+				 <li class="menu-item{if $mod eq 'crm' && $sub eq 'default' && $act eq 'default'} active{/if}">
 					<a data-toggle="ripple" href="/crm/" class="menu-link">
 						<i class="menu-icon tf-icons bx bx-user-pin"></i>
 						<div class="text-truncate" data-i18n="CRM">CRM/Khách hàng</div>
 					</a>
-				</li> -->
+				</li> 
 				{/if}
 				<li class="menu-item{if $mod eq 'home' && $sub eq 'project' && $act eq 'project'} active{/if}">
 					<a data-toggle="ripple" href="{$PCMS_URL}/thong-tin/" class="menu-link text-primary">
@@ -99,14 +99,14 @@
 		</li>
 		<!-- =========================-->
 		<!-- =============Hoạt động============-->
-		<li class="menu-item open {if $mod eq 'data_central'} active{/if}">
+		<li class="menu-item open">
 			{assign var=gId value=$clsISO->getUniqid()}
-			<a data-toggle="ripple" href="javascript:void(0);" class="menu-link w-100 d-block mx-0 text-left">
+			<a data-toggle="ripple" href="javascript:void(0);" class="menu-link w-100 d-block menu-toggle mx-0 text-left">
 				<svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"  
 				fill="var(--main-color)" viewBox="0 0 24 24" >
 				<path d="M18.5 10H22v2h-3.5zm.05-1.17 1.5-1 1.5-1L21 6l-.55-.83-1.5 1-1.5 1L18 8zm0 4.34L18 14l-.55.83 1.5 1 1.5 1L21 16l.55-.83-1.5-1zM15 8.18V4c0-.37-.2-.71-.53-.88s-.72-.15-1.03.05L7.69 7h-1.7c-2.21 0-4 1.79-4 4 0 1.52.86 2.82 2.1 3.5l1.94 6.77 1.92-.55-1.64-5.73h1.37l5.75 3.83c.17.11.36.17.55.17.16 0 .32-.04.47-.12.33-.17.53-.51.53-.88v-4.18c1.16-.41 2-1.51 2-2.82s-.84-2.4-2-2.82Zm-2 7.95-4.45-2.96A1 1 0 0 0 8 13H6c-1.1 0-2-.9-2-2s.9-2 2-2h2c.2 0 .39-.06.55-.17L13 5.87z"></path>
 				</svg>
-				<span class="menu-header-text text-upper text-main fs-11 fw-semibold">Hoạt động (<span id="{$gId}" >0</span>)</span>
+				{if $menu_v2}<span class="menu-header-text">Hoạt động</span><span class="menu-count" id="{$gId}">0</span>{else}<span class="menu-header-text text-upper text-main fs-11 fw-semibold">Hoạt động (<span id="{$gId}" >0</span>)</span>{/if}
 			</a>
 			<ul class="menu-sub no-before" toId="{$gId}">
 				<li class="menu-item{if $mod eq 'billing' && $act eq 'mileston'} active{/if}">
@@ -164,11 +164,11 @@
 		
 		<!--		=========================-->
 		<!--		==============Báo cáo===========-->
-		<li class="menu-item open {if $mod eq 'data_central'} active{/if}">
+		<li class="menu-item open">
 			{assign var=gId value=$clsISO->getUniqid()}
-			<a data-toggle="ripple" href="javascript:void(0);" class="menu-link w-100 d-block mx-0 text-left">
+			<a data-toggle="ripple" href="javascript:void(0);" class="menu-link w-100 d-block menu-toggle mx-0 text-left">
 				<i class="menu-icon tf-icons bx bx-pie-chart text-main"></i>
-				<span class="menu-header-text text-upper text-main fs-11 fw-semibold">Báo cáo(<span id="{$gId}" >0</span>)</span>
+				{if $menu_v2}<span class="menu-header-text">Báo cáo</span><span class="menu-count" id="{$gId}">0</span>{else}<span class="menu-header-text text-upper text-main fs-11 fw-semibold">Báo cáo(<span id="{$gId}" >0</span>)</span>{/if}
 			</a>
 			<ul class="menu-sub no-before" toId="{$gId}">
 				{if $clsISO->checkPermissionGroup('DIRECTOR')}
@@ -234,124 +234,126 @@
 					|| $clsISO->checkPermission('sales_has_trans')
 					|| $clsISO->checkPermission('sales_not_trans') 
 					|| $clsISO->checkPermission('marketing_access') }
-					{if $clsISO->checkPermission('report_sale') || $clsISO->checkPermissionGroup('DIRECTOR')}
-						<li class="menu-item {if $mod eq 'report' && $sub eq 'default' && $act eq 'sale_month'}active{/if}">
-							<a href="{$PCMS_URL}/report/sales.html" class="menu-link" data-toggle="ripple">
-								<i class="menu-icon tf-icons bx bx-cart"></i>
-								<div data-i18n="{$_oProject.title}">Báo cáo bán hàng</div>
+						{if $clsISO->checkPermission('report_sale') || $clsISO->checkPermissionGroup('DIRECTOR')}
+							<li class="menu-item">
+								<a href="{$PCMS_URL}/report/sales.html" class="menu-link" data-toggle="ripple">
+									<i class="menu-icon tf-icons bx bx-cart"></i>
+									<div data-i18n="{$_oProject.title}">Báo cáo bán hàng</div>
+								</a>
+							</li>
+						{/if}		
+						<!--{if $clsISO->checkPermissionGroup('DIRECTOR') }
+							<li class="menu-item{if $mod eq 'report' && $act eq 'sales_agent'} active{/if}">
+								<a href="{$PCMS_URL}/report/sales_agent.html" class="menu-link" data-toggle="ripple">
+									<i class="menu-icon tf-icons bx bx-store"></i>
+									<div data-i18n="{$_oProject.title}">Thống kê đại lý bán</div>
+								</a>
+							</li>
+							<li class="menu-item{if $mod eq 'report' && $act eq 'report_agent'} active{/if}">
+								<a href="{$PCMS_URL}/report/report_agent.html" class="menu-link" data-toggle="ripple">
+									<i class="menu-icon tf-icons bx bx-briefcase"></i>
+									<div data-i18n="{$_oProject.title}">Báo cáo đại lý</div>
+								</a>
+							</li>
+						{/if}
+						{if $clsISO->checkPermissionGroup('DIRECTOR') }
+							<li class="menu-item{if $mod eq 'home' && $sub eq 'report' && $act eq 'revenue'} active{/if}">
+								<a href="{$PCMS_URL}/bao-cao-doanh-so.html" class="menu-link" data-toggle="ripple">
+									<i class="menu-icon tf-icons bx bx-bar-chart-alt-2"></i>
+									<div data-i18n="Báo cáo doanh số">Báo cáo doanh số</div>
+								</a>
+							</li>
+						{/if}
+						 {if $clsISO->checkPermission('report_stock_resource')}
+						<li class="menu-item{if $mod eq 'report' and $act eq 'stock_resource'} active{/if}">
+							<a href="{$PCMS_URL}/report/stock-resource.html" class="menu-link" data-toggle="ripple">
+								<i class="menu-icon tf-icons bx bx-building"></i>
+								<div data-i18n="Check nguồn căn">Check nguồn căn</div>
 							</a>
 						</li>
-					{/if}		
-					<!--{if $clsISO->checkPermissionGroup('DIRECTOR') }
-						<li class="menu-item{if $mod eq 'report' && $act eq 'sales_agent'} active{/if}">
-							<a href="{$PCMS_URL}/report/sales_agent.html" class="menu-link" data-toggle="ripple">
-								<i class="menu-icon tf-icons bx bx-store"></i>
-								<div data-i18n="{$_oProject.title}">Thống kê đại lý bán</div>
+						{/if}
+						{if $clsISO->checkPermission('access_staff_all')}
+						<li class="menu-item{if $mod eq 'member' && $act eq 'report'} active{/if}">
+							<a href="{$PCMS_URL}//member/report.html" class="menu-link" data-toggle="ripple">
+								<i class="menu-icon tf-icons bx bx-group"></i>
+								<div data-i18n="Nhân sự">Nhân sự</div>
 							</a>
 						</li>
-						<li class="menu-item{if $mod eq 'report' && $act eq 'report_agent'} active{/if}">
-							<a href="{$PCMS_URL}/report/report_agent.html" class="menu-link" data-toggle="ripple">
-								<i class="menu-icon tf-icons bx bx-briefcase"></i>
-								<div data-i18n="{$_oProject.title}">Báo cáo đại lý</div>
+						{/if}
+						{if $clsISO->checkPermission('report_work') || $clsISO->_DEV()}
+						<li class="menu-item{if $mod eq 'report' and $act eq 'work'} active{/if}">
+							<a href="{$PCMS_URL}/report/work.html" class="menu-link" data-toggle="ripple">
+								<i class="menu-icon tf-icons bx bx-coffee"></i>
+								<div data-i18n="{$_oProject.title}">Hoạt động tiếp khách</div>
 							</a>
 						</li>
-					{/if}
-					{if $clsISO->checkPermissionGroup('DIRECTOR') }
-						<li class="menu-item{if $mod eq 'home' && $sub eq 'report' && $act eq 'revenue'} active{/if}">
-							<a href="{$PCMS_URL}/bao-cao-doanh-so.html" class="menu-link" data-toggle="ripple">
-								<i class="menu-icon tf-icons bx bx-bar-chart-alt-2"></i>
-								<div data-i18n="Báo cáo doanh số">Báo cáo doanh số</div>
+						{/if}
+						{if $clsISO->checkPermissionGroup('DIRECTOR')}
+						<li class="menu-item{if $mod eq 'home' && $sub eq 'report' && $act eq 'default'} active{/if}"> 
+							<a href="{$PCMS_URL}/bao-cao.html" class="menu-link" data-toggle="ripple">
+								<i class="menu-icon tf-icons bx bx-line-chart"></i>
+								<div data-i18n="Báo cáo MOC">Hiệu suất bán hàng</div>
 							</a>
 						</li>
-					{/if}
-						{if $clsISO->checkPermission('report_stock_resource')}
-					<li class="menu-item{if $mod eq 'report' and $act eq 'stock_resource'} active{/if}">
-						<a href="{$PCMS_URL}/report/stock-resource.html" class="menu-link" data-toggle="ripple">
-							<i class="menu-icon tf-icons bx bx-building"></i>
-							<div data-i18n="Check nguồn căn">Check nguồn căn</div>
-						</a>
-					</li>
-					{/if}
-					{if $clsISO->checkPermission('access_staff_all')}
-					<li class="menu-item{if $mod eq 'member' && $act eq 'report'} active{/if}">
-						<a href="{$PCMS_URL}//member/report.html" class="menu-link" data-toggle="ripple">
-							<i class="menu-icon tf-icons bx bx-group"></i>
-							<div data-i18n="Nhân sự">Nhân sự</div>
-						</a>
-					</li>
-					{/if}
-					{if $clsISO->checkPermission('report_work') || $clsISO->_DEV()}
-					<li class="menu-item{if $mod eq 'report' and $act eq 'work'} active{/if}">
-						<a href="{$PCMS_URL}/report/work.html" class="menu-link" data-toggle="ripple">
-							<i class="menu-icon tf-icons bx bx-coffee"></i>
-							<div data-i18n="{$_oProject.title}">Hoạt động tiếp khách</div>
-						</a>
-					</li>
-					{/if}
-					{if $clsISO->checkPermissionGroup('DIRECTOR')}
-					<li class="menu-item{if $mod eq 'home' && $sub eq 'report' && $act eq 'default'} active{/if}"> 
-						<a href="{$PCMS_URL}/bao-cao.html" class="menu-link" data-toggle="ripple">
-							<i class="menu-icon tf-icons bx bx-line-chart"></i>
-							<div data-i18n="Báo cáo MOC">Hiệu suất bán hàng</div>
-						</a>
-					</li>
-					{/if} -->
-					{*{if $clsISO->checkPermission('top_ten_sales')}
-					<li class="menu-item{if $mod eq 'report' and $act eq 'top_10'} active{/if}"> 
-						<a href="{$PCMS_URL}/report/top-10.html" class="menu-link" data-toggle="ripple">
-							<i class="menu-icon tf-icons bx bx-crown"></i>
-							<div data-i18n="Báo cáo MOC">Top 10 sale</div>
-						</a>
-					</li>{/if}
-					{if $clsISO->checkPermission('sales_has_trans')}
-					<li class="menu-item{if $mod eq 'report' and $act eq 'sales_has_trans'} active{/if}"> 
-						<a href="{$PCMS_URL}/report/sales-has-trans.html" class="menu-link" data-toggle="ripple">
-							<i class="menu-icon tf-icons bx bx-check-square"></i>
-							<div data-i18n="Sale đã có GD">Sale đã có GD</div>
-						</a>
-					</li>{/if}
-					{if $clsISO->checkPermission('sales_not_trans')}
-						<li class="menu-item{if $mod eq 'report' and $act eq 'top_sales'} active{/if}"> 
-							<a href="{$PCMS_URL}/report/sale-no-trans.html" class="menu-link" data-toggle="ripple">
-								<i class="menu-icon tf-icons bx bx-minus-circle"></i>
-								<div data-i18n="Sale chưa có GD">Sale chưa có GD</div>
+						{/if} -->
+						{*{if $clsISO->checkPermission('top_ten_sales')}
+						<li class="menu-item{if $mod eq 'report' and $act eq 'top_10'} active{/if}"> 
+							<a href="{$PCMS_URL}/report/top-10.html" class="menu-link" data-toggle="ripple">
+								<i class="menu-icon tf-icons bx bx-crown"></i>
+								<div data-i18n="Báo cáo MOC">Top 10 sale</div>
 							</a>
-						</li>
-					{/if}*}
-					{if $clsISO->checkPermission('report_sale') || $clsISO->checkPermissionGroup('DIRECTOR')}
-						<li class="menu-item{if $mod eq 'home' && $sub eq 'report' && $act eq 'report_login'} active{/if}"> 
-							<a href="{$PCMS_URL}/bao-cao-dang-nhap.html" class="menu-link" data-toggle="ripple">
-								<i class="menu-icon tf-icons bx bx-pulse"></i>
-								<div data-i18n="Thống kê tần suất sử dụng">Tần suất truy cập</div>
+						</li>{/if}
+						{if $clsISO->checkPermission('sales_has_trans')}
+						<li class="menu-item{if $mod eq 'report' and $act eq 'sales_has_trans'} active{/if}"> 
+							<a href="{$PCMS_URL}/report/sales-has-trans.html" class="menu-link" data-toggle="ripple">
+								<i class="menu-icon tf-icons bx bx-check-square"></i>
+								<div data-i18n="Sale đã có GD">Sale đã có GD</div>
 							</a>
-						</li>
-					{/if}
-					{if $clsISO->checkPermission('report_sale')}
-						<li class="menu-item d-none {if $mod eq 'report' and $act eq 'request_ptg'} active{/if}"> 
-							<a href="{$PCMS_URL}/bao-cao-phan-hoi-yeu-cau-ptg.html" class="menu-link" data-toggle="ripple">
-								<i class="menu-icon tf-icons bx bx-request"></i>
-								<div data-i18n="Báo cáo yêu cầu PTG">Phản hồi yêu cầu PTG</div>
-							</a>
-						</li>
-					{/if}
-					{assign var=listBlockPage value=$clsISO->getListBlockPage()}
-					{if !empty($listBlockPage)}
-						{foreach from=$listBlockPage item=_oItem key=key name=i}
+						</li>{/if}
+						{if $clsISO->checkPermission('sales_not_trans')}
+							<li class="menu-item{if $mod eq 'report' and $act eq 'top_sales'} active{/if}"> 
+								<a href="{$PCMS_URL}/report/sale-no-trans.html" class="menu-link" data-toggle="ripple">
+									<i class="menu-icon tf-icons bx bx-minus-circle"></i>
+									<div data-i18n="Sale chưa có GD">Sale chưa có GD</div>
+								</a>
+							</li>
+						{/if}*}
+						{if $clsISO->checkPermission('report_sale') || $clsISO->checkPermissionGroup('DIRECTOR')}
+							<li class="menu-item{if $mod eq 'home' && $sub eq 'report' && $act eq 'report_login'} active{/if}"> 
+								<a href="{$PCMS_URL}/bao-cao-dang-nhap.html" class="menu-link" data-toggle="ripple">
+									<i class="menu-icon tf-icons bx bx-pulse"></i>
+									<div data-i18n="Thống kê tần suất sử dụng">Tần suất truy cập</div>
+								</a>
+							</li>
+						{/if}
+				
+						{if $clsISO->checkPermission('report_sale')}
+							<li class="menu-item d-none {if $mod eq 'report' and $act eq 'request_ptg'} active{/if}"> 
+								<a href="{$PCMS_URL}/bao-cao-phan-hoi-yeu-cau-ptg.html" class="menu-link" data-toggle="ripple">
+									<i class="menu-icon tf-icons bx bx-request"></i>
+									<div data-i18n="Báo cáo yêu cầu PTG">Phản hồi yêu cầu PTG</div>
+								</a>
+							</li>
+						{/if}
+						{assign var=listBlockPage value=$clsISO->getListBlockPage()}
+						{if !empty($listBlockPage)}
+							{foreach from=$listBlockPage item=_oItem key=key name=i}
 							<li class="menu-item {if $mod eq 'home' && $sub eq 'report' && $act eq 'top' && $_oItem.slug eq $slug} active{/if}"> 
 								<a href="{$PCMS_URL}/bang-xep-hang-{$_oItem.slug}.html" class="menu-link" data-toggle="ripple">
 									<i class="menu-icon tf-icons {if $_oItem.icon}{$_oItem.icon}{else}bx bxs-up-arrow{/if} text-reset"></i>
 									<div data-i18n="{$_oItem.title_page}">{$_oItem.title_menu}</div>
 								</a>
 							</li>
-						{/foreach}
-					{/if}
+							{/foreach}
+						{/if}
 				{/if}
 			</ul>
 		</li>
+	
 		<!--		=========================-->
 		<!--		=============Công cụ Hệ Thống============-->
 		{if $clsISO->checkPermissionGroup('DIRECTOR') || $clsISO->checkPermissionGroup('ADMIN_PROJECT') || $clsISO->checkPermission('issue_access') || $clsISO->checkDEV()}
-		<!-- <li class="menu-item {if $mod eq 'data_central'} active{/if}">
+		<!-- <li class="menu-item open">
 				{assign var=gId value=$clsISO->getUniqid()}
 				<a data-toggle="ripple" href="javascript:void(0);" class="menu-link w-100 d-block menu-toggle mx-0 text-left">
 					<i class="menu-icon tf-icons bx bx-cog text-main"></i>
@@ -431,11 +433,11 @@
 		{/if}
 		<!--		=========================-->		
         <!-- Misc -->
-        <li class="menu-item open {if $mod eq 'data_central'} active{/if}">
+        <li class="menu-item open">
 			{assign var=gId value=$clsISO->getUniqid()}
-			<a data-toggle="ripple" href="javascript:void(0);" class="menu-link w-100 d-block mx-0 text-left">
+			<a data-toggle="ripple" href="javascript:void(0);" class="menu-link w-100 d-block menu-toggle mx-0 text-left">
 				<i class="menu-icon tf-icons bx bx-dots-horizontal-rounded text-main"></i>
-				<span class="menu-header-text text-upper text-main fs-11 fw-semibold">Misc (<span id="{$gId}" >0</span>)</span>
+				{if $menu_v2}<span class="menu-header-text">Misc</span><span class="menu-count" id="{$gId}">0</span>{else}<span class="menu-header-text text-upper text-main fs-11 fw-semibold">Misc (<span id="{$gId}" >0</span>)</span>{/if}
 			</a>
 			<ul class="menu-sub no-before" toId="{$gId}">
 				{if $clsISO->checkPermissionGroup('DIRECTOR') || $clsISO->checkPermissionGroup('ADMIN_PROJECT')}
@@ -449,6 +451,7 @@
 					</a>
 				</li>
 				{/if}
+
 				{if $clsISO->checkPermission('log_search')}
 					<li class="menu-item{if $mod eq 'log' and $act eq 'log_sale'} active{/if}">
 						<a href="{$PCMS_URL}/logs-sale.html" class="menu-link" data-toggle="ripple">
@@ -457,6 +460,7 @@
 						</a>
 					</li>
 				{/if}
+
 				{if $clsISO->checkPermission('log_search_all') && 1 eq 2}
 					<li class="menu-item {if $mod eq 'log' and $act eq 'log_search'} active{/if}">
 						<a href="{$PCMS_URL}/logs-search.html" class="menu-link" data-toggle="ripple">
@@ -526,21 +530,36 @@
 			</ul>
 		</li>
     </ul>
+	{if $menu_v2 && $profile_id > 0}
+	<div class="menu-footer">
+		<a href="{$clsISO->getLink('logout')}" class="menu-footer-link">
+			<div class="avatar avatar-sm flex-shrink-0">
+				<img src="{$clsProfile->getAvatar($profile_id,$oneProfile,40,40)}" onerror="this.src='{$URL_IMAGES}/avatars/1.png'" class="rounded-circle" />
+			</div>
+			<div class="menu-footer-info d-flex flex-column min-w-0 gap-1 flex-grow-1">
+				<span class="menu-footer-name">{$oneProfile.full_name|escape}</span>
+				<span class="menu-footer-role">{$oneProfile.role_name|escape}</span>
+			</div>
+			<i class="bx bx-log-out menu-footer-out flex-shrink-0"></i>
+		</a>
+	</div>
+	{/if}
 </aside>
 {literal}
-	<script>
-		$(function(){
-			$(".menu-sub.no-before").each(function(index, elm){
-				var total = 0,
-					toId = $(elm).attr("toId");
-				$(".menu-item",$(elm)).each (function(i,_elm) {
-					++total;
-				});
-				$("#"+toId).text(total);
-				if(total == 0) {
-					$(elm).closest(".menu-item").addClass("d-none")
-				}
+<script>
+	$(function(){
+		$(".menu-sub.no-before").each(function(index, elm){
+			var total = 0,
+				toId = $(elm).attr("toId");
+			$(".menu-item",$(elm)).each (function(i,_elm) {
+				++total;
 			});
+			console.log(total);
+			$("#"+toId).text(total);
+			if(total == 0) {
+				$(elm).closest(".menu-item").addClass("d-none")
+			}
 		});
-	</script>
+	});
+</script>
 {/literal}

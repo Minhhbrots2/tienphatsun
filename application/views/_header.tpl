@@ -63,8 +63,20 @@
 	</script>
 	{/literal}
 	{else}
+	<link rel="stylesheet" type="text/css" href="{$URL_CSS}/topbar.css?v={$upd_version}" />
 	<nav id="layout-navbar"
 		class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme">
+		{* header full-width: logo chuyen tu aside len day (chi desktop >=1200px,
+		   mobile giu nguyen header-mobile cu) *}
+		<div class="tb-brand d-none d-xl-flex">
+			<a href="{$PCMS_URL}" class="tb-brand__link" title="{$header_configs.CompanyName}">
+				<img src="{$clsConfiguration->getValue('HeaderLogo')}" height="{$clsConfiguration->getImageHeight('HeaderLogo')}" alt="{$header_configs.CompanyName}" />
+			</a>
+			{* nut thu gon aside: icon-only, sat vien ngan cach (class layout-menu-toggle de menu.js xu ly) *}
+			<a href="javascript:void(0);" class="layout-menu-toggle tb-toggle" title="Thu gọn / mở rộng menu">
+				<i class="bx bx-chevrons-left"></i>
+			</a>
+		</div>
 		<div class="layout-menu-toggle navbar-nav align-items-xl-center me-2 me-xl-0 d-xl-none">
 			<a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
 				<i class="bx bx-menu bx-sm"></i>
