@@ -522,6 +522,10 @@ function _autoload(){
 					}
 					if($(_elem).hasClass('billing_calendar')){
 						$(".number_total").text(respJson.total);
+						var $signbx = $(_elem).closest('.dbx-card');
+						$signbx.find('.sign-sum-total').text(respJson.total);
+						if(typeof respJson.total_signed != 'undefined') $signbx.find('.sign-sum-signed').text(respJson.total_signed);
+						if(typeof respJson.total_unsigned != 'undefined') $signbx.find('.sign-sum-unsigned').text(respJson.total_unsigned);
 					}
 					if($(_elem).hasClass('commission_person')){
 						$(".total_commission").text(respJson.total);
@@ -3239,7 +3243,19 @@ $Core.tool = {
 	},
 }
 $Core.project = {
-	toggle_row_stock: (_this, e) => {
+	filter_city: (_this, e) => {
+		e.preventDefault();
+		// Lọc trong phạm vi đúng khu vực đang bấm, các khu vực khác giữ nguyên lựa chọn của nó.
+		var $_this = $(_this),
+			$_area = $_this.closest('.js__project-area'),
+			city_id = String($_this.attr('data-city'));
+		$_area.find('.js__project-city-tab').removeClass('active btn-outline-primary').addClass('btn-outline-default');
+		$_this.addClass('active btn-outline-primary').removeClass('btn-outline-default');
+		$_area.find('.js__project-card').each(function(){
+			// data-city = 0 là dự án chưa gán tỉnh, chỉ hiện ở tab "Tất cả".
+			$(this).toggle(city_id === '0' || String($(this).attr('data-city')) === city_id);
+		});
+	}, toggle_row_stock: (_this, e) => {
 		e.preventDefault();
 		var _table = $(_this).closest("table"),
 			toCls = $(_this).attr('toCls'),
@@ -4299,3 +4315,90 @@ $Core.dashboard_sale = {
 			_autoload();
 	}
 }
+
+/* ===== THÊM MỚI: Xuất Excel billing — chọn cột + xem trước ===== */
+$Core.billing = $Core.billing || {};
+// Mở modal chọn cột (AJAX → JSON {uid, html} → mở popup)
+$Core.billing.openExport = function(element){
+	var filterQuery = ($(element).data('qs') || '').toString().replace(/^\?/, '');
+	if(window.vietiso_loading) vietiso_loading(1);
+	$.ajax({
+		type: 'POST',
+		url: PCMS_URL + '/index.php?mod=home&act=open_export' + (filterQuery ? ('&' + filterQuery) : ''),
+		dataType: 'json',
+		success: function(respJson){
+			if(window.vietiso_loading) vietiso_loading(0);
+			$Core.popup.open('auto', 'auto', respJson.html, respJson.uid);
+			$Core.billing.initExportModal(respJson.modal_id);
+		}
+	});
+	return false;
+};
+// Đọc cột đã tick trong ĐÚNG modal (scope theo $modal để tránh trùng ID khi mở lại)
+$Core.billing.exportColumnsIn = function($modal){
+	var columns = [];
+	$modal.find('input.exp_col:checked').each(function(){ columns.push($(this).val()); });
+	return columns;
+};
+// Cập nhật bảng xem trước trong modal
+$Core.billing.exportPreviewIn = function($modal){
+	var columns = $Core.billing.exportColumnsIn($modal);
+	$modal.find('#exp_count').text('Đã chọn ' + columns.length + ' cột');
+	$.ajax({
+		type: 'POST',
+		url: PCMS_URL + '/index.php?mod=home&act=export_preview&' + ($modal.find('#exp_qs').val() || ''),
+		data: { cols: columns },
+		dataType: 'json',
+		success: function(respJson){ $modal.find('#exp_preview').html(respJson.html); }
+	});
+};
+// Khởi tạo modal (theo modal_id duy nhất): kéo sắp thứ tự + refresh preview live khi tick/kéo
+$Core.billing.initExportModal = function(modalId){
+	var $modal = $('#' + modalId);
+	if(!$modal.length) return;
+	var previewTimer = null;
+	function refreshPreview(){ clearTimeout(previewTimer); previewTimer = setTimeout(function(){ $Core.billing.exportPreviewIn($modal); }, 250); }
+	// Đồng bộ trạng thái ô "Chọn tất cả" theo số cột đang tick (all/none/một phần)
+	function syncCheckAll(){
+		var total = $modal.find('input.exp_col').length;
+		var checked = $modal.find('input.exp_col:checked').length;
+		$modal.find('.exp_check_all')
+			.prop('checked', total > 0 && checked === total)
+			.prop('indeterminate', checked > 0 && checked < total);
+	}
+	var $columnList = $modal.find('#exp_cols');
+	if($.fn.sortable){ $columnList.sortable({ handle: '.exp_handle', axis: 'y', update: refreshPreview }); }
+	$columnList.on('change', 'input.exp_col', function(){ syncCheckAll(); refreshPreview(); });
+	// Tick/bỏ tick tất cả cột
+	$modal.on('change', '.exp_check_all', function(){
+		$modal.find('input.exp_col').prop('checked', $(this).prop('checked'));
+		syncCheckAll(); refreshPreview();
+	});
+	syncCheckAll();
+	$Core.billing.exportPreviewIn($modal);
+};
+// Submit xuất Excel (POST cols[] theo thứ tự, mở tab tải file)
+$Core.billing.exportRun = function(button){
+	var $modal = $(button).closest('.modal-dialog');
+	var columns = $Core.billing.exportColumnsIn($modal);
+	if(!columns.length){ alert('Chọn ít nhất 1 cột'); return; }
+	var form = $('<form method="post" target="_blank" action="' + PCMS_URL + '/index.php?mod=home&act=export_pop&' + ($modal.find('#exp_qs').val() || '') + '"></form>');
+	columns.forEach(function(columnKey){ form.append('<input type="hidden" name="cols[]" value="' + columnKey + '">'); });
+	$('body').append(form); form.submit(); form.remove();
+};
+// Lưu cấu hình cột (cache/billing/export.json)
+$Core.billing.exportSaveConfig = function(button){
+	var $modal = $(button).closest('.modal-dialog');
+	var columns = $Core.billing.exportColumnsIn($modal);
+	$.ajax({
+		type: 'POST',
+		url: PCMS_URL + '/index.php?mod=home&act=save_export_config',
+		data: { cols: columns },
+		dataType: 'json',
+		success: function(respJson){ 
+			if(respJson && respJson.ok){
+				alertify.success("Đã lưu cấu hình cột");
+			} 
+		}
+	});
+};

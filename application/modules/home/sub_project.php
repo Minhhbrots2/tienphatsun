@@ -35,7 +35,6 @@ function project_default(){
 	$clsProperty = new Property();
 	$assign_list["clsProject"] = $clsProject;
 	$assign_list["clsProperty"] = $clsProperty;
-	
 	###
 	$show = Input::get('show','project');
 	$project_id = (int) Input::get('project_id', 0);
@@ -143,17 +142,118 @@ function project_project(){
 	,$description_page,$keyword_page,$clsConfiguration,$clsISO,$profile_id,$loggedIn,$list_projects;
 	$arr_project = [_PROJECT_VHOP3_ID,_PROJECT_VHOP2_ID,_PROJECT_VHGG_ID,_PROJECT_VWC_ID];
 	$clsSetting = new Setting();
-	
+	$clsProject = new Project();
+	$clsProperty = new Property();
+	# Ten chu dau tu: hien tren the du an + lam bo loc
+	$arr_investor_titles = [];
+	$tmp_inv = $clsProperty->getAll("`is_trash`=0 AND `property_type`='_INVESTOR'", "`{$clsProperty->pkey}`,`title`");
+	if(!empty($tmp_inv)){
+		foreach($tmp_inv as $oval){
+			$arr_investor_titles[(int) $oval[$clsProperty->pkey]] = $oval['title'];
+		}
+		unset($tmp_inv);
+	}
+	# KPI dau trang + du lieu cho cac select loc
+	$arr_kpis = ['total' => 0, 'open' => 0, 'soon' => 0];
+	$arr_filter_investors = $arr_filter_cities = $arr_kpi_investors = $arr_kpi_cities = [];
+
 	$lstArea = $clsSetting->getArraySearchByKey("_AREA");
-	$arr_project_area = [];
+	$arr_project_area = $arr_area_cities = [];
 	if(!empty($list_projects)) {
+		$arr_city_titles = [];
+		$clsCity = new City();
+		$tmp_cities = $clsCity->getAll("`is_trash`=0 AND `country_id`=1", "`{$clsCity->pkey}`,`title`");
+		if(!empty($tmp_cities)){
+			foreach($tmp_cities as $oval){
+				$arr_city_titles[(int) $oval[$clsCity->pkey]] = $oval['title'];
+			}
+			unset($tmp_cities);
+		}
 		foreach ($list_projects as $key => $val) {
-			$arr_project_area[$val["area_id"]][] = $val;
+			$area_id = $val["area_id"];
+			$city_id = (int) $core->get_field($val["more_information"], "city_id", 0);
+			if(!isset($arr_city_titles[$city_id])) $city_id = 0;
+			$val["city_id"] = $city_id;
+			if($city_id > 0){
+				if(!isset($arr_area_cities[$area_id][$city_id])){
+					$arr_area_cities[$area_id][$city_id] = [
+						'city_id'	=> $city_id,
+						'title'		=> $arr_city_titles[$city_id],
+						'total'		=> 0
+					];
+				}
+				++$arr_area_cities[$area_id][$city_id]['total'];
+			}
+			# Lam giau du lieu cho the du an (giao dien moi)
+			$mi = $val["more_information"];
+			$val["city_title"] = ($city_id > 0) ? $arr_city_titles[$city_id] : "";
+			$val["building"] = $core->get_field($mi, "building", "");
+			$val["apartment"] = $core->get_field($mi, "apartment", "");
+			$val["arcreage"] = $core->get_field($mi, "arcreage", "");
+			$val["building_density"] = $core->get_field($mi, "building_density", "");
+			$val["vr_link"] = trim($core->get_field($mi, "vr_link", ""));
+			$project_status = $core->get_field($mi, "project_status", "open");
+			if(!in_array($project_status, array("open", "soon", "research"), true)){
+				$project_status = "open";
+			}
+			$val["project_status"] = $project_status;
+			$investor_id = (int) $core->get_field($mi, "investor_id", 0);
+			$val["investor_id"] = $investor_id;
+			$val["investor_name"] = ($investor_id > 0 && isset($arr_investor_titles[$investor_id])) ? $arr_investor_titles[$investor_id] : "";
+			# Loai hinh: suy tu list_block_type cua du an
+			# _header da convert list_block_type thanh mang san - chi explode khi con la chuoi
+			if(is_array($val["list_block_type"])){
+				$block_types = $val["list_block_type"];
+			} else {
+				$block_types = !empty($val["list_block_type"]) ? $clsISO->getArrayByTextSlash($val["list_block_type"]) : array();
+			}
+			$has_high = $clsISO->checkItemInArray(_BLOCK_TYPE_HIGHLEVEL_SALE, $block_types);
+			$has_low = $clsISO->checkItemInArray(_BLOCK_TYPE_LOWFLOOR_SALE, $block_types);
+			if($has_high && $has_low){
+				$val["type_key"] = "mix";
+				$val["type_label"] = "Cao + Thấp tầng";
+			} else if($has_low){
+				$val["type_key"] = "thap";
+				$val["type_label"] = "Thấp tầng";
+			} else {
+				$val["type_key"] = "cao";
+				$val["type_label"] = "Cao tầng";
+			}
+			# Dem tien ich: cot `utilities` la JSON tren bang project
+			$utilities_raw = isset($val["utilities"]) ? $val["utilities"] : $clsProject->getOneField('utilities', $val[$clsProject->pkey]);
+			$tmp_utl = $clsISO->to_array_json($utilities_raw);
+			$val["total_utilities"] = !empty($tmp_utl) ? count($tmp_utl) : 0;
+			# Cong don KPI + du lieu bo loc
+			++$arr_kpis['total'];
+			if($project_status == 'open') ++$arr_kpis['open'];
+			if($project_status == 'soon') ++$arr_kpis['soon'];
+			if($investor_id > 0){
+				$arr_kpi_investors[$investor_id] = 1;
+				$arr_filter_investors[$investor_id] = $val["investor_name"];
+			}
+			if($city_id > 0){
+				$arr_kpi_cities[$city_id] = 1;
+				$arr_filter_cities[$city_id] = $arr_city_titles[$city_id];
+			}
+			$arr_project_area[$area_id][] = $val;
+		}
+		// Sắp tab theo city_id để thứ tự bám đúng thứ tự tỉnh đã đánh trong bảng default_city.
+		if(!empty($arr_area_cities)){
+			foreach($arr_area_cities as $area_id => $cities){
+				ksort($arr_area_cities[$area_id]);
+			}
 		}
 	}
-	
+	//$clsISO->print_pre($arr_area_cities);die;
+
+	$arr_kpis['investors'] = count($arr_kpi_investors);
+	$arr_kpis['cities'] = count($arr_kpi_cities);
+	$assign_list["arr_kpis"] = $arr_kpis;
+	$assign_list["arr_filter_investors"] = $arr_filter_investors;
+	$assign_list["arr_filter_cities"] = $arr_filter_cities;
 	$assign_list["lstArea"] = $lstArea;
 	$assign_list["arr_project_area"] = $arr_project_area;
+	$assign_list["arr_area_cities"] = $arr_area_cities;
 	$assign_list["arr_project"] = $arr_project;
 	$assign_list["clsSetting"] = $clsSetting;
 	// $clsISO->print_pre($list_projects); die();
@@ -2550,9 +2650,189 @@ function project_stock_list(){
 		}
 	}
 	$assign_list["lstArea"] = $lstArea;
+	# Tab Ma trận: gom lại theo dự án + CĐT từ chính dữ liệu đã dựng ở trên
+	$assign_list["matrix"] = _stock_matrix_build($lstArea, $clsStock, $clsProperty, $clsProject, $core, $clsISO);
 	/*=============Title & Description Page==================*/
 	$title_page = 'Bảng hàng dự án - ' . PAGE_NAME;
 	$assign_list["title_page"] = $title_page;
+}
+/**
+ * Dựng dữ liệu cho tab Ma trận từ $lstArea đã build sẵn (không query lại block/building).
+ * Gom cao tầng theo DỰ ÁN (mỗi dòng 1 dự án), phân khu thành nhóm con, tòa là nút bấm.
+ * CĐT: investor_id trong more_information của phân khu → fallback cấp dự án; tên lấy cache _INVESTOR.
+ * Trạng thái dự án: is_lock=1 (trong more_information) = hết hàng, ngược lại đang mở bán.
+ * Số căn "còn": đếm 1 lần bằng GROUP BY (status_id<>SOLD, agency_id>0).
+ * @return array investors / high / low / totals
+ */
+function _stock_matrix_build($lstArea, $clsStock, $clsProperty, $clsProject, $core, $clsISO){
+	$list_investor = $clsProperty->getArraySearchByKey("_INVESTOR");
+	if(!is_array($list_investor)){ $list_investor = array(); }
+	# Đếm căn còn theo dự án — 1 query/loại, dùng chung mọi vùng
+	$count_high = _stock_matrix_count_units($clsStock, _BLOCK_TYPE_HIGHLEVEL_SALE);
+	$count_low  = _stock_matrix_count_units($clsStock, _BLOCK_TYPE_LOWFLOOR_SALE);
+	$ctx = array("investor" => $list_investor, "high" => $count_high, "low" => $count_low, "core" => $core, "iso" => $clsISO);
+
+	# Tab đầu tiên: Toàn quốc (gộp mọi vùng); sau đó mỗi khu vực 1 tab
+	$regions = array();
+	$all = _stock_matrix_region($lstArea, $ctx);
+	$all["id"] = 0;
+	$all["title"] = "Toàn quốc";
+	$regions[] = $all;
+	foreach($lstArea as $area){
+		$has_data = !empty($area["list_blocks"]) || !empty($area["arr_projects"]) || !empty($area["arr_menu_blocks"]);
+		if(!$has_data){ continue; }
+		$one = _stock_matrix_region(array($area), $ctx);
+		$one["id"] = isset($area["setting_id"]) ? (int) $area["setting_id"] : 0;
+		$one["title"] = isset($area["title"]) ? $area["title"] : "Khu vực";
+		$regions[] = $one;
+	}
+	return array("regions" => $regions);
+}
+/**
+ * Dựng 1 vùng từ area entries — GOM THEO DỰ ÁN (mỗi dòng 1 dự án, như thiết kế gốc).
+ * Dữ liệu vẫn lấy từ list_blocks / arr_projects của Tổng quan.
+ * @return array investors / high / low / totals (chưa có id/title — nơi gọi gán)
+ */
+function _stock_matrix_region($areas, $ctx){
+	$list_investor = $ctx["investor"]; $count_high = $ctx["high"]; $count_low = $ctx["low"];
+	$core = $ctx["core"]; $clsISO = $ctx["iso"];
+
+	# ---- Cao tầng: gom phân khu theo dự án, mỗi dự án 1 dòng ----
+	$high_projects = array();
+	$tower_total = 0;
+	$sum_high_units = 0;
+	foreach($areas as $area){
+		if(empty($area["list_blocks"])){ continue; }
+		foreach($area["list_blocks"] as $block){
+			# Overview chỉ cần list_menu_buildings; giữ y hệt để không lệch danh sách
+			if(empty($block["list_menu_buildings"])){ continue; }
+			$pinfo = !empty($block["project_info"]) ? $block["project_info"] : array();
+			$project_id = (int) (isset($pinfo["project_id"]) ? $pinfo["project_id"] : 0);
+			# Khóa gom: dự án hợp lệ → gom theo dự án; không có project_id → mỗi phân khu 1 dòng
+			# (tránh gộp nhầm nhiều phân khu mồ côi vào chung 1 dòng như trước).
+			$gkey = $project_id > 0 ? 'p'.$project_id : 'b'.$block["property_id"];
+			$block_more = is_array($block["more_information"]) ? $block["more_information"]
+				: $clsISO->to_array_json($block["more_information"]);
+			$investor_id = (int) $core->get_field($block_more, "investor_id", 0);
+			if(!isset($high_projects[$gkey])){
+				$proj_more = isset($pinfo["more_information"]) ? $pinfo["more_information"] : array();
+				if(!is_array($proj_more)){ $proj_more = $clsISO->to_array_json($proj_more); }
+				$proj_investor = (int) $core->get_field($proj_more, "investor_id", 0);
+				$is_lock = (int) $core->get_field($proj_more, "is_lock", 0);
+				$units = ($project_id > 0 && isset($count_high[$project_id])) ? (int) $count_high[$project_id] : 0;
+				if($project_id > 0){ $sum_high_units += $units; }
+				$high_projects[$gkey] = array(
+					"project_id"     => $project_id,
+					"title"          => isset($pinfo["title"]) ? $pinfo["title"] : $block["title"],
+					"logo"           => isset($pinfo["logo"]) ? $pinfo["logo"] : "",
+					"investor_id"    => $investor_id > 0 ? $investor_id : $proj_investor,
+					"is_lock"        => $is_lock,
+					"unit_count"     => $units,
+					"unit_count_fmt" => number_format($units, 0, ',', '.'),
+					"subs"           => array()
+				);
+			}
+			if($high_projects[$gkey]["investor_id"] <= 0 && $investor_id > 0){
+				$high_projects[$gkey]["investor_id"] = $investor_id;
+			}
+			$towers = array();
+			foreach($block["list_menu_buildings"] as $bld){
+				$towers[] = array(
+					"title"  => $bld["title"],
+					"link"   => isset($bld["link"]) ? $bld["link"] : "",
+					"is_hot" => (int) $core->get_field($block_more, "is_hot", 0)
+				);
+				$tower_total++;
+			}
+			$high_projects[$gkey]["subs"][] = array(
+				"block_title" => $block["title"],
+				"bgcolor"     => $core->get_field($block_more, "bgcolor", "#696cff"),
+				"textcolor"   => $core->get_field($block_more, "textcolor", "#fff"),
+				"towers"      => $towers
+			);
+		}
+	}
+	$investor_summary = array();
+	foreach($high_projects as $pid => $row){
+		$inv_id = (int) $row["investor_id"];
+		$high_projects[$pid]["investor_name"] = ($inv_id > 0 && isset($list_investor[$inv_id]))
+			? $list_investor[$inv_id]["title"] : "Chưa gán CĐT";
+		if(!isset($investor_summary[$inv_id])){ $investor_summary[$inv_id] = 0; }
+		$investor_summary[$inv_id]++;
+	}
+	$high_projects = array_values($high_projects);
+
+	# ---- Thấp tầng: arr_projects + arr_menu_blocks (như Tổng quan), khử trùng lặp ----
+	$low_projects = array(); $low_blocks = array(); $low_pids = array(); $seen_lp = array(); $seen_lb = array();
+	foreach($areas as $area){
+		if(!empty($area["arr_projects"])){
+			foreach($area["arr_projects"] as $proj){
+				$pid = (int) $proj["project_id"];
+				if(isset($seen_lp[$pid])){ continue; }   // cùng dự án ở nhiều vùng → chỉ 1 lần
+				$seen_lp[$pid] = 1;
+				$lu = isset($count_low[$pid]) ? (int) $count_low[$pid] : 0;
+				$proj["unit_count"] = $lu;
+				$proj["unit_count_fmt"] = number_format($lu, 0, ',', '.');
+				$low_projects[] = $proj;
+				$low_pids[$pid] = 1;
+			}
+		}
+		if(!empty($area["arr_menu_blocks"])){
+			foreach($area["arr_menu_blocks"] as $blk){
+				$bid = (int) (isset($blk["property_id"]) ? $blk["property_id"] : 0);
+				if($bid > 0 && isset($seen_lb[$bid])){ continue; }
+				if($bid > 0){ $seen_lb[$bid] = 1; }
+				$low_blocks[] = $blk;
+			}
+		}
+	}
+	$sum_low_units = 0;
+	foreach(array_keys($low_pids) as $pid){ $sum_low_units += isset($count_low[$pid]) ? (int) $count_low[$pid] : 0; }
+
+	# ---- Panel CĐT (đếm theo số dự án) ----
+	$investors = array(array("id" => 0, "title" => "Tất cả CĐT", "count" => count($high_projects)));
+	foreach($investor_summary as $inv_id => $cnt){
+		if($inv_id <= 0){ continue; }
+		$investors[] = array(
+			"id"    => $inv_id,
+			"title" => isset($list_investor[$inv_id]) ? $list_investor[$inv_id]["title"] : "CĐT #".$inv_id,
+			"count" => $cnt
+		);
+	}
+
+	return array(
+		"investors"    => $investors,
+		"high"         => $high_projects,
+		"low_projects" => $low_projects,
+		"low_blocks"   => $low_blocks,
+		"totals"       => array(
+			"high_projects"  => count($high_projects),
+			"high_towers"    => $tower_total,
+			"high_units"     => $sum_high_units,
+			"high_units_fmt" => number_format($sum_high_units, 0, ',', '.'),
+			"low_projects"   => count($low_projects) + count($low_blocks),
+			"low_units"      => $sum_low_units,
+			"low_units_fmt"  => number_format($sum_low_units, 0, ',', '.')
+		)
+	);
+}
+/**
+ * Đếm số căn "còn" theo dự án cho 1 loại kho (cao/thấp tầng) bằng 1 truy vấn GROUP BY.
+ * "Còn" = status_id > 0 và khác đã bán và có sàn (agency_id > 0) — theo đúng điều kiện lọc list.
+ * @return array project_id => số căn
+ */
+function _stock_matrix_count_units($clsStock, $stock_type){
+	global $dbconn;
+	$stock_type = (int) $stock_type;
+	$sold = (int) _STOCK_STATUS_SOLD_ID;
+	$rows = $dbconn->GetAll("SELECT `project_id`, COUNT(*) AS `c` FROM `{$clsStock->tbl}`
+		WHERE `stock_type`='{$stock_type}' AND `status_id`>0 AND `status_id`<>'{$sold}' AND `agency_id`>0
+		GROUP BY `project_id`");
+	$out = array();
+	if(is_array($rows)){
+		foreach($rows as $r){ $out[(int) $r["project_id"]] = (int) $r["c"]; }
+	}
+	return $out;
 }
 /**
  * Tiến độ dự án (cat_id=3): build từ bảng project_progress_items, gom nhóm theo THÁNG.
@@ -2560,6 +2840,7 @@ function project_stock_list(){
  * (ảnh Drive / video YouTube+Drive / tài liệu Drive preview). Trả mảng tháng (mới -> cũ).
  */
 function project_build_progress($project_id, $block_id, $clsISO){
+	global $clsISO;
 	$clsProgress = new ProjectProgressItems();
 //	$project_id = 2;
 //	$block_id = 11266;
@@ -2774,11 +3055,7 @@ function project_detail(){
 	$list_utilities = $list_shops = array();
 	// Tiến độ (category "Tiến độ" _CATEGORY_DOCS id=11646): dữ liệu từ project_progress_items, gom nhóm theo tháng
 	if($cat_id == _PROJECT_PROGRESS_CATID){
-		if($clsISO->_DEV()){
-			$assign_list["list_progress_groups"] = project_build_progress_groups($project_id, $block_id, $building_id, $show, $clsISO);
-		}else{
-			$assign_list["list_progress"] = project_build_progress($project_id, $block_id, $clsISO);
-		}
+		$assign_list["list_progress"] = project_build_progress($project_id, $block_id, $clsISO);
 		
 	}
 	// var_dump($cat_id); die();
@@ -3248,7 +3525,7 @@ function project_detail(){
 							$list_policy_docs[$okey]['more_information'] = $more_information;
 						}
 					}
-				}elseif($show == "project"){
+				}elseif($show == "project"){		
 					$json_project = sprintf('"project_id":"%s"', $project_id);
 					$list_policy_docs = $clsPolicy->getAll("`is_trash`=0 and `block_type` IN (".implode(',',$arr_block_type).")
 						and (`scope_slash` like '%|{$project_id}!_%' escape '!' or `scope` like '%{$json_project}%') order by `ms_date` DESC");

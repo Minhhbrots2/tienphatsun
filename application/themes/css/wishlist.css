@@ -1,0 +1,285 @@
+/* ============================================================
+   Panel "Danh sach yeu thich" (fragment _ajax.loadFavourite.tpl).
+   Prefix .wlp- de khong dung cham CSS khac. Panel nam trong
+   .modal.right (mo bang $Core.popup.openfull).
+   ============================================================ */
+.wlp {
+	--wlp-brand: var(--main-color, #BF171D);
+	--wlp-brand-700: var(--rank-1, #9E1217);
+	--wlp-brand-tint: rgba(191, 23, 29, .08);
+	--wlp-ink: #23272f;
+	--wlp-muted: #6c727f;
+	--wlp-muted-2: #9aa0ab;
+	--wlp-border: #e6e8ec;
+	--wlp-border-2: #f0f1f4;
+	--wlp-good: #1e9e5a;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	border: 0;
+}
+
+/* ---------- header ---------- */
+.wlp-head {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 15px 18px 12px;
+	border-bottom: 0 !important;
+}
+.wlp-head__ico {
+	flex: 0 0 auto;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	border: 2px solid var(--wlp-brand);
+	color: var(--wlp-brand);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 19px;
+}
+.wlp-head__titles { flex: 1 1 auto; min-width: 0; }
+.wlp-head__title {
+	margin: 0;
+	font-size: 16.5px;
+	font-weight: 800;
+	color: var(--wlp-ink);
+}
+.wlp-head__sub {
+	margin: 2px 0 0;
+	color: var(--wlp-muted);
+	font-size: 12.5px;
+}
+.wlp-close {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	border: 0;
+	background: none;
+	color: var(--wlp-muted);
+	font-weight: 600;
+	font-size: 13px;
+	cursor: pointer;
+	font-family: inherit;
+}
+.wlp-close:hover { color: var(--wlp-brand); }
+.wlp-close i { font-size: 17px; }
+
+/* ---------- tabs ---------- */
+.wlp-tabs {
+	display: flex;
+	gap: 2px;
+	padding: 0 18px;
+	border-bottom: 1px solid var(--wlp-border);
+}
+.wlp-tab {
+	align-items: center;
+	gap: 6px;
+	border: 0;
+	background: none;
+	padding: 10px 12px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--wlp-muted);
+	cursor: pointer;
+	border-bottom: 2px solid transparent;
+	margin-bottom: -1px;
+	font-family: inherit;
+	white-space: nowrap;
+}
+.wlp-tab i { font-size: 15px; }
+.wlp-tab.on {
+	color: var(--wlp-brand);
+	border-bottom-color: var(--wlp-brand);
+}
+
+/* ---------- body / pane ---------- */
+.wlp-body {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	padding: 12px 18px;
+}
+.wlp-pane { display: none; }
+.wlp-pane.on { display: block; }
+
+/* ---------- item ---------- */
+.wlp-item {
+	display: flex;
+	gap: 13px;
+	padding: 12px 0;
+}
+.wlp-item + .wlp-item { border-top: 1px solid var(--wlp-border-2); }
+.wlp-item__thumb {
+	position: relative;
+	flex: 0 0 auto;
+	width: 118px;
+	height: 82px;
+	border-radius: 9px;
+	overflow: hidden;
+	background: var(--wlp-border-2);
+}
+.wlp-item__thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+.wlp-item__thumb-ph {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--wlp-muted-2);
+	font-size: 24px;
+}
+.wlp-item__badge {
+	position: absolute;
+	top: 6px;
+	left: 6px;
+	padding: 2px 8px;
+	border-radius: 6px;
+	background: var(--wlp-good);
+	color: #fff;
+	font-size: 10px;
+	font-weight: 700;
+}
+.wlp-item__meta { flex: 1 1 auto; min-width: 0; }
+.wlp-item__name {
+	display: inline-block;
+	margin: 0 0 4px;
+	font-size: 13.5px;
+	font-weight: 800;
+	color: var(--wlp-brand) !important;
+	cursor: pointer;
+	text-decoration: none;
+}
+.wlp-item__name:hover { color: var(--wlp-brand-700) !important; }
+.wlp-item__row {
+	display: flex;
+	align-items: flex-start;
+	gap: 5px;
+	margin: 0 0 4px;
+	color: var(--wlp-muted);
+	font-size: 12.5px;
+}
+.wlp-item__row > i {
+	flex: 0 0 auto;
+	color: var(--wlp-muted-2);
+	font-size: 13px;
+	margin-top: 2px;
+}
+.wlp-item__row--chips {
+	flex-wrap: wrap;
+	gap: 4px 12px;
+}
+.wlp-item__chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--wlp-ink);
+	white-space: nowrap;
+}
+.wlp-item__chip i { color: var(--wlp-muted-2); font-size: 13px; }
+
+/* nut trong item + footer */
+.wlp-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 13px;
+	border: 1px solid var(--wlp-border);
+	border-radius: 8px;
+	background: #fff;
+	color: var(--wlp-ink);
+	font-size: 12.5px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all .15s;
+	text-decoration: none;
+	white-space: nowrap;
+	font-family: inherit;
+}
+.wlp-btn:hover { border-color: var(--wlp-brand); color: var(--wlp-brand); }
+.wlp-btn--outline { border-color: var(--wlp-brand); color: var(--wlp-brand); }
+.wlp-btn--brand {
+	background: var(--wlp-brand);
+	border-color: var(--wlp-brand);
+	color: #fff;
+}
+.wlp-btn--brand:hover { background: var(--wlp-brand-700); color: #fff; }
+.wlp-item__btns {
+	display: flex;
+	gap: 8px;
+	margin-top: 9px;
+}
+
+/* cot phai: gia + bo luu */
+.wlp-item__side {
+	flex: 0 0 auto;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 2px;
+	text-align: right;
+}
+.wlp-item__price {
+	font-size: 13.5px;
+	font-weight: 800;
+	color: var(--wlp-brand);
+	max-width: 120px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.wlp-item__pricenote { color: var(--wlp-muted-2); font-size: 11.5px; }
+.wlp-unsave {
+	display: flex !important;
+	flex-direction: column;
+	align-items: center;
+	gap: 1px;
+	margin-top: 6px;
+	color: var(--wlp-brand) !important;
+	border: 0 !important;
+	background: none !important;
+	box-shadow: none !important;
+	line-height: 1.2;
+}
+.wlp-unsave i { font-size: 17px; }
+.wlp-unsave span { font-size: 10.5px; color: var(--wlp-muted); }
+.wlp-unsave:hover span { color: var(--wlp-brand); }
+
+/* ---------- empty ---------- */
+.wlp-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 44px 16px;
+	color: var(--wlp-muted);
+	text-align: center;
+}
+.wlp-empty img { margin-bottom: 10px; }
+
+/* ---------- footer: chi tab Can ho ---------- */
+.wlp-foot {
+	display: none;
+	gap: 9px;
+	justify-content: flex-end;
+	padding: 12px 18px;
+	border-top: 1px solid var(--wlp-border);
+	background: #fafbfc;
+}
+.wlp-foot.on { display: flex; }
+
+@media (max-width: 576px) {
+	.wlp-item { flex-wrap: wrap; }
+	.wlp-item__side {
+		flex-direction: row;
+		width: 100%;
+		align-items: center;
+		justify-content: space-between;
+	}
+	.wlp-unsave { margin-top: 0; flex-direction: row; gap: 5px; }
+}

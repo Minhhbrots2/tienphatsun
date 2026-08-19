@@ -3165,7 +3165,7 @@ function helper_history_price_log(){
 }
 function helper_open_wishlist(){
 	global $smarty,$_CONFIG,$dbconn,$_SITE_ROOT,$mod,$_LANG_ID,$act,$menu_current
-	,$current_page,$core,$clsModule,$clsButtonNav,$clsConfiguration,$clsISO,$profile_id,$oneProfile;
+	,$current_page,$core,$clsModule,$clsButtonNav,$clsConfiguration,$clsISO,$profile_id,$oneProfile,$list_projects;
 	$clsStock = new Stock();
 	$clsLeasing = new Leasing();
 	$clsProperty = new Property();
@@ -3188,6 +3188,37 @@ function helper_open_wishlist(){
 	$limit = " LIMIT 0,10";
 	$more_information = $oneProfile['more_information'];
 	//	var_dump($more_information);die;
+	# Nguon du lieu tab "Du an": khong tin $list_projects global trong context
+	# ajax (co the rong hoac cache tra ve dang khong hop le, qua mat empty()).
+	# Kiem tra hinh dang du lieu - sai la tu truy van truc tiep.
+	$list_projects_wl = array();
+	if(is_array($list_projects) && !empty($list_projects)){
+		$first_prj = reset($list_projects);
+		if(is_array($first_prj) && isset($first_prj[$clsProject->pkey])){
+			$list_projects_wl = $list_projects;
+		}
+	}
+	if(empty($list_projects_wl)){
+		$prj_field = "{$clsProject->pkey},`code`,`title`,`image`,`more_information`";
+		$tmp_prjs = $clsProject->getAll("`is_trash`=0 AND `is_menu`='1' ORDER BY `reg_date` ASC", $prj_field);
+		if(!empty($tmp_prjs)){
+			foreach($tmp_prjs as $oPrj){
+				$mi_prj = $clsISO->to_array_json($oPrj['more_information']);
+				$oPrj['more_information'] = $mi_prj;
+				$oPrj['address'] = $core->get_field($mi_prj, 'address', '');
+				$oPrj['arcreage'] = $core->get_field($mi_prj, 'arcreage', '');
+				$oPrj['apartment'] = $core->get_field($mi_prj, 'apartment', '');
+				$list_projects_wl[] = $oPrj;
+			}
+			unset($tmp_prjs);
+		}
+	}
+	$arr_project_cached = array();
+	if(!empty($list_projects_wl)){
+		foreach($list_projects_wl as $oPrj){
+			$arr_project_cached[$oPrj[$clsProject->pkey]] = $oPrj;
+		}
+	}
 	$wishlist = (!empty($oneProfile['wishlist']))
 		? $clsISO->to_array_json($oneProfile['wishlist']):[];
 	$list_stocks = array();
@@ -3217,15 +3248,23 @@ function helper_open_wishlist(){
 				$location[] = $arr_property_cached[$val['block_id']];
 			}
 			$list_stocks[$key]['location'] = implode(", ",$location);
+			$_prj_id = (int) $val['project_id'];
+			$list_stocks[$key]['project_image'] = isset($arr_project_cached[$_prj_id]) ? $arr_project_cached[$_prj_id]['image'] : '';
+			$list_stocks[$key]['project_name'] = isset($arr_project_cached[$_prj_id]) ? $arr_project_cached[$_prj_id]['title'] : '';
 		}
 	}
 	$smarty->assign('list_stocks', $list_stocks);
+	# ten bien rieng: 'list_projects' la bien global cua layout, se bi
+	# $core->build() re-assign de len gia tri gan o day
+	$smarty->assign('list_projects_wl', $list_projects_wl);
 	// Return
 	$smarty->assign('uid', $uid);
 	$html = $core->build("helper".DS.'_ajax.loadFavourite.tpl');
 	echo json_encode(array(
 		'uid' => $uid,
 		'html' => $html,
+		# so du an server nhin thay - de doi soat khi tab Du an trong
+		'prj_total' => count($list_projects_wl),
 	)); die();
 }
 function helper_save_order(){
