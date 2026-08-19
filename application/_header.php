@@ -54,7 +54,10 @@
 	$assign_list["curl"] = $_SERVER['REQUEST_URI'];
 	$assign_list["REQUEST_URI"] = $_SERVER['REQUEST_URI'];
 	$assign_list["QUERY_STRING"] = $_SERVER['QUERY_STRING'];
-	$assign_list["upd_version"] = time();// sprintf('%s', 'v.1.1.4');
+	//$assign_list["upd_version"] = sprintf('%s', 'v.1.1.84');
+	$assign_list["upd_version"] = time();
+	# Sidebar layout v2 (giao diện menu mới) là mặc định; ?menu=v1 chỉ để xem tạm layout cũ, không dính phiên.
+	$assign_list["menu_v2"] = (isset($_GET['menu']) && $_GET['menu'] === 'v1') ? 0 : 1;
 	#
 	$clsCache = new Cache();
 	$clsISO = new ISO(); $assign_list["clsISO"] = $clsISO;
@@ -71,7 +74,7 @@
 	$assign_list["_login_google"] = 1;
 	$assign_list["_login_facebook"] = 0;
 	$assign_list["return_url"] = Input::request('return_url', '/');
-	if($clsCache->has('_header_configs_cached') && 1==2){
+	if($clsCache->has('_header_configs_cached')){
 		$header_configs = $clsCache->get('_header_configs_cached');
 		// $clsCache->delete('_header_configs_cached');
 	} else {
@@ -79,22 +82,17 @@
 			'googlebot',
 			'copyright',
 			'ContactFooter',
+			"Favicon",
 			'HeaderLogo',
 			'LogoWhite',
-			'takeleave_configs',
 			'CompanyName',
-			'BrandColor',
 			'CompanyNameBrief',
-			'CompanyEmail',
-			'CompanyCAWebsite',
-			'confirm_billing',
-			'department_not_rankking',
-			'role_not_rankking',
-			'role_request_ptg',
-			'gdrive_folder_checkin'
+			'BrandColor',
+			'StockColorDQ',
+			'StockColorSold',
+			'StockColor'
 		));
-		
-		$clsCache->put('_header_configs_cached', $header_configs, 60*60);
+		$clsCache->put('_header_configs_cached', $header_configs);
 	}
 	$ContactFooter = $header_configs['ContactFooter'];
 	$takeleave_configs = $header_configs['takeleave_configs'];
@@ -112,7 +110,7 @@
 	$total_compare = count($stock_compare);
 	$assign_list["total_compare"] = $total_compare;
 	if($loggedIn){
-		$profile_id = (int)$clsProfile->profile_id;
+		$profile_id = $clsProfile->profile_id;
 		$oneProfile = $clsProfile->oneProfile;
 		$wishlist = $oneProfile['wishlist'];
 		$role_id = $oneProfile['role_id'];
@@ -150,6 +148,56 @@
 		$oneProfile['department_name'] = $department_name;
 		$oneProfile['more_information'] = $more_information;
 		$oneProfile['is_active_new_version'] = $is_active_new_version;
+		#--Multi-role: vai trò chính + phụ (tối đa 1 phụ). Không có phụ ⇒ y hệt trước.
+		$role_pairs = array(array(
+			'role_id' => (int) $oneProfile['role_id'],
+			'department_id' => (int) $oneProfile['department_id'],
+			'list_department_id' => isset($oneProfile['list_department_id']) ? $oneProfile['list_department_id'] : '',
+		));
+		$secondary = $core->get_field($more_information, 'secondary', []);
+		$has_secondary = 0;
+		if(!empty($secondary) && (int) $core->get_field($secondary, 'role_id', 0) > 0
+			&& (int) $core->get_field($secondary, 'department_id', 0) > 0){
+			$has_secondary = 1;
+			$role_pairs[] = array(
+				'role_id' => (int) $secondary['role_id'],
+				'department_id' => (int) $secondary['department_id'],
+				'list_department_id' => $core->get_field($secondary, 'list_department_id', ''),
+			);
+		}
+		$oneProfile['role_pairs'] = $role_pairs;
+		$oneProfile['has_secondary'] = $has_secondary;
+		#--Vai trò đang ACTIVE (session) quyết định scope dữ liệu. Mặc định = chính (index 0).
+		$active_idx = 0;
+		if($has_secondary && vnSessionExist('active_role') && (int) vnSessionGetVar('active_role') === 1){
+			$active_idx = 1;
+		}
+		$oneProfile['active_role'] = $active_idx;
+		if($active_idx === 1){
+			$oneProfile['role_id'] = $role_pairs[1]['role_id'];
+			$oneProfile['department_id'] = $role_pairs[1]['department_id'];
+			$oneProfile['list_department_id'] = $role_pairs[1]['list_department_id'];
+			#--Đồng bộ biến cục bộ + nhãn hiển thị theo vai trò ĐANG active (menu, tên vai trò, logdedUser)
+			$role_id = $oneProfile['role_id'];
+			$dep_id = $oneProfile['department_id'];
+			$role_name = $clsProperty->getTitle($oneProfile['role_id']);
+			$department_name = $clsProperty->getTitle($oneProfile['department_id']);
+			$oneProfile['role_name'] = $role_name;
+			$oneProfile['department_name'] = $department_name;
+		}
+		#--Nhãn nút chuyển đổi vai trò (navbar) — chỉ khi có vai trò phụ
+		$role_switcher = array();
+		if($has_secondary){
+			foreach($role_pairs as $idx => $rp){
+				$role_switcher[] = array(
+					'idx' => $idx,
+					'role_name' => $clsProperty->getTitle($rp['role_id']),
+					'department_name' => $clsProperty->getTitle($rp['department_id']),
+					'active' => ($idx === $active_idx) ? 1 : 0,
+				);
+			}
+		}
+		$assign_list['role_switcher'] = $role_switcher;
 		$assign_list["oneProfile"] = $oneProfile;
 		$assign_list["logdedUser"] = array(
 			'full_name' => $oneProfile['full_name'],
@@ -159,9 +207,9 @@
 		);
 		$list_projects = $list_quick_menus = array();
 		if(!$core->isAjax()){
-			if($clsCache->has('_ca_SR_project_cached') && 1==2 ){
-				$list_projects = $clsCache->get('_ca_SR_project_cached');
-				// $clsCache->delete('_ca_SR_project_cached');
+			if($clsCache->has('_ca_project_cached') && 1==2){
+				$list_projects = $clsCache->get('_ca_project_cached');
+				// $clsCache->delete('_ca_project_cached');
 			} else {
 				$field = "{$clsProject->pkey},`code`,`title`,`link`,`is_menu`,`image`,`more_information`,`utilities`,`list_block_type`,`area_id`";
 				$list_projects = $clsProject->getAll("`is_trash`=0 AND `is_menu`='1' ORDER BY `reg_date` ASC", $field);
@@ -231,7 +279,7 @@
 					$arrs_order_no = @array_column($list_projects, "order_no");
 					@array_multisort($arrs_order_no, SORT_ASC, $list_projects);
 				}
-				$clsCache->put('_ca_SR_project_cached', $list_projects, 60*60);
+				$clsCache->put('_ca_project_cached', $list_projects, 60*60);
 			}
 			// Check là Sale 
 			$trans_configs = array();
@@ -370,7 +418,8 @@
 		$assign_list["list_projects_highfloor"] = $list_projects_highfloor;
 		$assign_list["list_projects_lowfloor"] = $list_projects_lowfloor;
 	} else {
-		if($mod !='auth'){
+		# mod=info: trang ho so tu van vien cong khai, khong yeu cau dang nhap
+		if($mod !='auth' && $mod !='info'){
 			header("Location: ".PCMS_URL.'/dang-nhap/ret='.$_SERVER['REQUEST_URI']);
 			exit();
 		}
@@ -394,13 +443,6 @@
 	/** Gửi báo cáo hàng ngày */
 	$is_send_report_today = 0;
 	$is_sales = $clsISO->checkSale();
-	if($is_sales && 1==2){
-		$oneReport = $clsReport->getByCond("`user_id`='{$profile_id}' 
-			and FROM_UNIXTIME(`report_date`,'%d/%m/%Y')='".date('d/m/Y')."'");
-		if(!empty($oneReport)){
-			$is_send_report_today = 1;
-		}
-	}
 	$assign_list["is_sales"] = $is_sales;
 	$assign_list["is_send_report_today"] = $is_send_report_today;
 	#-- Seting @DEV
@@ -408,6 +450,11 @@
 	if(isset($_GET['dev'])){
 		$dev = (int) $_GET['dev'];
 		vnSessionSetVar('dev', $dev);
+	}
+	if($mod == "homepage" || $mod == "auth"){
+		// Continue
+	} else {
+		if($dev == 0) die("Hệ thống bảo trì. Vui lòng quay lại sau!");
 	}
 	$assign_list["dev"] = $dev;
 ?>
