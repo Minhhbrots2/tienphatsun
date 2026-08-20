@@ -383,7 +383,9 @@
 	RewriteRule ^profile/edit.html$					index.php?mod=member&act=default&tabpanel=edit&lang=vn [L]
 	RewriteRule ^profile/edit/([0-9]*).html$		index.php?mod=member&act=edit&profile_id=$1&lang=vn [L]
 	RewriteRule ^profile/edit/([0-9]*)/bank.html$	index.php?mod=member&act=edit&profile_id=$1&tabpanel=bank&lang=vn [L]
-	RewriteRule ^profile/edit/([0-9]*)/password.html$		index.php?mod=member&act=edit&profile_id=$1&tabpanel=password&lang=vn [L]	
+	RewriteRule ^profile/edit/([0-9]*)/password.html$		index.php?mod=member&act=edit&profile_id=$1&tabpanel=password&lang=vn [L]
+	# trang ho so tu van vien cong khai (khong can dang nhap)
+	RewriteRule ^profile/([a-z0-9-]+)/?$			index.php?mod=info&act=profile&slug=$1&lang=vn [QSA,L]
 	RewriteRule ^profile/password.html$				index.php?mod=member&act=default&tabpanel=password&lang=vn [L]
 	RewriteRule ^profile/bank.html$					index.php?mod=member&act=default&tabpanel=bank&lang=vn [L]
 	RewriteRule ^doi-mat-khau.html$					index.php?mod=member&act=pwd&lang=vn [L]
