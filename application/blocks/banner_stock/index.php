@@ -184,7 +184,7 @@
 
 		#
 
-		if(($act == 'stock' || $act == 'map') && !empty($building_id)) {
+		if(($act == 'stock' || $act == 'map' || $act == 'overview') && !empty($building_id)) {
 
 			$cond_stock = "`stock_type`='"._BLOCK_TYPE_HIGHLEVEL_SALE."' AND `project_id`='{$project_id}' AND `building_id`='{$building_id}' AND `status_id`>0 and `status_id`<>'"._STOCK_STATUS_SOLD_ID."'";
 
@@ -250,6 +250,15 @@
 
 			}
 
+			# dang o bang hang thi chon toa khac cung sang bang hang (giu ngu canh)
+			if(!empty($lstBuildingBl) && $act == 'stock'){
+				foreach($lstBuildingBl as $kBl => $vBl){
+					if(!empty($vBl['link']) && preg_match('#^/project/p\d+/b\d+\.html$#', $vBl['link'])){
+						$lstBuildingBl[$kBl]['link'] = str_replace('.html', '/bang-hang.html', $vBl['link']);
+					}
+				}
+			}
+
 			$smarty->assign('lstBuildingBl',$lstBuildingBl);
 
 			$smarty->assign('block_information',$block_information);
@@ -273,6 +282,21 @@
 	
 
 	$smarty->assign('link_stock',$link_stock);
+
+	# header v2: tab Tong quan theo dung cap dang xem (toa > phan khu > du an)
+	# + tab Bang hang (bang-hang.html khi o cap toa)
+	$link_overview = "";
+	$link_stock_bh = $link_stock;
+	if($stock_type == _BLOCK_TYPE_HIGHLEVEL_SALE && !empty($building_id)){
+		$link_overview = sprintf('/project/p%s/b%s.html', $project_id, $building_id);
+		$link_stock_bh = sprintf('/project/p%s/b%s/bang-hang.html', $project_id, $building_id);
+	} elseif(!empty($block_id)){
+		$link_overview = sprintf('/project/pt%s/bl%s.html', $project_id, $block_id);
+	} elseif(!empty($project_id)){
+		$link_overview = sprintf('/project/pt%s.html', $project_id);
+	}
+	$smarty->assign('link_overview', $link_overview);
+	$smarty->assign('link_stock_bh', $link_stock_bh);
 
 	###
 
@@ -300,19 +324,20 @@
 
 	$cond_project_meta = "`is_trash`='0'";
 
-	if($show == 'building'){
+	# pham vi theo NGU CANH dang xem (toa > phan khu > du an):
+	# $show khong ton tai trong scope PHP cua block -> suy tu building_id/block_id;
+	# chi toa/phan khu nao co tai lieu gan dung no moi hien nut.
+	# Cot dung la `building_ids` (dang |1|2|) — admin khong ghi cot `building_id` don le.
+	if(!empty($building_id)){
 
-		$cond_project_meta.= " AND (`type`='building' 
+		$cond_project_meta.= " AND ((`type`='building' AND `building_ids` LIKE '%|{$building_id}|%')
+			OR (`type`='block' AND `block_ids` LIKE '%|{$block_id}|%'))";
 
-			OR `type`='block'
-
-		) AND (`building_id` LIKE '%|{$building_id}|%' OR `block_ids` LIKE '%|{$block_id}|%')";
-
-	}else if($show == 'block' || !empty($block_is_project)) {
+	}else if(!empty($block_id)) {
 
 		$cond_project_meta.= " AND `type`='block' AND `block_ids` LIKE '%|{$block_id}|%'";
 
-	}else{	
+	}else{
 
 		$cond_belong_project = $clsProjectMeta->condByProject($project_id);
 
@@ -326,9 +351,11 @@
 
 	}
 
-	$is_model = $clsProjectMeta->countItem($cond_project_meta." AND JSON_EXTRACT(`more_information`,\"$.is_model\")='1'");
+	# JSON_UNQUOTE: admin luu switch dang SO (int 1), ban cu luu CHUOI "1" —
+	# unquote ve chuoi de match ca 2 kieu, khong thi count=0 du da bat switch
+	$is_model = $clsProjectMeta->countItem($cond_project_meta." AND JSON_UNQUOTE(JSON_EXTRACT(`more_information`,\"$.is_model\"))='1'");
 
-	$is_handoverSpecs = $clsProjectMeta->countItem($cond_project_meta." AND JSON_EXTRACT(`more_information`,\"$.is_handoverSpecs\")='1'");
+	$is_handoverSpecs = $clsProjectMeta->countItem($cond_project_meta." AND JSON_UNQUOTE(JSON_EXTRACT(`more_information`,\"$.is_handoverSpecs\"))='1'");
 
 	$smarty->assign('is_model',$is_model);
 

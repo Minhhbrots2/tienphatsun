@@ -118,6 +118,36 @@
 .sh-badge--open { background: #22a95e; }
 .sh-badge--closed { background: var(--main-color, #BF171D); }
 
+/* nut Nha mau / TC Ban giao: pill outline theo tone web, icon do brand */
+.sh-pillbtn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 7px 16px;
+	border: 1px solid #e6e8ec;
+	border-radius: 999px;
+	background: #fff;
+	color: #384551;
+	font-size: 13px;
+	font-weight: 600;
+	white-space: nowrap;
+	cursor: pointer;
+	transition: all .15s;
+}
+.sh-pillbtn > i {
+	font-size: 15px;
+	color: var(--main-color, #BF171D);
+}
+.sh-pillbtn:hover {
+	border-color: var(--main-color, #BF171D);
+	color: var(--main-color, #BF171D);
+	background: rgba(191, 23, 29, .04);
+}
+.sh-pillbtn--sm {
+	padding: 5px 11px;
+	font-size: 12px;
+}
+
 /* ---------- thanh tab capsule ---------- */
 .sh-tabs {
 	display: flex;
@@ -300,7 +330,15 @@
 /* ---------- mobile ---------- */
 @media (max-width: 767.98px) {
 	.sh-hero { padding: 12px; }
-	.sh-hero__top { gap: 10px; }
+	.sh-hero__top {
+		gap: 10px;
+		/* khong wrap thi badge/nut ben phai de len title */
+		flex-wrap: wrap;
+	}
+	.sh-hero__main {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
 	.sh-hero__thumb {
 		width: 92px;
 		height: 64px;

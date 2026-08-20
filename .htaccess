@@ -1,39 +1,10 @@
-# ========================================
-# Create date 15/07/2014 09:36
-# ========================================
-Header set Access-Control-Allow-Origin "*"
-Header set X-Frame-Options "allow-from *"
-<IfModule mod_headers.c>
-	Header set Cache-Control "no-cache, no-store, must-revalidate"
-	Header set Pragma "no-cache"
-	Header set Expires 0
-	Header set Access-Control-Allow-Origin "*"
-	Header set Access-Control-Allow-Headers "Range"
-	Header set Access-Control-Expose-Headers "Cache-Control, Content-Encoding, Content-Range"
-</IfModule>
-# ===== Perf WS1 (260715): cache tinh public-only, phan tang (gzip da bat san o host) =====
-# Dat co theo duoi file, GO co neu thuoc /admin/ -> admin giu no-cache
-SetEnvIf Request_URI "\.(css|js|mjs)$" ws_cache_long
-SetEnvIf Request_URI "\.(jpe?g|png|gif|webp|avif|svg|ico|woff2?|ttf|otf|eot|mp4|webm)$" ws_cache_mid
-SetEnvIf Request_URI "^/admin/" !ws_cache_long
-SetEnvIf Request_URI "^/admin/" !ws_cache_mid
-<IfModule mod_headers.c>
-	# CSS/JS public (co ?v=) -> 1 nam, KHONG immutable (F5 revalidate cuu khi quen bump)
-	Header set Cache-Control "public, max-age=31536000" env=ws_cache_long
-	Header unset Pragma env=ws_cache_long
-	Header unset Expires env=ws_cache_long
-	# Anh/font/thumbnail public (khong ?v=) -> 30 ngay
-	Header set Cache-Control "public, max-age=2592000" env=ws_cache_mid
-	Header unset Pragma env=ws_cache_mid
-	Header unset Expires env=ws_cache_mid
-</IfModule>
 <IfModule mod_rewrite.c>
 	RewriteEngine On
 	RewriteCond %{HTTPS} !=on
 	RewriteRule ^.*$ https://%{SERVER_NAME}%{REQUEST_URI} [R,L]
 	RewriteBase /
 	RewriteCond %{HTTP_HOST} ^www\.
-	RewriteRule ^(.*)$ https://tienphatsunrise.c-a.vn/$1 [L,R=301]
+	RewriteRule ^(.*)$ https://five-star.c-a.vn/$1 [L,R=301]
 	
 	ErrorDocument 404 /error.iso
 	ErrorDocument 404.html	/error.iso
@@ -43,8 +14,8 @@ SetEnvIf Request_URI "^/admin/" !ws_cache_mid
 	RewriteRule ^files/thumb/([0-9]*)/([0-9]*)/(.*)$		core/thumbnail/vietisothumb.php?w=$1&h=$2&src=$3 [L]
 	RewriteRule ^inc/editor/tiny_mce/plugins/advimage/image.htm$	admin/index.php?mod=editor&act=image [L]
 
-	RewriteRule ^$					index.php?mod=home&lang=vn [QSA,L]
-	RewriteRule ^/$					index.php?mod=home&lang=vn [QSA,L]
+	RewriteRule ^$					index.php?mod=homepage&lang=vn [QSA,L]
+	RewriteRule ^/$					index.php?mod=homepage&lang=vn [QSA,L]
 	RewriteRule ^help/$				help.html [QSA,L]
 	RewriteRule ^live.cfg$			index.php?mod=home&sub=notify&act=live&lang=vn [QSA,L]
 	RewriteRule ^list-notify.cfg$   index.php?mod=home&sub=notify&act=notify&lang=vn [QSA,L]
@@ -53,9 +24,6 @@ SetEnvIf Request_URI "^/admin/" !ws_cache_mid
 	RewriteRule ^worldcup2026$			index.php?mod=home&act=worldcup2026&lang=vn [QSA,L]
 	RewriteRule ^docquyen/$			index.php?mod=stock&lang=vn [QSA,L]
 	RewriteRule ^wc2026$			index.php?mod=worldcup&lang=vn [QSA,L]
-
-	#Thi dua dinh danh - danh sach day du 1 chuong trinh (hash = md5 program id)
-	RewriteRule ^chuong-trinh-([a-f0-9]{32})$	index.php?mod=competition&h=$1&lang=vn [QSA,L]
 	
 	#Dashboard sale
 	RewriteRule ^dashboard/$	index.php?mod=home&sub=dashboard&act=sale&lang=vn [QSA,L]
@@ -387,13 +355,15 @@ SetEnvIf Request_URI "^/admin/" !ws_cache_mid
 	RewriteRule ^get_shapes.cfg$	index.php?mod=home&sub=project&act=draw_shapes&lang=vn [QSA,L]
 	RewriteRule ^map.html$			index.php?mod=map&lang=vn [QSA,L]
 	RewriteRule ^map/p([0-9]*).html$			index.php?mod=map&project_id=$1&lang=vn [QSA,L]
-	RewriteRule ^project/pt([0-9]*).html$	index.php?mod=home&sub=project&project_id=$1&show=project&lang=vn [QSA,L]
-	RewriteRule ^project/pt([0-9]*)/bl([0-9]*)/bu([0-9]*).html$	index.php?mod=home&sub=project&project_id=$1&block_id=$2&building_id=$3&show=building&lang=vn [QSA,L]
-	RewriteRule ^project/pt([0-9]*)/bl([0-9]*).html$	index.php?mod=home&sub=project&project_id=$1&block_id=$2&show=block&lang=vn [QSA,L]
+	RewriteRule ^project/pt([0-9]*).html$	index.php?mod=home&sub=project&act=overview&project_id=$1&show=project&lang=vn [QSA,L]
+	RewriteRule ^project/pt([0-9]*)/bl([0-9]*)/bu([0-9]*)/bang-hang.html$	index.php?mod=home&sub=project&act=stock&project_id=$1&block_id=$2&building_id=$3&lang=vn [QSA,L]
+	RewriteRule ^project/pt([0-9]*)/bl([0-9]*)/bu([0-9]*).html$	index.php?mod=home&sub=project&act=overview&project_id=$1&block_id=$2&building_id=$3&lang=vn [QSA,L]
+	RewriteRule ^project/pt([0-9]*)/bl([0-9]*).html$	index.php?mod=home&sub=project&act=overview&project_id=$1&block_id=$2&show=block&lang=vn [QSA,L]
 	RewriteRule ^project/p([0-9]*).html$	index.php?mod=home&sub=project&act=stock&project_id=$1&block_type=177&lang=vn [QSA,L]
 	RewriteRule ^project/p([0-9]*)/layout.html$	index.php?mod=home&sub=project&act=layout&project_id=$1&lang=vn [QSA,L]
 	RewriteRule ^project/p([0-9]*)/b([0-9]*)/map.html$	index.php?mod=home&sub=project&act=map&project_id=$1&building_id=$2&lang=vn [QSA,L]
-	RewriteRule ^project/p([0-9]*)/b([0-9]*).html$	index.php?mod=home&sub=project&act=stock&project_id=$1&building_id=$2&lang=vn [QSA,L]
+	RewriteRule ^project/p([0-9]*)/b([0-9]*)/bang-hang.html$	index.php?mod=home&sub=project&act=stock&project_id=$1&building_id=$2&lang=vn [QSA,L]
+	RewriteRule ^project/p([0-9]*)/b([0-9]*).html$	index.php?mod=home&sub=project&act=overview&project_id=$1&building_id=$2&lang=vn [QSA,L]
 	RewriteRule ^project/p([0-9]*)/bl([0-9]*).html$	index.php?mod=home&sub=project&act=stock&project_id=$1&block_id=$2&block_type=177 [QSA,L]
 	RewriteRule ^project/p([0-9]*)/bl([0-9]*)/layout.html$	index.php?mod=home&sub=project&act=layout&project_id=$1&block_id=$2&block_type=177&lang=vn [QSA,L]
 	RewriteRule ^kho-tai-lieu.html$		index.php?mod=project_docs [QSA,L]

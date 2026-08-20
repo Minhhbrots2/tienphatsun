@@ -1,0 +1,545 @@
+<!-- Tab Tong quan 3 cap (project / block / building) — port tu MF, rut gon cho CA -->
+<!-- ============ CAP DU AN: cac khoi SOP ============ -->
+<div ng-show="data.show=='project'" class="proj-overview-tab">
+	<div class="top-row" ng-if="data.list_sops.length > 0">
+		<div class="overview-card d-flex flex-column" ng-repeat="sop in data.list_sops">
+			<div class="section-title">{{sop.more_information.title}}</div>
+			<!-- TONG QUAN -->
+			<div ng-if="sop.more_information.slug =='tong-quan'">
+				<div class="overview-img">
+					<img ng-if="data.oneProject.image_url" ng-src="{{data.oneProject.image_url}}"
+						class="w-100 h-100 object-fit-cover" alt="{{data.oneProject.title}}">
+					<div ng-if="!data.oneProject.image_url" class="overview-img-placeholder"></div>
+				</div>
+				<div class="overview-text fs-14 leading-relaxed"
+					ng-bind-html="trustHtml(sop.more_information.content || 'Không có nội dung')">
+				</div>
+				<div class="stats-grid mt-auto">
+					<div class="stat-over-item">
+						<div class="stat-icon mb-1"><i class='bx bx-expand'></i></div>
+						<div class="stat-label">Quy mô</div>
+						<div class="stat-value">{{data.more_information_project.scale || '-'}}</div>
+					</div>
+					<div class="stat-over-item">
+						<div class="stat-icon mb-1"><i class='bx bx-shape-square'></i></div>
+						<div class="stat-label">Loại hình</div>
+						<div class="stat-value text-truncate w-100" style="font-size:11px;"
+							title="{{data.more_information_project.construction_type || '-'}}">
+							{{data.more_information_project.construction_type || '-'}}</div>
+					</div>
+					<div class="stat-over-item">
+						<div class="stat-icon mb-1"><i class='bx bx-star'></i></div>
+						<div class="stat-label">Chủ đầu tư</div>
+						<div class="stat-value text-truncate w-100"
+							title="{{data.more_information_project.investor || '-'}}">
+							{{data.more_information_project.investor || '-'}}</div>
+					</div>
+					<div class="stat-over-item">
+						<div class="stat-icon mb-1"><i class='bx bx-been-here'></i></div>
+						<div class="stat-label">Sở hữu</div>
+						<div class="stat-value">{{data.more_information_project.legal_status || '-'}}</div>
+					</div>
+				</div>
+			</div>
+			<!-- TIEN ICH NOI BAT -->
+			<div class="d-flex h-100 flex-column justify-content-between"
+				ng-if="sop.more_information.slug =='tien-ich-noi-bat'">
+				<div class="sop-empty" ng-if="!sop.items || !sop.items.length">
+					<i class="bx bx-category"></i>
+					<div class="sop-empty__title">Chưa cập nhật tiện ích nổi bật</div>
+					<div class="sop-empty__sub">Nội dung sẽ hiển thị ngay khi được cập nhật.</div>
+				</div>
+				<div class="amenity-list" ng-if="sop.items && sop.items.length">
+					<div class="amenity-item" ng-repeat="item in sop.items">
+						<div class="amenity-icon rounded-pill d-flex align-items-center justify-content-center">
+							<i ng-if="item.is_icon" class="{{item.icon}} fs-4"></i>
+							<img class="w-px-20" ng-if="!item.is_icon && item.image" ng-src="{{item.image}}"
+								alt="{{ item.title }}" />
+						</div>
+						<div class="overview-text fs-14 leading-relaxed"
+							ng-bind-html="trustHtml(item.title || 'Không có nội dung')">
+						</div>
+					</div>
+				</div>
+				<a class="btn btn-outline-default px-5 card-btn mt-auto mx-auto"
+					ng-if="data.utility_link && sop.items && sop.items.length"
+					ng-href="{{data.utility_link}}">Xem tất cả tiện ích</a>
+			</div>
+			<!-- KET NOI VUNG -->
+			<div class="d-flex h-100 flex-column justify-content-between"
+				ng-if="sop.more_information.slug =='ket-noi-vung'">
+				<div class="sop-empty" ng-if="!sop.items || !sop.items.length">
+					<i class="bx bx-map"></i>
+					<div class="sop-empty__title">Chưa cập nhật kết nối vùng</div>
+					<div class="sop-empty__sub">Nội dung sẽ hiển thị ngay khi được cập nhật.</div>
+				</div>
+				<div class="connect-map" ng-if="sop.items && sop.items.length">
+					<div class="connect-orbit"></div>
+					<div class="connect-center">
+						<img ng-src="{{data.oneProject.logo_url}}" alt="Logo" />
+					</div>
+					<div class="connect-node" ng-repeat="item in sop.items"
+						style="--i: {{$index}}; --total: {{sop.items.length}}">
+					<span class="time"
+							ng-if="item.more_information.time_duration">{{item.more_information.time_duration}}</span>
+						<div ng-bind-html="trustHtml(item.title)"></div>
+					</div>
+				</div>
+				<a class="btn btn-outline-default px-5 card-btn mt-auto mx-auto"
+					ng-if="data.map_link && sop.items && sop.items.length"
+					ng-href="{{data.map_link}}">Xem bản đồ kết nối</a>
+			</div>
+			<!-- TRIET LY PHAT TRIEN -->
+			<div class="d-flex h-100 flex-column justify-content-between"
+				ng-if="sop.more_information.slug =='triet-ly-phat-trien'">
+				<div class="sop-empty" ng-if="!sop.more_information.content">
+					<i class="bx bx-bulb"></i>
+					<div class="sop-empty__title">Chưa cập nhật triết lý phát triển</div>
+					<div class="sop-empty__sub">Nội dung sẽ hiển thị ngay khi được cập nhật.</div>
+				</div>
+				<div class="philosophy-wrap" ng-if="sop.more_information.content"
+					ng-bind-html="trustHtml(sop.more_information.content)"></div>
+			</div>
+			<!-- DINH VI SAN PHAM -->
+			<div ng-if="sop.more_information.slug =='dinh-vi-san-pham'">
+				<div class="sop-empty" ng-if="!sop.more_information.content && (!sop.items || !sop.items.length)">
+					<i class="bx bx-target-lock"></i>
+					<div class="sop-empty__title">Chưa cập nhật định vị sản phẩm</div>
+					<div class="sop-empty__sub">Nội dung sẽ hiển thị ngay khi được cập nhật.</div>
+				</div>
+				<div class="position-label w-100" ng-if="sop.more_information.content"
+					ng-bind-html="trustHtml(sop.more_information.content)"></div>
+				<div class="position-list" ng-if="sop.items && sop.items.length">
+					<div class="position-item" ng-repeat="item in sop.items">
+						<div class="pos-icon rounded-pill d-flex align-items-center justify-content-center">
+							<i ng-if="item.is_icon" class="{{item.icon}} fs-4"></i>
+							<img class="w-px-20" ng-if="!item.is_icon && item.image" ng-src="{{item.image}}"
+								alt="{{ item.title }}" />
+						</div>
+						<div class="pos-content d-flex gap-0 flex-column">
+							<strong>{{item.title}}</strong>
+							<div ng-if="item.more_information.content">
+								<span ng-bind="stripTags(item.more_information.content)"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- GIA TRI KHAC BIET -->
+			<div ng-if="sop.more_information.slug =='gia-tri-khac-biet'">
+				<div class="sop-empty" ng-if="!sop.more_information.image && !data.oneProject.image_url && (!sop.items || !sop.items.length)">
+					<i class="bx bx-diamond"></i>
+					<div class="sop-empty__title">Chưa cập nhật giá trị khác biệt</div>
+					<div class="sop-empty__sub">Nội dung sẽ hiển thị ngay khi được cập nhật.</div>
+				</div>
+				<div ng-if="sop.more_information.image || data.oneProject.image_url" class="value-hero-img">
+					<img ng-src="{{ sop.more_information.image ? sop.more_information.image : data.oneProject.image_url }}"
+						alt="{{sop.more_information.title}}" />
+				</div>
+				<div class="value-stats mt-auto">
+					<div class="value-stat d-flex gap-2 flex-column align-items-center justify-content-center text-center"
+						ng-repeat="item in sop.items">
+						<div class="vs-icon rounded-pill d-flex align-items-center justify-content-center">
+							<img class="w-px-20" ng-if="item.image" ng-src="{{item.image}}" alt="{{ item.title }}" />
+						</div>
+						<div class="vs-title"> {{ item.title }} </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Empty state: du an chua cau hinh SOP -->
+	<div class="empty-update-state text-center py-5" ng-if="!data.list_sops || data.list_sops.length == 0"
+		style="background: linear-gradient(180deg, #fafbfe 0%, #ffffff 100%); border-radius: 16px;">
+		<div class="empty-illustration mb-4 d-flex justify-content-center">
+			<div class="position-relative d-flex align-items-center justify-content-center"
+				style="width: 140px; height: 90px; background: #fff; border-radius: 12px; border: 1px solid #f0f2f4; box-shadow: 0 10px 20px rgba(0,0,0,0.02);">
+				<i class='bx bx-building-house' style="font-size: 3rem; color: var(--red);"></i>
+				<div class="position-absolute"
+					style="top: -10px; right: -10px; background: #fff; border-radius: 50%; padding: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+					<i class='bx bx-time-five bx-spin' style="font-size: 1.5rem; color: #f4ca16;"></i>
+				</div>
+			</div>
+		</div>
+		<h3 class="fw-bold mb-3" style="color: #2b3445; font-size: 24px;">Dự án đang trong quá trình cập nhật thông tin</h3>
+		<p class="text-muted mb-4 mx-auto" style="max-width: 600px; font-size: 14px;">
+			Hệ thống đang thu thập và biên soạn thông tin mới nhất về dự án này. Vui lòng quay lại sau!
+		</p>
+	</div>
+</div>
+<!-- ============ CAP PHAN KHU: luoi toa + sidebar ============ -->
+<div ng-show="data.show=='block'" class="block-custom-view">
+	<div class="row">
+		<div class="col-12 col-lg-9">
+			<!-- Filter trang thai -->
+			<div class="d-flex flex-wrap align-items-center justify-content-between my-3" ng-if="!isMobile">
+				<div class="d-flex flex-wrap gap-2 align-items-center lst_tab_button">
+					<button class="btn rounded-pill px-3" ng-click="filters.status=''"
+						ng-class="{'bg-main text-white': !filters.status, 'btn-light border': filters.status}">Tất cả</button>
+					<button class="btn btn-light border rounded-pill px-3" ng-click="filters.status='selling'"
+						ng-class="{'bg-main text-white': filters.status=='selling'}">
+						<span class="filter-dot bg-success"></span> Đang mở bán
+					</button>
+					<button class="btn btn-light border rounded-pill px-3" ng-click="filters.status='coming'"
+						ng-class="{'bg-main text-white': filters.status=='coming'}">
+						<span class="filter-dot bg-warning"></span> Sắp mở bán
+					</button>
+					<button class="btn btn-light border rounded-pill px-3" ng-click="filters.status='soldout'"
+						ng-class="{'bg-main text-white': filters.status=='soldout'}">
+						<span class="filter-dot bg-secondary"></span> Đã bán hết
+					</button>
+				</div>
+			</div>
+			<!-- Luoi toa nha -->
+			<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" ng-if="data.list_buildings.length">
+				<div class="col" ng-repeat="item in data.list_buildings | filter:blockFilter">
+					<div class="project-card">
+						<div class="project-card__img">
+							<a ng-href="{{ item.link }}" title="{{ item.title }}"><img
+									ng-src="{{item.image || '/application/themes/images/no-image.jpg'}}"
+									alt="{{item.title}}"></a>
+							<span class="project-card__badge" ng-class="item.status_class">{{item.status_text}}</span>
+							<span class="project-card__logo">{{investor_name}}</span>
+						</div>
+						<div class="project-card__body">
+							<div class="project-card__title"><a class="text-reset" ng-href="{{ item.link }}"
+									title="{{ item.title }}">{{item.title}}</a></div>
+							<div class="project-card__dev">Chủ đầu tư: <span>{{investor_name}}</span></div>
+							<div class="project-card__meta">
+								<span class="project-card__meta-item"><i class="bx bx-buildings"></i> Cao tầng</span>
+								<span class="project-card__meta-dot" ng-if="item.total_stock">•</span>
+								<span class="project-card__meta-item" ng-if="item.total_stock"><i class="bx bx-home"></i> {{item.total_stock}} căn</span>
+							</div>
+							<div class="project-card__price" ng-if="item.price_range_m2">Giá từ: {{item.price_range_m2}}</div>
+							<div class="project-card__actions">
+								<a ng-href="{{item.link}}" title="{{item.title}}" class="btn-card btn-primary-outline">Xem chi tiết</a>
+								<a ng-href="{{ item.stock_link }}" title="Bảng hàng" class="btn-card btn-main">Bảng hàng</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Empty state: filter khong khop -->
+			<div class="py-5 text-center text-muted"
+				ng-if="data.list_buildings.length && !(data.list_buildings | filter:blockFilter).length">
+				<i class="bx bx-filter-alt fs-2 mb-2 d-block"></i>
+				<div class="mb-2">Không có tòa nhà nào khớp với bộ lọc đã chọn.</div>
+				<button class="btn btn-sm btn-outline-secondary rounded-pill px-4" ng-click="filters.status=''">
+					<i class="bx bx-reset"></i> Xóa bộ lọc
+				</button>
+			</div>
+			<div class="py-5 text-center text-muted" ng-if="!data.list_buildings.length">
+				<i class="bx bx-info-circle fs-2 mb-2 d-block"></i>
+				Không có tòa nhà nào được tìm thấy.
+			</div>
+		</div>
+		<div class="col-lg-3 d-none d-lg-block">
+			<div class="pj-sidebar-sticky">
+				<!-- Sidebar thong tin du an -->
+				<div class="pj-sidebar">
+					<div class="pj-sb-card">
+						<div class="pj-sb-title"><i class="bx bx-info-circle"></i> Thông tin dự án</div>
+						<div class="pj-sb-info-list">
+							<div class="pj-sb-info-row" ng-if="investor_name">
+								<div class="pj-sb-info-icon"><i class="bx bx-user"></i></div>
+								<div class="pj-sb-info-label">Chủ đầu tư</div>
+								<div class="pj-sb-info-value">{{investor_name}}</div>
+							</div>
+							<div class="pj-sb-info-row" ng-if="data.more_information.info_more.con_start_date">
+								<div class="pj-sb-info-icon"><i class="bx bx-time"></i></div>
+								<div class="pj-sb-info-label">{{data.more_information.info_more.con_start_date.title}}</div>
+								<div class="pj-sb-info-value">{{data.more_information.info_more.con_start_date.value}}</div>
+							</div>
+							<div class="pj-sb-info-row" ng-if="data.more_information.info_more.handover_date">
+								<div class="pj-sb-info-icon"><i class="bx bx-timer"></i></div>
+								<div class="pj-sb-info-label">{{data.more_information.info_more.handover_date.title}}</div>
+								<div class="pj-sb-info-value">{{data.more_information.info_more.handover_date.value}}</div>
+							</div>
+							<div class="pj-sb-info-row" ng-if="data.more_information.info_more.total_stock">
+								<div class="pj-sb-info-icon"><i class="bx bx-home"></i></div>
+								<div class="pj-sb-info-label">{{data.more_information.info_more.total_stock.title}}</div>
+								<div class="pj-sb-info-value">{{data.more_information.info_more.total_stock.value}}</div>
+							</div>
+							<div class="pj-sb-info-row" ng-if="data.more_information.info_more.price_range">
+								<div class="pj-sb-info-icon"><i class="bx bx-money"></i></div>
+								<div class="pj-sb-info-label">Giá từ</div>
+								<div class="pj-sb-info-value">{{data.more_information.info_more.price_range.value}}</div>
+							</div>
+							<div class="pj-sb-info-row" ng-if="data.more_information.info_more.price_range_m2">
+								<div class="pj-sb-info-icon"><i class="bx bx-area"></i></div>
+								<div class="pj-sb-info-label">Giá/m<sup>2</sup></div>
+								<div class="pj-sb-info-value">{{data.more_information.info_more.price_range_m2.value}} triệu/m<sup>2</sup></div>
+							</div>
+						</div>
+					</div>
+					<!-- Phan khu khac -->
+					<div class="pj-sb-card" ng-if="getSoldOutBlocks().length">
+						<div class="pj-sb-title"><i class="bx bx-check-circle"></i> Phân khu nổi bật</div>
+						<div class="pj-sb-sold-list">
+							<div class="pj-sb-sold-item" ng-repeat="item in getSoldOutBlocks() | limitTo:3">
+								<div class="pj-sb-sold-thumb">
+									<a ng-href="{{item.link}}" title="{{ item.title }}"><img
+											ng-src="{{item.image || '/application/themes/images/no-image.jpg'}}"
+											alt="{{item.title}}"></a>
+									<span class="pj-sb-sold-badge" ng-class="item.status_class">{{item.status_text}}</span>
+								</div>
+								<div class="pj-sb-sold-info">
+									<div class="pj-sb-sold-name"><a class="text-reset" ng-href="{{item.link}}"
+											title="{{ item.title }}">{{item.title}}</a></div>
+									<div class="pj-sb-sold-dev">Chủ đầu tư: {{item.investor_name || investor_name}}</div>
+									<div class="pj-sb-sold-meta">
+										<span><i class="bx bx-buildings"></i> {{item.type_name}}</span>
+									</div>
+									<div class="pj-sb-sold-price" ng-if="item.price_range_m2">Giá từ: {{item.price_range_m2}}</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- ============ CAP TOA (show=building) ============ -->
+<div ng-show="data.show=='building'" class="building-custom-view">
+	<div class="row g-3">
+		<!-- ============ COT TRAI: TONG QUAN TOA ============ -->
+		<div class="col-12 col-lg-3">
+			<div class="card h-100 left-card">
+				<div class="card-header bg-transparent border-0">
+					<h5 class="card-title fw-bold fs-13 mb-0 uppercase">TỔNG QUAN TÒA {{data.oneBuilding.property_code || data.oneBuilding.title}}</h5>
+				</div>
+				<div class="card-body">
+					<div class="tower-section">
+						<div class="tower-image">
+							<img ng-if="data.oneBuilding.image_url" ng-src="{{data.oneBuilding.image_url}}"
+								alt="{{data.oneBuilding.title}}" class="img-fluid tower-avatar" />
+							<img ng-if="!data.oneBuilding.image_url" src="/application/themes/images/no-image.jpg"
+								alt="No image" class="img-fluid tower-avatar" />
+						</div>
+					</div>
+					<div class="legend-row">
+						<div class="legend-item"><span class="legend-dot" style="background:var(--green)"></span> Còn hàng</div>
+						<div class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span> Đang giữ chỗ</div>
+						<div class="legend-item"><span class="legend-dot" style="background:#999"></span> Đã bán</div>
+						<div class="legend-item"><span class="legend-dot" style="background:#e8e8e8;"></span> Không mở bán</div>
+					</div>
+					<div class="left-info-section">
+						<div class="info-heading">THÔNG TIN TÒA NHÀ</div>
+						<div class="info-row">
+							<div class="icon-label"><i class="bx bx-tag"></i> Tên tòa</div>
+							<div class="v" ng-bind="data.title || data.oneBuilding.title || '--'"></div>
+						</div>
+						<div class="info-row">
+							<div class="icon-label"><i class="bx bx-buildings"></i> Số tầng nổi</div>
+							<div class="v">{{ data.more_information.number_floor ? data.more_information.number_floor + ' tầng' : '--' }}</div>
+						</div>
+						<div class="info-row">
+							<div class="icon-label"><i class="bx bx-car"></i> Số tầng hầm</div>
+							<div class="v">{{ data.more_information.number_of_besement ? data.more_information.number_of_besement + ' tầng' : '--' }}</div>
+						</div>
+						<div class="info-row">
+							<div class="icon-label"><i class="bx bx-grid-alt"></i> Tổng số căn</div>
+							<div class="v">{{ (data.more_information.number_floor * data.more_information.number_house) || '--' }}</div>
+						</div>
+						<div class="info-row">
+							<div class="icon-label"><i class="bx bx-home"></i> Loại hình</div>
+							<div class="v small-text">Cao tầng</div>
+						</div>
+						<div class="info-row">
+							<div class="icon-label"><i class="bx bx-briefcase"></i> Chủ đầu tư</div>
+							<div class="v small-text" ng-bind="investor_name || '--'"></div>
+						</div>
+						<div class="info-row" ng-if="data.more_information.handover_time">
+							<div class="icon-label"><i class="bx bx-calendar"></i> Thời gian bàn giao</div>
+							<div class="v">{{ data.more_information.handover_time }}</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- ============ COT GIUA: MAT BANG TANG ============ -->
+		<div class="col-12 col-lg-6">
+			<div class="card h-100 center-card">
+				<div class="card-header bg-transparent border-0">
+					<h5 class="card-title fw-bold fs-13 mb-0 uppercase">MẶT BẰNG TẦNG {{activeFloor}}</h5>
+				</div>
+				<div class="card-body">
+					<!-- Empty state khi toa chua cau hinh mat bang -->
+					<div class="text-center py-5 text-muted" ng-if="!parsedFloors.length">
+						<i class="bx bx-map-alt fs-4 mb-2"></i>
+						<div>Chưa có dữ liệu mặt bằng cho tòa này.</div>
+					</div>
+					<div ng-if="parsedFloors.length">
+						<div class="floor-tabs-wrap">
+							<div class="floor-pill" ng-repeat="fl in parsedFloors"
+								ng-class="{'active': activeFloor == fl.name}" ng-click="selectFloor(fl)">
+								{{fl.name}}
+							</div>
+						</div>
+						<div class="floorplan-svg-wrap position-relative">
+							<div id="floorplan-zoom-container">
+								<img id="floorplan-img" ng-if="activeFloorImage" ng-src="{{activeFloorImage}}"
+									class="floorplan-zoomable-img" alt="Mặt bằng tầng {{activeFloor}}" />
+							</div>
+							<div class="zoom-controls-premium">
+								<button type="button" class="btn-zoom-act" id="btn-zoom-in" title="Phóng to">
+									<i class="bx bx-plus"></i>
+								</button>
+								<button type="button" class="btn-zoom-act" id="btn-zoom-out" title="Thu nhỏ">
+									<i class="bx bx-minus"></i>
+								</button>
+								<button type="button" class="btn-zoom-act" id="btn-zoom-reset" title="Đặt lại">
+									<i class="bx bx-refresh"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- ============ COT PHAI: THONG TIN CAN HO ============ -->
+		<div class="col-12 col-lg-3">
+			<div class="card h-100 right-card">
+				<div class="card-header bg-transparent border-0">
+					<div class="d-flex w-100 align-items-center justify-content-between">
+						<h5 class="card-title fw-bold fs-13 mb-0 uppercase">THÔNG TIN CĂN HỘ</h5>
+						<div class="right-actions" ng-show="data.list_stocks.length > 1">
+							<button type="button"
+								class="btn btn-icon rounded-pill btn-outline-default btn-nav-apt js__apt-carousel-prev"
+								aria-label="Previous">
+								<i class="bx bx-chevron-left"></i>
+							</button>
+							<button type="button"
+								class="btn btn-icon rounded-pill btn-outline-default btn-nav-apt js__apt-carousel-next"
+								aria-label="Next">
+								<i class="bx bx-chevron-right"></i>
+							</button>
+						</div>
+					</div>
+				</div>
+				<div class="card-body">
+					<div class="text-center py-5 text-muted" ng-if="!data.list_stocks">
+						<i class="bx bx-loader-alt bx-spin fs-4 mb-2"></i>
+						<div>Đang tải danh sách căn hộ...</div>
+					</div>
+					<div class="premium-empty-state text-center py-5 px-3"
+						ng-if="data.list_stocks && data.list_stocks.length === 0">
+						<div class="empty-icon-wrap position-relative mb-4 mx-auto">
+							<div class="glowing-orb"></div>
+							<div class="icon-ring">
+								<i class="bx bx-home-alt empty-glow-icon"></i>
+							</div>
+							<div class="mini-orb-1"></div>
+							<div class="mini-orb-2"></div>
+						</div>
+						<h5 class="fw-bold mb-2 empty-heading">Chưa có căn hộ khả dụng</h5>
+						<p class="small mb-4 empty-sub">Hiện tại tòa này chưa có căn hộ nào đang mở bán. Vui lòng quay lại sau hoặc xem bảng hàng để biết chi tiết.</p>
+					</div>
+					<div class="owl-carousel owl-theme owl-apt-details-carousel" ng-show="data.list_stocks.length > 0">
+						<div class="item" ng-repeat="st in data.list_stocks">
+							<div class="apt-status">
+								<div class="apt-code-big">{{st.ms_code}}</div>
+							</div>
+							<div class="spec-row">
+								<span class="k">Loại căn</span>
+								<span class="v">{{st.bedroom_name || '--'}}</span>
+							</div>
+							<div class="spec-row">
+								<span class="k">Diện tích tim tường</span>
+								<span class="v">{{st.more_information.DT_Tim || '--'}} m²</span>
+							</div>
+							<div class="spec-row">
+								<span class="k">Diện tích thông thủy</span>
+								<span class="v">{{st.more_information.DT_TT || '--'}} m²</span>
+							</div>
+							<div class="spec-row">
+								<span class="k">Hướng ban công</span>
+								<span class="v">{{st.direction_name || '--'}}</span>
+							</div>
+							<div class="spec-row">
+								<span class="k">View</span>
+								<span class="v">{{st.more_information.view || 'Nội khu'}}</span>
+							</div>
+							<div class="spec-row">
+								<span class="k">Tình trạng</span>
+								<span class="v green">{{st.status_text}}</span>
+							</div>
+							<div class="spec-row">
+								<span class="k">Giá bán (gồm VAT)</span>
+								<span class="v price">{{st.total_price_vat_formatted}}</span>
+							</div>
+							<button class="btn-red-full" ng-click="openStock(st)">Xem chi tiết căn hộ</button>
+							<div class="right-icon-row">
+								<div class="right-icon-btn" onclick="$Core.global.compare.add_stock_compare(this,event)" _tp="pop" action="add" stock_id="{{st.stock_id}}">
+									<i class="bx bx-refresh ic"></i>
+									So sánh
+								</div>
+								<div class="right-icon-btn" onclick="$Core.global.share_stock(this,event)" stock_id="{{st.stock_id}}">
+									<i class="bx bx-envelope ic"></i>
+									Gửi cho khách
+								</div>
+								<div class="right-icon-btn" onclick="$Core.helper.toggle_wishlist(this,event)" stock_id="{{st.stock_id}}">
+									<i class="bx bx-heart ic"></i>
+									Lưu căn
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- ============ HANG DUOI: TIEN ICH ============ -->
+	<div class="row bottom-row g-3 mt-0 mb-3">
+		<div class="col-12 col-lg-12">
+			<div class="card h-100">
+				<div class="card-header bg-transparent border-0">
+					<div class="d-flex w-100 align-items-center justify-content-between">
+						<h5 class="card-title fw-bold fs-13 mb-0 uppercase">TIỆN ÍCH PHÂN KHU & TÒA NHÀ</h5>
+						<div class="right-actions" ng-show="data.list_utilities.length > 5">
+							<button type="button"
+								class="btn btn-icon rounded-pill btn-outline-default btn-nav-apt js__util-carousel-prev"
+								aria-label="Previous">
+								<i class="bx bx-chevron-left"></i>
+							</button>
+							<button type="button"
+								class="btn btn-icon rounded-pill btn-outline-default btn-nav-apt js__util-carousel-next"
+								aria-label="Next">
+								<i class="bx bx-chevron-right"></i>
+							</button>
+						</div>
+					</div>
+				</div>
+				<div class="card-body">
+					<div class="text-center py-5 text-muted" ng-if="!data.list_utilities">
+						<i class="bx bx-loader-alt bx-spin fs-4 mb-2"></i>
+						<div>Đang tải danh sách tiện ích...</div>
+					</div>
+					<div class="text-center py-5 text-muted"
+						ng-if="data.list_utilities && data.list_utilities.length == 0">
+						<i class="bx bx-info-circle fs-4 mb-2"></i>
+						<div>Chưa có dữ liệu tiện ích cho tòa nhà này.</div>
+					</div>
+					<div class="owl-carousel owl-theme owl-utility-carousel"
+						ng-if="data.list_utilities && data.list_utilities.length > 0">
+						<div class="item" ng-repeat="ut in data.list_utilities">
+							<div class="shop-card-mini w-100">
+								<div class="shop-img d-flex align-items-center justify-content-center"
+									ng-class="{'coffee': $index % 3 == 0, 'pharm': $index % 3 == 1, 'mart': $index % 3 == 2}">
+									<img ng-if="ut.image" ng-src="{{ut.image}}"
+										class="w-100 h-100 object-fit-cover rounded" alt="{{ut.title}}" />
+									<i ng-if="!ut.image" class="bx bx-award fs-1 text-white-50"></i>
+								</div>
+								<div class="shop-body">
+									<div class="code" ng-bind="ut.category_title"></div>
+									<div class="name line-clamp-2" ng-bind="ut.title"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

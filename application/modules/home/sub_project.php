@@ -156,7 +156,6 @@ function project_project(){
 	# KPI dau trang + du lieu cho cac select loc
 	$arr_kpis = ['total' => 0, 'open' => 0, 'soon' => 0];
 	$arr_filter_investors = $arr_filter_cities = $arr_kpi_investors = $arr_kpi_cities = [];
-
 	$lstArea = $clsSetting->getArraySearchByKey("_AREA");
 	$arr_project_area = $arr_area_cities = [];
 	if(!empty($list_projects)) {
@@ -201,12 +200,7 @@ function project_project(){
 			$val["investor_id"] = $investor_id;
 			$val["investor_name"] = ($investor_id > 0 && isset($arr_investor_titles[$investor_id])) ? $arr_investor_titles[$investor_id] : "";
 			# Loai hinh: suy tu list_block_type cua du an
-			# _header da convert list_block_type thanh mang san - chi explode khi con la chuoi
-			if(is_array($val["list_block_type"])){
-				$block_types = $val["list_block_type"];
-			} else {
-				$block_types = !empty($val["list_block_type"]) ? $clsISO->getArrayByTextSlash($val["list_block_type"]) : array();
-			}
+			$block_types = !empty($val["list_block_type"]) ? $clsISO->getArrayByTextSlash($val["list_block_type"]) : array();
 			$has_high = $clsISO->checkItemInArray(_BLOCK_TYPE_HIGHLEVEL_SALE, $block_types);
 			$has_low = $clsISO->checkItemInArray(_BLOCK_TYPE_LOWFLOOR_SALE, $block_types);
 			if($has_high && $has_low){
@@ -245,7 +239,7 @@ function project_project(){
 		}
 	}
 	//$clsISO->print_pre($arr_area_cities);die;
-
+	
 	$arr_kpis['investors'] = count($arr_kpi_investors);
 	$arr_kpis['cities'] = count($arr_kpi_cities);
 	$assign_list["arr_kpis"] = $arr_kpis;
@@ -2565,7 +2559,6 @@ function project_stock_list(){
 			$val['bgcolor'] = $core->get_field($more_information, "bgcolor", '#FFF');
 			$val['textcolor'] = $core->get_field($more_information, "textcolor", '#696cff');
 			$list_blocks = $val['list_blocks'];
-			unset($val["more_information"]);
 //				 $clsISO->print_pre($list_blocks); die();
 			if(!empty($list_blocks)){
 				foreach($list_blocks as $okey => $oval){
@@ -2763,6 +2756,7 @@ function _stock_matrix_region($areas, $ctx){
 	$high_projects = array_values($high_projects);
 
 	# ---- Thấp tầng: arr_projects + arr_menu_blocks (như Tổng quan), khử trùng lặp ----
+	# Gắn _investor_id cho từng item để lọc CĐT; investor cũng đếm vào panel.
 	$low_projects = array(); $low_blocks = array(); $low_pids = array(); $seen_lp = array(); $seen_lb = array();
 	foreach($areas as $area){
 		if(!empty($area["arr_projects"])){
@@ -2771,10 +2765,15 @@ function _stock_matrix_region($areas, $ctx){
 				if(isset($seen_lp[$pid])){ continue; }   // cùng dự án ở nhiều vùng → chỉ 1 lần
 				$seen_lp[$pid] = 1;
 				$lu = isset($count_low[$pid]) ? (int) $count_low[$pid] : 0;
+				$pmore = $clsISO->to_array_json($proj["more_information"]);				
+				$inv = (int) $core->get_field($pmore, "investor_id", 0);
 				$proj["unit_count"] = $lu;
 				$proj["unit_count_fmt"] = number_format($lu, 0, ',', '.');
+				$proj["_investor_id"] = $inv;
 				$low_projects[] = $proj;
 				$low_pids[$pid] = 1;
+				if(!isset($investor_summary[$inv])){ $investor_summary[$inv] = 0; }
+				$investor_summary[$inv]++;
 			}
 		}
 		if(!empty($area["arr_menu_blocks"])){
@@ -2782,15 +2781,22 @@ function _stock_matrix_region($areas, $ctx){
 				$bid = (int) (isset($blk["property_id"]) ? $blk["property_id"] : 0);
 				if($bid > 0 && isset($seen_lb[$bid])){ continue; }
 				if($bid > 0){ $seen_lb[$bid] = 1; }
+				$bmore = isset($blk["more_information"]) ? $blk["more_information"] : array();
+				if(!is_array($bmore)){ $bmore = $clsISO->to_array_json($bmore); }
+				$inv = (int) $core->get_field($bmore, "investor_id", 0);
+				$blk["_investor_id"] = $inv;
 				$low_blocks[] = $blk;
+				if(!isset($investor_summary[$inv])){ $investor_summary[$inv] = 0; }
+				$investor_summary[$inv]++;
 			}
 		}
 	}
 	$sum_low_units = 0;
 	foreach(array_keys($low_pids) as $pid){ $sum_low_units += isset($count_low[$pid]) ? (int) $count_low[$pid] : 0; }
 
-	# ---- Panel CĐT (đếm theo số dự án) ----
-	$investors = array(array("id" => 0, "title" => "Tất cả CĐT", "count" => count($high_projects)));
+	# ---- Panel CĐT: đếm cả cao tầng lẫn thấp tầng, "Tất cả" = tổng item ----
+	$total_items = count($high_projects) + count($low_projects) + count($low_blocks);
+	$investors = array(array("id" => 0, "title" => "Tất cả CĐT", "count" => $total_items));
 	foreach($investor_summary as $inv_id => $cnt){
 		if($inv_id <= 0){ continue; }
 		$investors[] = array(
@@ -4539,6 +4545,10 @@ function project_open_model(){
 	###
 	$uid = $clsISO->getUniqid();
 	$view_type = Input::post('_type', "is_model");
+	# whitelist: gia tri nay di thang vao JSON path trong SQL
+	if(!in_array($view_type, array('is_model', 'is_handoverSpecs'))){
+		$view_type = 'is_model';
+	}
 	$building_id = (int) Input::post('building_id', 0);
 	$block_id = (int) Input::post('block_id', 0);
 	$project_id = (int) Input::post('project_id', 0);
@@ -4559,8 +4569,9 @@ function project_open_model(){
 	if($clsISO->_DEV()){
 //		$dbconn->debug=true;
 	}
-	$tmp = $dbconn->getAll( "SELECT * FROM {$clsProjectMeta->tbl} `t1` 
-		WHERE ".$cond." AND JSON_EXTRACT(`more_information`,\"$.".$view_type."\")='1' order by `reg_date` DESC");
+	# JSON_UNQUOTE: admin luu switch dang SO (int 1), ban cu luu CHUOI "1" — match ca 2 kieu
+	$tmp = $dbconn->getAll( "SELECT * FROM {$clsProjectMeta->tbl} `t1`
+		WHERE ".$cond." AND JSON_UNQUOTE(JSON_EXTRACT(`more_information`,\"$.".$view_type."\"))='1' order by `reg_date` DESC");
 	if($clsISO->_DEV()){
 //		$clsISO->print_pre($tmp);die;
 	}
@@ -5626,4 +5637,352 @@ function project_setBgSold(){
 	$_type = Input::post("type","light");
 	vnSessionSetVar('stock_bg_sold',$_type);
 	echo 1;
+}
+#=========================================================
+#- Tab Tong quan toa (URL mac dinh /project/pX/bY.html): SSR toi thieu cho SEO/banner,
+#  du lieu chi tiet do Angular goi act=api_overview
+function project_overview(){
+	global $assign_list,$_CONFIG,$core,$dbconn,$mod,$act,$title_page,$description_page,$keyword_page,$clsConfiguration,$clsISO,$profile_id;
+	$clsProject = new Project();
+	$clsProperty = new Property();
+	$assign_list["clsProject"] = $clsProject;
+	$assign_list["clsProperty"] = $clsProperty;
+	$dbconn->setFetchMode(ADODB_FETCH_ASSOC);
+	$project_id = (int) Input::get('project_id', 0);
+	$block_id = (int) Input::get('block_id', 0);
+	$building_id = (int) Input::get('building_id', 0);
+	$show = Input::get('show', '');
+	if(empty($show)){
+		if($building_id > 0){
+			$show = 'building';
+		} elseif($block_id > 0){
+			$show = 'block';
+		} else {
+			$show = 'project';
+		}
+	}
+	$field = "`title`,`more_information`,`image`";
+	$oneProject = $clsProject->getOne($project_id, $field.",`code`");
+	# giu more_information dang RAW: banner_stock tu decode nhu man bang hang
+	$oneBuilding = array();
+	$oneBlock = array();
+	if($building_id > 0){
+		$oneBuilding = $clsProperty->getOne($building_id, $field.",`property_code`,`for_id`");
+		$block_id = (int) $oneBuilding['for_id'];
+	}
+	if($block_id > 0){
+		$oneBlock = $clsProperty->getOne($block_id, $field.",`property_code`");
+	}
+	$assign_list["show"] = $show;
+	$assign_list["project_id"] = $project_id;
+	$assign_list["block_id"] = $block_id;
+	$assign_list["building_id"] = $building_id;
+	$assign_list["oneProject"] = $oneProject;
+	$assign_list["oneBlock"] = $oneBlock;
+	$assign_list["oneBuilding"] = $oneBuilding;
+	if($show == 'building'){
+		$title_page = sprintf('Tổng quan %s - %s', $oneBuilding['title'], $oneProject['title']).' - '.PAGE_NAME;
+	} elseif($show == 'block'){
+		$title_page = sprintf('Tổng quan phân khu %s - %s', $oneBlock['title'], $oneProject['title']).' - '.PAGE_NAME;
+	} else {
+		$title_page = sprintf('Tổng quan dự án %s', $oneProject['title']).' - '.PAGE_NAME;
+	}
+	$description_page = $title_page;
+	$keyword_page = $title_page;
+	$assign_list["title_page"] = $title_page;
+	$assign_list["description_page"] = $description_page;
+	$assign_list["keyword_page"] = $keyword_page;
+}
+#- API JSON cho tab Tong quan — port tu MF get_project_detail_all_data (nhanh show=building)
+function project_api_overview(){
+	global $core,$dbconn,$clsISO,$profile_id;
+	$clsProject = new Project();
+	$clsProperty = new Property();
+	$clsStock = new Stock();
+	$dbconn->setFetchMode(ADODB_FETCH_ASSOC);
+	$project_id = (int) Input::get('project_id', 0);
+	$block_id = (int) Input::get('block_id', 0);
+	$building_id = (int) Input::get('building_id', 0);
+	$show = Input::get('show', '');
+	if(empty($show)){
+		if($building_id > 0){
+			$show = 'building';
+		} elseif($block_id > 0){
+			$show = 'block';
+		} else {
+			$show = 'project';
+		}
+	}
+	$res = array('show' => $show);
+	$fieldP = "{$clsProperty->pkey},`title`,`property_code`,`more_information`,`image`,`for_id`,`parent_id`";
+	$oneProject = $clsProject->getOne($project_id, "`title`,`more_information`,`image`,`utilities`,`code`");
+	$more_information_project = $clsISO->to_array_json($oneProject['more_information']);
+	#- Ten CDT cap du an tu investor_id (sitebar dung text more_information_project.investor)
+	$project_investor_name = '';
+	if(!empty($more_information_project['investor_id'])){
+		$oneInvestorPj = $clsProperty->getArraySearchByKey("_INVESTOR", (int) $more_information_project['investor_id']);
+		$project_investor_name = !empty($oneInvestorPj['title']) ? $oneInvestorPj['title'] : '';
+	}
+	if(empty($more_information_project['investor']) && !empty($project_investor_name)){
+		$more_information_project['investor'] = $project_investor_name;
+	}
+	$oneProjectLite = array(
+		'title' => $oneProject['title'],
+		'image_url' => !empty($oneProject['image']) ? $clsISO->getUrlImageFH($oneProject['image']) : '',
+		'logo_url' => !empty($more_information_project['logo']) ? $clsISO->getUrlImageFH($more_information_project['logo']) : '',
+		'area' => $core->get_field($more_information_project, 'arcreage', ''),
+		'more_information' => $more_information_project
+	);
+	$res['oneProject'] = $oneProjectLite;
+	$res['more_information_project'] = $more_information_project;
+	$res['investor_name'] = !empty($project_investor_name) ? $project_investor_name : 'Đang cập nhật';
+	$res['utility_link'] = $clsProject->getLinkInfo($project_id, $block_id, $building_id, '_utility');
+	if(!empty($more_information_project['map_la']) && !empty($more_information_project['map_lo'])){
+		$res['map_link'] = $clsProject->getLinkInfo($project_id, 0, 0, '_map');
+	}
+	#- Enrich chung cho card toa/phan khu: anh, link, trang thai mo ban, gia
+	$fnDecor = function($item, $link, $stock_link) use ($clsISO, $core){
+		$mi = $clsISO->to_array_json($item['more_information']);
+		$item['more_information'] = $mi;
+		$item['image'] = !empty($item['image']) ? $clsISO->getUrlImageFH($item['image']) : '';
+		$item['link'] = $link;
+		$item['stock_link'] = $stock_link;
+		$on_sale_flag = (int) $core->get_field($mi, 'on_sale', 0);
+		$is_out = (int) $core->get_field($mi, 'is_out_stock', 0);
+		if($is_out == 1){
+			$item['on_sale'] = 0;
+			$item['status_text'] = 'Đã bán hết';
+			$item['status_class'] = 'is-soldout';
+		} elseif($on_sale_flag == 1){
+			$item['on_sale'] = 1;
+			$item['status_text'] = 'Đang mở bán';
+			$item['status_class'] = 'is-selling';
+		} else {
+			$item['on_sale'] = 2;
+			$item['status_text'] = 'Sắp mở bán';
+			$item['status_class'] = 'is-coming';
+		}
+		$info_more = $core->get_field($mi, 'info_more', []);
+		$item['total_stock'] = isset($info_more['total_stock']['value']) ? $info_more['total_stock']['value'] : '';
+		$price_m2 = isset($info_more['price_range_m2']['value']) ? $info_more['price_range_m2']['value'] : '';
+		$item['price_range_m2'] = !empty($price_m2) ? $price_m2.' triệu/m²' : '';
+		$item['type_name'] = ((int) $item['parent_id'] == _BLOCK_TYPE_LOWFLOOR_SALE) ? 'Thấp tầng' : 'Cao tầng';
+		return $item;
+	};
+	if($show == 'project'){
+		#- Cap du an: danh sach phan khu + cac khoi SOP
+		$list_blocks = $clsProperty->getAll("`is_trash`=0 AND `property_type`='_BLOCK' AND `for_id`='{$project_id}' ORDER BY `order_no` ASC", $fieldP);
+		if(!empty($list_blocks)){
+			foreach($list_blocks as $key => $bl){
+				$bl_link = sprintf('/project/pt%s/bl%s.html', $project_id, $bl[$clsProperty->pkey]);
+				$list_blocks[$key] = $fnDecor($bl, $bl_link, '');
+				$list_blocks[$key]['investor_name'] = $project_investor_name;
+			}
+		}
+		$res['list_blocks'] = !empty($list_blocks) ? $list_blocks : array();
+		$res['count_block'] = count($res['list_blocks']);
+		$clsProjectSop = new ProjectSop();
+		$clsProjectSopItem = new ProjectSopItem();
+		$list_sops = $clsProjectSop->getAll("`project_id`='{$project_id}' ORDER BY `order_no` ASC");
+		if(!empty($list_sops)){
+			$tmp_sop_ids = array();
+			$tmp_sop_items = array();
+			foreach($list_sops as $key => $val){
+				$more_info = $clsISO->to_array_json($val['more_information']);
+				$image = $core->get_field($more_info, "image", "");
+				$more_info['image'] = !empty($image) ? $clsISO->getUrlImageFH($image) : "";
+				$list_sops[$key]['more_information'] = $more_info;
+				if(empty($more_info['field_type']) || $more_info['field_type'] != '_textarea'){
+					$tmp_sop_ids[] = $val[$clsProjectSop->pkey];
+				}
+			}
+			if(!empty($tmp_sop_ids)){
+				$list_sop_items = $clsProjectSopItem->getAll("`is_trash`=0 AND `sop_id` IN ('".implode('\',\'', $tmp_sop_ids)."') ORDER BY `order_no` ASC");
+				if(!empty($list_sop_items)){
+					foreach($list_sop_items as $val){
+						$sop_id = $val['sop_id'];
+						$more_info = $clsISO->to_array_json($val['more_information']);
+						$is_icon = (int) $core->get_field($more_info, "is_icon", 0);
+						$image = $core->get_field($more_info, "image", "");
+						$val['is_icon'] = $is_icon;
+						$val['more_information'] = $more_info;
+						if($is_icon == 1){
+							$val['icon'] = $image;
+						} else {
+							$val['image'] = !empty($image) ? $clsISO->getUrlImageFH($image, 20, 20) : "";
+						}
+						$tmp_sop_items[$sop_id][] = $val;
+					}
+				}
+			}
+			foreach($list_sops as $key => $val){
+				$sop_id = $val[$clsProjectSop->pkey];
+				if(isset($tmp_sop_items[$sop_id])){
+					$list_sops[$key]['items'] = $tmp_sop_items[$sop_id];
+				}
+			}
+		}
+		$res['list_sops'] = !empty($list_sops) ? $list_sops : array();
+	} elseif($show == 'block'){
+		#- Cap phan khu: luoi toa nha + sidebar thong tin
+		$oneBlock = $clsProperty->getOne($block_id, $fieldP);
+		$block_info = $clsISO->to_array_json($oneBlock['more_information']);
+		$oneBlock['more_information'] = $block_info;
+		$oneBlock['image_url'] = !empty($oneBlock['image']) ? $clsISO->getUrlImageFH($oneBlock['image']) : '';
+		$res['oneBlock'] = $oneBlock;
+		$res['more_information'] = $block_info;
+		$res['is_lowfloor'] = ((int) $oneBlock['parent_id'] == _BLOCK_TYPE_LOWFLOOR_SALE) ? 1 : 0;
+		if(!empty($block_info['investor_id'])){
+			$oneInvestorBl = $clsProperty->getArraySearchByKey("_INVESTOR", (int) $block_info['investor_id']);
+			if(!empty($oneInvestorBl['title'])){
+				$res['investor_name'] = $oneInvestorBl['title'];
+			}
+		}
+		$list_buildings = array();
+		if((int) $oneBlock['parent_id'] == _BLOCK_TYPE_HIGHLEVEL_SALE){
+			$list_buildings = $clsProperty->getAll("`is_trash`=0 AND `property_type`='_BUILDING' AND `for_id`='{$block_id}' ORDER BY `reg_date` ASC", $fieldP);
+			if(!empty($list_buildings)){
+				foreach($list_buildings as $key => $bu){
+					$bu_id = $bu[$clsProperty->pkey];
+					$bu_link = sprintf('/project/pt%s/bl%s/bu%s.html', $project_id, $block_id, $bu_id);
+					$bu_stock = sprintf('/project/p%s/b%s/bang-hang.html', $project_id, $bu_id);
+					$list_buildings[$key] = $fnDecor($bu, $bu_link, $bu_stock);
+				}
+			}
+		}
+		$res['list_buildings'] = $list_buildings;
+		$list_blocks = $clsProperty->getAll("`is_trash`=0 AND `property_type`='_BLOCK' AND `for_id`='{$project_id}' AND `{$clsProperty->pkey}` <> '{$block_id}' ORDER BY `order_no` ASC", $fieldP);
+		if(!empty($list_blocks)){
+			foreach($list_blocks as $key => $bl){
+				$bl_link = sprintf('/project/pt%s/bl%s.html', $project_id, $bl[$clsProperty->pkey]);
+				$list_blocks[$key] = $fnDecor($bl, $bl_link, '');
+				$list_blocks[$key]['investor_name'] = $project_investor_name;
+			}
+		}
+		$res['list_blocks'] = !empty($list_blocks) ? $list_blocks : array();
+	} else {
+	#- Cap toa (show=building): 3 cot mat bang / can ho / tien ich
+	$oneBuilding = $clsProperty->getOne($building_id, $fieldP);
+	$block_id = (int) $oneBuilding['for_id'];
+	$oneBlock = $clsProperty->getOne($block_id, $fieldP);
+	$oneBuilding['image_url'] = !empty($oneBuilding['image']) ? $clsISO->getUrlImageFH($oneBuilding['image']) : '';
+	$oneBlock['image_url'] = !empty($oneBlock['image']) ? $clsISO->getUrlImageFH($oneBlock['image']) : '';
+	$block_info = $clsISO->to_array_json($oneBlock['more_information']);
+	$oneBlock['more_information'] = $block_info;
+	$more_information_building = $clsISO->to_array_json($oneBuilding['more_information']);
+	$oneBuilding['more_information'] = $more_information_building;
+	$res['title'] = $oneBuilding['title'];
+	$res['oneBlock'] = $oneBlock;
+	$res['oneBuilding'] = $oneBuilding;
+	$res['more_information'] = $more_information_building;
+	#- Ten CDT: uu tien phan khu, fallback du an
+	$investor_id = !empty($block_info['investor_id']) ? (int) $block_info['investor_id'] : 0;
+	if(empty($investor_id) && !empty($more_information_project['investor_id'])){
+		$investor_id = (int) $more_information_project['investor_id'];
+	}
+	$res['investor_name'] = 'Đang cập nhật';
+	if($investor_id > 0){
+		$oneInvestor = $clsProperty->getArraySearchByKey("_INVESTOR", $investor_id);
+		if(!empty($oneInvestor['title'])){
+			$res['investor_name'] = $oneInvestor['title'];
+		}
+	}
+	#- Danh sach mat bang: tong the (phan khu) + tang dien hinh + layout theo tang
+	$list_layouts = array();
+	$layout_ns_block = $core->get_field($block_info, "layout_ns", "");
+	if(!empty($layout_ns_block)){
+		$list_layouts[] = array('title' => 'Tổng thể', 'image' => $clsISO->getUrlImageFH($layout_ns_block));
+	}
+	$layout_ns = $core->get_field($more_information_building, "layout_ns", "");
+	if(!empty($layout_ns)){
+		$list_layouts[] = array('title' => 'Tầng điển hình', 'image' => $clsISO->getUrlImageFH($layout_ns));
+	}
+	$layout_ms = $core->get_field($more_information_building, "layout_ms", []);
+	if(!empty($layout_ms) && is_array($layout_ms)){
+		foreach($layout_ms as $oval){
+			$oval['image'] = !empty($oval['image']) ? $clsISO->getUrlImageFH($oval['image']) : "";
+			$list_layouts[] = $oval;
+		}
+	}
+	$res['list_layouts'] = $list_layouts;
+	#- 10 can gia tot con hang, dung dieu kien hien thi nhu bang hang
+	$cond_stock = "`is_trash`=0 AND `stock_type`='"._BLOCK_TYPE_HIGHLEVEL_SALE."' AND `status_id`>0"
+		." AND `status_id` NOT IN ('"._STOCK_STATUS_SOLD_ID."','"._STOCK_STATUS_NON_ID."')"
+		." AND `building_id`='{$building_id}'";
+	if(!$clsISO->checkPermission('view_stock_globe')){
+		$cond_stock .= " AND `show_website` LIKE '%|user.fh|%'";
+	}
+	$fieldStock = "{$clsStock->pkey},`ms_code`,`floor`,`code`,`bedroom_id`,`home_direction_id`,`status_id`,`more_information`,`project_id`,`block_id`";
+	$list_stocks = $clsStock->getAll("{$cond_stock} ORDER BY CASE WHEN `total_price_vat`=0 THEN 1 ELSE 0 END ASC, `total_price_vat` ASC LIMIT 0,10", $fieldStock);
+	if(!empty($list_stocks)){
+		$arr_bedroom_cached = $clsProperty->getArraySearchByKey("_BEDROOM");
+		$arr_direction_cached = $clsProperty->getArraySearchByKey("_DIRECTION");
+		foreach($list_stocks as $key => $st){
+			$more_info = $clsISO->to_array_json($st['more_information']);
+			$st['more_information'] = $more_info;
+			$bedroom_id = (int) $st['bedroom_id'];
+			$st['bedroom_name'] = !empty($arr_bedroom_cached[$bedroom_id]['title']) ? $arr_bedroom_cached[$bedroom_id]['title'] : '';
+			$dir_id = (int) $st['home_direction_id'];
+			$st['direction_name'] = !empty($arr_direction_cached[$dir_id]['title']) ? $arr_direction_cached[$dir_id]['title'] : '';
+			$st['status_text'] = 'Còn hàng';
+			$total_price_vat = !empty($more_info['total_price_vat']) ? $clsISO->processSmartNumber($more_info['total_price_vat']) : 0;
+			$st['total_price_vat_formatted'] = !empty($total_price_vat) ? number_format($total_price_vat, 0, ',', '.').' đ' : 'Liên hệ';
+			$list_stocks[$key] = $st;
+		}
+	}
+	$res['list_stocks'] = !empty($list_stocks) ? $list_stocks : array();
+	#- Tien ich thuoc phan khu / toa (cot utilities cua du an)
+	$building_utilities = array();
+	$project_utilities_raw = $clsISO->to_array_json($oneProject['utilities']);
+	$all_utilities_raw = $clsProperty->getCacheItems("_UTILITIES_PROJECT");
+	if(!empty($project_utilities_raw) && is_array($project_utilities_raw)){
+		foreach($project_utilities_raw as $ut){
+			$b_ids = !empty($ut['building_ids']) ? $ut['building_ids'] : '';
+			$is_building_match = false;
+			if(!empty($b_ids)){
+				if(is_array($b_ids)){
+					$is_building_match = in_array($building_id, $b_ids);
+				} else if(is_string($b_ids)){
+					if(strpos($b_ids, '|') !== false){
+						$is_building_match = (strpos($b_ids, '|'.$building_id.'|') !== false);
+					} else {
+						$is_building_match = in_array($building_id, explode(',', $b_ids));
+					}
+				}
+			}
+			$is_block_match = !empty($ut['block_id']) && $ut['block_id'] == $block_id;
+			# khong gan toa/phan khu nao = tien ich chung toan du an -> van hien;
+			# co gan nhung khong khop toa/phan khu hien tai -> loai
+			$has_target = !empty($b_ids) || !empty($ut['block_id']);
+			if($has_target && !$is_building_match && !$is_block_match){
+				continue;
+			}
+			if(!empty($ut['image'])){
+				$ut['image'] = $clsISO->getUrlImageFH($ut['image']);
+			}
+			$cat_title = 'Tiện ích';
+			if(!empty($all_utilities_raw) && !empty($ut['cat_id'])){
+				foreach($all_utilities_raw as $v_cat){
+					if($ut['cat_id'] == $v_cat['property_id']){
+						$cat_title = $v_cat['title'];
+						break;
+					}
+				}
+			}
+			$ut['category_title'] = $cat_title;
+			$building_utilities[] = $ut;
+		}
+	}
+	$res['list_utilities'] = $building_utilities;
+	# chan doan: tong item tho trong cot utilities (de soi filter tu xa)
+	$res['utl_raw_total'] = is_array($project_utilities_raw) ? count($project_utilities_raw) : 0;
+	#- Link trang CSBH that cua toa (the Chinh sach & Uu dai o cot phai)
+	$res['csbh_link'] = $clsProject->getLinkInfo($project_id, $block_id, $building_id, _PROJECT_DOCS_CSBH_CATID);
+	}
+	header('Content-Type: application/json; charset=utf-8');
+	echo json_encode(array(
+		'success' => true,
+		'data' => $res
+	), JSON_UNESCAPED_UNICODE);
+	die();
 }

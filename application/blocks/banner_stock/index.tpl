@@ -4,7 +4,7 @@
 		<div class="sh-hero__thumb" style="background-image:url('{$oneProject.image}')"></div>
 		<div class="sh-hero__main">
 			{if !empty($oneBuilding)}
-				<h1 class="sh-hero__titleline"><span class="sh-hero__title">{if !empty($ms_code)}{$ms_code|escape}{else}{$oneBuilding.title|escape}{/if}</span>{if $act eq 'stock' || $act eq 'map'} <span class="sh-hero__count"><span class="total_stock">{if !empty($total_stocks)}{$total_stocks}{else}0{/if}</span> <small>căn</small></span>{/if}</h1>
+				<h1 class="sh-hero__titleline"><span class="sh-hero__title">{if !empty($ms_code)}{$ms_code|escape}{else}{$oneBuilding.title|escape}{/if}</span>{if $act eq 'stock' || $act eq 'map' || $act eq 'overview'} <span class="sh-hero__count"><span class="total_stock">{if !empty($total_stocks)}{$total_stocks}{else}0{/if}</span> <small>căn</small></span>{/if}</h1>
 			{elseif !empty($block_is_project)}
 				<h1 class="sh-hero__titleline"><span class="sh-hero__title">{$oneBlock.title|escape}</span>{if $act eq 'stock' || $act eq 'layout'} <span class="sh-hero__count"><span class="total_stock">{if !empty($total_stocks)}{$total_stocks}{else}0{/if}</span> <small>căn</small></span>{/if}</h1>
 			{else}
@@ -68,10 +68,10 @@
 				{/if}
 			</div>
 			{if !empty($is_model)}
-				<button class="btn btn-info text-white pulse position-relative rounded-pill{if $deviceType eq 'phone'} btn-sm px-1{/if}" type="button" onClick="$Core.project.open_model(this,event)" project_id="{$project_id}" block_id="{$block_id}" building_id="{$building_id}" _type="is_model">Nhà mẫu</button>
+				<button class="sh-pillbtn position-relative{if $deviceType eq 'phone'} sh-pillbtn--sm{/if}" type="button" onClick="$Core.project.open_model(this,event)" project_id="{$project_id}" block_id="{$block_id}" building_id="{$building_id}" _type="is_model"><i class="bx bx-home-smile"></i> Nhà mẫu</button>
 			{/if}
 			{if !empty($is_handoverSpecs)}
-				<button class="btn btn-success text-white pulse position-relative rounded-pill{if $deviceType eq 'phone'} btn-sm px-1{/if}" type="button" onClick="$Core.project.open_model(this,event)" project_id="{$project_id}" block_id="{$block_id}" building_id="{$building_id}" _type="is_handoverSpecs">TC Bàn giao</button>
+				<button class="sh-pillbtn position-relative{if $deviceType eq 'phone'} sh-pillbtn--sm{/if}" type="button" onClick="$Core.project.open_model(this,event)" project_id="{$project_id}" block_id="{$block_id}" building_id="{$building_id}" _type="is_handoverSpecs"><i class="bx bx-list-check"></i> TC Bàn giao</button>
 			{/if}
 			{if $show eq 'project' || $stock_type eq $smarty.const._BLOCK_TYPE_LOWFLOOR_SALE}
 				{if !empty($oneProject.is_menu)}
@@ -87,6 +87,13 @@
 		</div>
 	</div>
 	<div class="sh-tabs">
+		{* tab Tong quan: URL mac dinh moi cua toa cao tang *}
+		{if !empty($link_overview)}
+			<a data-toggle="ripple" href="{$link_overview}" class="sh-tab{if $act eq 'overview'} active{/if}">
+				<i class="bx bx-info-circle"></i>
+				<span class="txt_option">Tổng quan</span>
+			</a>
+		{/if}
 		{if $show eq 'building' || (!empty($block_is_project)) || (($show eq 'project' || $show eq 'map' || $act eq 'stock' || $act eq 'layout') && !empty($is_lowfloor))}
 			{if $clsISO->checkItemInArray($smarty.const._BLOCK_TYPE_HIGHLEVEL_SALE,$arr_block_type) && ($show eq 'project' || ($show eq 'map' && empty($building_id)) || $act eq 'stock' || $act eq 'layout')}
 				<a data-toggle="ripple" href="javascript:void()" class="sh-tab{if $act eq 'stock' || $act eq 'layout'} active{/if}" onClick="$Core.project.chooseListStock(this,event)">
@@ -94,14 +101,14 @@
 					<span class="txt_option">Bảng hàng</span>
 				</a>
 			{else}
-				<a data-toggle="ripple" href="{$link_stock}" class="sh-tab{if $act eq 'stock' || $act eq 'layout'} active{/if}">
+				<a data-toggle="ripple" href="{$link_stock_bh}" class="sh-tab{if $act eq 'stock' || $act eq 'layout'} active{/if}">
 					<i class="bx bx-table"></i>
 					<span class="txt_option">Bảng hàng</span>
 				</a>
 			{/if}
-		{elseif $act eq 'stock' || $act eq 'layout'}
-			{* du an chi cao tang: van hien tab Bang hang active khi dang o man bang hang *}
-			<a data-toggle="ripple" href="{$link_stock}" class="sh-tab active">
+		{elseif $act eq 'stock' || $act eq 'layout' || !empty($link_overview)}
+			{* du an chi cao tang: van hien tab Bang hang (active khi dang o man bang hang) *}
+			<a data-toggle="ripple" href="{$link_stock_bh}" class="sh-tab{if $act eq 'stock' || $act eq 'layout'} active{/if}">
 				<i class="bx bx-table"></i>
 				<span class="txt_option">Bảng hàng</span>
 			</a>

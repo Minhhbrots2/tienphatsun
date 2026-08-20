@@ -6876,6 +6876,10 @@ function default_save_sop_item(){
         $more_information['image'] = Input::post('image');
         $more_information['is_icon'] = Input::post('is_icon', 0);
         $more_information['position'] = Input::post('position', "left");
+        # template Ket noi vung: form gui kem "Thoi gian" — truoc day bi bo roi nen khong luu duoc
+        if(Input::exists('time_duration', 'POST')){
+            $more_information['time_duration'] = Input::post('time_duration', '');
+        }
         if($clsProjectSopItem->updateOne($sop_item_id, array(
             'is_trash'	=> 0,
             'title'	=> Input::post('title'),

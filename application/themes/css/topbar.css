@@ -73,7 +73,8 @@
 		border-color: var(--main-color, #BF171D);
 		background: rgba(191, 23, 29, .05);
 	}
-	/* icon xep chong: bar (mac dinh) <-> x (khi menu thu gon), doi cheo muot */
+	/* icon xep chong theo HANH DONG sap lam:
+	   menu dang mo -> hien X (bam de thu gon); menu dang gon -> hien bar (bam de mo) */
 	.tb-toggle__ico {
 		position: absolute;
 		inset: 0;
@@ -84,20 +85,20 @@
 		transition: opacity .25s ease, transform .3s cubic-bezier(.4, 0, .2, 1);
 	}
 	.tb-toggle__ico--bar {
-		opacity: 1;
-		transform: rotate(0) scale(1);
-	}
-	.tb-toggle__ico--close {
-		opacity: 0;
-		transform: rotate(-90deg) scale(.6);
-	}
-	html.layout-menu-collapsed .tb-toggle__ico--bar {
 		opacity: 0;
 		transform: rotate(90deg) scale(.6);
 	}
-	html.layout-menu-collapsed .tb-toggle__ico--close {
+	.tb-toggle__ico--close {
 		opacity: 1;
 		transform: rotate(0) scale(1);
+	}
+	html.layout-menu-collapsed .tb-toggle__ico--bar {
+		opacity: 1;
+		transform: rotate(0) scale(1);
+	}
+	html.layout-menu-collapsed .tb-toggle__ico--close {
+		opacity: 0;
+		transform: rotate(-90deg) scale(.6);
 	}
 
 	/* ---------- o search gop pham vi: [scope][input][icon phai],
@@ -170,12 +171,13 @@
 	   chuyen sang fixed thi bu lai dung 1 khoang chieu cao */
 	.layout-page { padding-top: var(--tb-h) !important; }
 }
-.search_header input{
+/* chi ap cho o go chu — KHONG dung `.search_header input` tran lan:
+   se dinh ca radio trong dropdown chon loai o ban phone (phinh thanh oval do) */
+.search_header input[type="text"]{
 	width: 100%;
     padding: 8px 12px 8px 36px;
     border: 1px solid #e6e8ec !important;
     border-radius: 9px;
-    background: #f5f6f8;
 }
 .layout-navbar .btn-group{
 	margin-right: 20px;
@@ -201,8 +203,30 @@
 .search_header.search_combo input {
 	padding: 8px 40px 8px 12px;
 }
-.search_header input:focus {
+.search_header input[type="text"]:focus {
 	outline: none;
 	border-color: var(--main-color) !important;
 	box-shadow: 0 0 0 0.2rem rgba(191, 23, 29, .25);
+}
+/* duoi 1200px (chua an topbar desktop): o search co gian theo man,
+   khong giu cung 520px lam vo hang navbar */
+@media (max-width: 1199.98px) {
+	.search_header {
+		width: 100%;
+		min-width: 0;
+		max-width: 520px;
+	}
+	.layout-navbar .btn-group {
+		margin-right: 8px;
+	}
+	.search_combo__select {
+		padding: 0 22px 0 10px;
+		font-size: 12px;
+	}
+	.search_header input[type="text"]{
+		border: none !important;
+	}
+	.search_header input[type="text"]:focus {
+		box-shadow: none;
+	}
 }
