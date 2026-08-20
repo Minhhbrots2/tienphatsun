@@ -36,7 +36,7 @@
 		{if $block_type eq $smarty.const._BLOCK_TYPE_HIGHLEVEL_SALE &&  $deviceType eq 'phone'}
 			<div class="d-flex justify-content-end">
 				<div class="btn-group mb-2 justify-content-center gap-1">
-					<button class="btn btn-outline-default btn-icon rounded-pill btn_bg_sold light btn-sm {if $stock_bg_sold eq 'light'}active{/if}" onClick="$Core.stock.setBgSold(this,event)" data-type="light" ></button>
+					<button class="btn btn-outline-default btn-icon rounded-pill btn_bg_sold light btn-sm {if $stock_bg_sold eq 'light'}active{/if}" onClick="$Core.stock.setBgSold(this,event)" data-type="light" style="background: {$bg_sold} !important"  ></button>
 					<button class="btn btn-outline-default btn-icon rounded-pill btn_bg_sold dark btn-sm {if $stock_bg_sold eq 'dark'}active{/if}" onClick="$Core.stock.setBgSold(this,event)" data-type="dark"></button>
 				</div>
 			</div>
@@ -46,7 +46,8 @@
 	<div class="clearfix"></div>
 	<div class="card">
 		<div class="card-body">
-			{if $block_type eq $smarty.const._BLOCK_TYPE_HIGHLEVEL_SALE}	
+			{if $block_type eq $smarty.const._BLOCK_TYPE_HIGHLEVEL_SALE}
+				{if $deviceType eq 'phone'}
 				<div class="d-flex justify-content-between">
 					<div class="input-group justify-content-center mb-2 no-shadow flex-fill">
 						{if !empty($vr_link)}
@@ -116,13 +117,41 @@
 							</div>
 						{/if}
 					</div>
-					{if $deviceType ne 'phone'}
-						<div class="d-flex align-items-center gap-2">
-							<div class="btn-group gap-1">
-								<button class="btn btn-outline-default btn_bg_sold light btn-icon rounded-pill {if $stock_bg_sold eq 'light'}active{/if}" onClick="$Core.stock.setBgSold(this,event)" data-type="light" ></button>
-								<button class="btn btn-outline-default btn_bg_sold dark btn-icon rounded-pill {if $stock_bg_sold eq 'dark'}active{/if}" onClick="$Core.stock.setBgSold(this,event)" data-type="dark"></button>
-							</div>
-							<div class="dropdown dropdown_price">
+				</div>
+				{else}
+				<div class="sh-toolbar mb-2">
+					<a data-toggle="ripple" href="javascript:void(0);" building_id="{$building_id}" class="sh-tbtn" onClick="$Core.stock.toggle_floor_empty(this, event)" title="Ẩn tầng trống"><i class='fa fa-eye'></i> Ẩn tầng trống</a>
+					<a data-toggle="ripple" href="javascript:void(0);" building_id="{$building_id}" class="sh-tbtn" onClick="$Core.stock.hide_stock_cross(this, event)" title="Ẩn/hiện quỹ chéo">{if $is_hide_stock_cross eq '1'}<i class='fa fa-eye-slash'></i> Hiện{else}<i class='fa fa-eye'></i> Ẩn{/if} quỹ chéo</a>
+					{if $is_map eq '1'}
+						<a data-toggle="ripple" href="/project/p{$project_id}/b{$building_id}/map.html" title="Xem dạng layout" class="sh-tbtn"><i class='bx bx-map-alt'></i> Map</a>
+					{/if}
+					{if $is_map_dq eq '1'}
+						<a data-toggle="ripple" href="javascript:void(0)" class="sh-tbtn" title="Xem dạng layout banner" onClick="$Core.project.open_map(this, event)" block_id="{$block_id}" building_id="{$building_id}"><img src="{$clsConfiguration->getValue('LogoWhite')}" width="18px" alt="{$header_configs.CompanyName}" /> Map ĐQ</a>
+					{/if}
+					{* phu luc minh hoa: dung sau cum button, khong xen ke *}
+					{if !empty($list_status)}
+						<div class="sh-legend">
+							{foreach name=shlg from=$list_status item=_oProp}
+								{if $clsISO->checkItemInArray($_oProp.property_id,$arr_status_id_show)}
+									<span class="sh-legend__item">
+										<span style="background:{$_oProp.bgcolor}" class="d-block border rounded-pill w-px-15 h-px-15"></span>
+										<span>{$_oProp.title|escape}</span>
+									</span>
+								{/if}
+							{/foreach}
+							<span class="sh-legend__item">
+								<span class="status_fund_type" title="Thứ cấp"></span>
+								<span>Quỹ thứ cấp</span>
+							</span>
+						</div>
+					{/if}
+					<span class="sh-toolbar__spacer"></span>
+					<span class="tgl-02__scene" title="Đổi nền căn đã bán (sáng / tối)">
+						<input type="checkbox" class="tgl-02__sw" role="switch"{if $stock_bg_sold eq 'dark'} checked="checked"{/if} onChange="$(this).data('type', this.checked ? 'dark' : 'light');$Core.stock.setBgSold(this, event)">
+						<span class="tgl-02__stars" aria-hidden="true"></span>
+						<span class="tgl-02__cloud" aria-hidden="true"></span>
+					</span>
+					<div class="dropdown dropdown_price">
 							<button data-toggle="ripple" class="btn bg-warning text-white dropdown-toggle w-px-140" type="button" data-bs-toggle="dropdown" data-bs-auto-close="inside" data-popper-placement="top-start" aria-haspopup="true" aria-expanded="false">Giá full VAT</button>
 							<ul class="dropdown-menu" style="">
 								<li style="background: #fff8ff">
@@ -176,16 +205,18 @@
 								   ><span>Giá 3PA/m<sup>2</sup></span><span class="text-muted">(triệu)</span></a>
 								</li>
 						  	</ul>
-						</div>
-						</div>
-					{/if}
-				</div>	
+					</div>
+				</div>
+				{/if}
 				<div id="tblStock" class="freeze-table text-nowrap table-container" data-building="{$oneBuilding.property_code}">
 					<table class="table fixedTable table-stock table-bordered dragable installed nohover" cellpadding="0" cellspacing="0" >
 						<thead><tr>
 							<th class="align-center bg-white text-center"  colspan="2" style="min-width:60px">
 								<strong class="fs-18">{$oneBuilding.title_vn} - {$oneBuilding.property_code}</strong>
 							</th>
+							{* desktop: phu luc da chuyen len toolbar -> bo th nay, th note phia sau
+							   tu phu them 7 cot vi total_rowspan khong bi tru; phone giu nguyen *}
+							{if $deviceType eq 'phone'}
 							{assign var = total_rowspan value = $total_rowspan-7}
 							<th class="align-center text-center" colspan="7" style="height:30px">
 								{if !empty($list_status)}
@@ -210,6 +241,7 @@
 									</div>
 								{/if}
 							</th>
+							{/if}
 							<th class="text-center" colspan="{$total_rowspan-1}">
 								{if !empty($more_information.title_ts)}
 									{$more_information.title_ts}

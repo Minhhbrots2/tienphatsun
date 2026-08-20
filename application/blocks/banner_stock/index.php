@@ -334,6 +334,25 @@
 
 	$smarty->assign('is_handoverSpecs',$is_handoverSpecs);
 
+	# hero header v2: CDT + thong so toa (chip nao thieu du lieu thi tpl tu an)
+	$investor_name = "";
+	$investor_id = (int) $clsISO->getValue("investor_id", $more_information);
+	if($investor_id > 0){
+		$oneInvestor = $clsProperty->getOne($investor_id, "title");
+		$investor_name = !empty($oneInvestor['title']) ? $oneInvestor['title'] : "";
+	}
+	$smarty->assign('investor_name', $investor_name);
 
+	$sh_floor = $sh_house = $sh_elevator = 0;
+	if(!empty($building_information) && is_array($building_information)){
+		$sh_floor = (int) $clsISO->getValue("number_floor", $building_information);
+		$sh_house = (int) $clsISO->getValue("number_house", $building_information);
+		$sh_elevator = (int) $clsISO->getValue("number_of_elevator", $building_information);
+	}
+	$sh_total_units = ($sh_floor > 0 && $sh_house > 0) ? $sh_floor * $sh_house : 0;
+	$smarty->assign('sh_floor', $sh_floor);
+	$smarty->assign('sh_house', $sh_house);
+	$smarty->assign('sh_elevator', $sh_elevator);
+	$smarty->assign('sh_total_units', $sh_total_units);
 
 ?>

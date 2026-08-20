@@ -1,0 +1,327 @@
+/* ============================================================
+   Header chi tiet bang hang (block banner_stock + toolbar man stock).
+   Prefix .sh-* va .tgl-02* — khong de len component khac.
+   ============================================================ */
+
+/* ---------- hero card ---------- */
+.sh-hero {
+	background: #fff;
+	border: 1px solid #e6e8ec;
+	border-radius: 14px;
+	padding: 16px;
+	box-shadow: 0 1px 4px rgba(16, 24, 40, .05);
+}
+.sh-hero__top {
+	display: flex;
+	gap: 16px;
+	align-items: flex-start;
+}
+.sh-hero__thumb {
+	flex: 0 0 auto;
+	width: 148px;
+	height: 96px;
+	border-radius: 10px;
+	background-color: #eef0f4;
+	background-size: cover;
+	background-position: center;
+}
+.sh-hero__main {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+.sh-hero__titleline {
+	display: flex;
+	align-items: baseline;
+	gap: 10px;
+	flex-wrap: wrap;
+	margin: 0;
+}
+.sh-hero__title {
+	font-size: 26px;
+	font-weight: 800;
+	letter-spacing: -.01em;
+	color: #384551;
+}
+.sh-hero__count {
+	font-size: 20px;
+	font-weight: 800;
+	color: var(--main-color, #BF171D);
+}
+.sh-hero__count small {
+	font-size: 14px;
+	font-weight: 600;
+}
+.sh-hero__sub {
+	margin: 3px 0 0;
+	font-size: 13.5px;
+	font-weight: 600;
+	color: #384551;
+}
+.sh-hero__sub a {
+	color: var(--main-color, #BF171D);
+}
+
+/* ---------- chip thong tin toa/tang/can ---------- */
+.sh-meta {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 6px 0;
+	margin-top: 12px;
+	font-size: 13px;
+	color: #5a6472;
+}
+.sh-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	padding: 0 14px;
+	white-space: nowrap;
+}
+.sh-chip:first-child { padding-left: 0; }
+.sh-chip + .sh-chip { border-left: 1px solid #e6e8ec; }
+.sh-chip > i {
+	width: 26px;
+	height: 26px;
+	border-radius: 7px;
+	background: rgba(191, 23, 29, .07);
+	color: var(--main-color, #BF171D);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 14px;
+}
+.sh-chip b {
+	font-weight: 700;
+	color: #384551;
+}
+
+/* ---------- cot phai: badge + nut phu ---------- */
+.sh-hero__side {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+}
+.sh-badge {
+	display: inline-flex;
+	align-items: center;
+	font-weight: 700;
+	font-size: 13px;
+	padding: 7px 18px;
+	border-radius: 999px;
+	color: #fff;
+	white-space: nowrap;
+}
+.sh-badge--open { background: #22a95e; }
+.sh-badge--closed { background: var(--main-color, #BF171D); }
+
+/* ---------- thanh tab capsule ---------- */
+.sh-tabs {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 14px;
+	padding: 6px;
+	border: 1px solid #e6e8ec;
+	border-radius: 12px;
+	background: #fbfbfd;
+	overflow-x: auto;
+}
+.sh-tab {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	flex: 1 1 auto;
+	padding: 9px 16px;
+	border-radius: 9px;
+	font-size: 13.5px;
+	font-weight: 600;
+	color: #5a6472;
+	white-space: nowrap;
+	transition: all .15s;
+}
+.sh-tab i {
+	font-size: 15px;
+	opacity: .8;
+	margin: 0;
+}
+.sh-tab:hover {
+	background: #fff;
+	color: var(--main-color, #BF171D);
+	box-shadow: 0 1px 3px rgba(16, 24, 40, .08);
+}
+.sh-tab.active {
+	background: var(--main-color, #BF171D);
+	color: #fff;
+	box-shadow: 0 3px 8px rgba(191, 23, 29, .35);
+}
+.sh-tab.active i { opacity: 1; }
+
+/* ---------- toolbar tren table (chi man stock desktop) ---------- */
+.sh-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+.sh-tbtn {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	padding: 8px 14px;
+	border: 1px solid #e6e8ec;
+	border-radius: 9px;
+	background: #fff;
+	font-size: 13px;
+	font-weight: 600;
+	color: #5a6472;
+	cursor: pointer;
+	transition: all .15s;
+	white-space: nowrap;
+}
+.sh-tbtn:hover {
+	border-color: var(--main-color, #BF171D);
+	color: var(--main-color, #BF171D);
+}
+.sh-toolbar__spacer { flex: 1 1 auto; }
+
+/* phu luc minh hoa trang thai quy (chuyen tu thead len toolbar) */
+.sh-legend {
+	display: inline-flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 4px 14px;
+	padding: 0 6px;
+}
+.sh-legend__item {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 11px;
+	font-weight: 700;
+	color: #5a6472;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+/* ---------- switcher sang/toi nen can da ban: sun <-> moon ---------- */
+.tgl-02__scene {
+	position: relative;
+	display: inline-flex;
+}
+.tgl-02__sw {
+	appearance: none;
+	-webkit-appearance: none;
+	width: 64px;
+	height: 32px;
+	border-radius: 999px;
+	background: linear-gradient(180deg, #7fc3ef, #cfe9fb);
+	box-shadow: inset 0 2px 6px rgba(20, 60, 100, .35);
+	cursor: pointer;
+	outline: 0;
+	margin: 0;
+	position: relative;
+	transition: background .45s, box-shadow .45s;
+}
+.tgl-02__sw::before {
+	/* thumb: mat troi */
+	content: "";
+	position: absolute;
+	top: 4px;
+	left: 4px;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	background: #ffd23f;
+	box-shadow: 0 0 10px 2px rgba(255, 190, 60, .8), inset -2px -3px 0 rgba(230, 140, 20, .35);
+	transition: left .45s cubic-bezier(.55, 1.45, .45, 1), background .45s, box-shadow .45s;
+}
+.tgl-02__sw:checked {
+	background: linear-gradient(180deg, #0f1733, #26305c);
+	box-shadow: inset 0 2px 8px rgba(0, 0, 0, .6);
+}
+.tgl-02__sw:checked::before {
+	/* thumb: trang khuyet */
+	left: 36px;
+	background: transparent;
+	box-shadow: inset -8px 4px 0 1px #eef1f9, 0 0 12px 2px rgba(180, 200, 255, .55);
+}
+.tgl-02__stars {
+	position: absolute;
+	left: 9px;
+	top: 8px;
+	width: 22px;
+	height: 18px;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity .4s .1s;
+}
+.tgl-02__stars::before {
+	content: "";
+	position: absolute;
+	width: 2.5px;
+	height: 2.5px;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 10px 4px 0 -.5px #fff, 3px 11px 0 0 rgba(255, 255, 255, .85), 15px 12px 0 -1px rgba(255, 255, 255, .7);
+}
+.tgl-02__sw:checked ~ .tgl-02__stars { opacity: 1; }
+.tgl-02__cloud {
+	position: absolute;
+	right: 8px;
+	bottom: 7px;
+	width: 20px;
+	height: 7px;
+	border-radius: 999px;
+	background: #fff;
+	pointer-events: none;
+	opacity: .95;
+	transition: opacity .35s, transform .35s;
+}
+.tgl-02__cloud::before {
+	content: "";
+	position: absolute;
+	left: 4px;
+	top: -5px;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: #fff;
+}
+.tgl-02__sw:checked ~ .tgl-02__cloud {
+	opacity: 0;
+	transform: translateX(10px);
+}
+
+/* ---------- mobile ---------- */
+@media (max-width: 767.98px) {
+	.sh-hero { padding: 12px; }
+	.sh-hero__top { gap: 10px; }
+	.sh-hero__thumb {
+		width: 92px;
+		height: 64px;
+	}
+	.sh-hero__title { font-size: 19px; }
+	.sh-hero__count { font-size: 15px; }
+	.sh-hero__side {
+		width: 100%;
+		order: 3;
+		justify-content: flex-start;
+	}
+	.sh-meta { font-size: 12px; }
+	.sh-chip { padding: 0 8px; }
+	.sh-chip > i {
+		width: 22px;
+		height: 22px;
+		font-size: 12px;
+	}
+	.sh-tab {
+		padding: 8px 12px;
+		font-size: 12.5px;
+		flex: 0 0 auto;
+	}
+}

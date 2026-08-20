@@ -31,6 +31,9 @@
 
 	/* ---------- khoi logo: cot trai co dinh; logo can GIUA,
 	   nut thu gon absolute sat duong vien ngan cach (vien = mep aside) ---------- */
+	html.layout-menu-collapsed .tb-brand {
+		border-right: transparent;
+	}
 	.tb-brand {
 		position: relative;
 		align-items: center;
@@ -52,7 +55,7 @@
 	.tb-toggle {
 		display: flex;
 		position: absolute;
-		right: 10px;
+		left: 10px;
 		top: 50%;
 		transform: translateY(-50%);
 		width: 36px;
@@ -70,8 +73,32 @@
 		border-color: var(--main-color, #BF171D);
 		background: rgba(191, 23, 29, .05);
 	}
-	.tb-toggle i { font-size: 19px; transition: transform .25s; }
-	html.layout-menu-collapsed .tb-toggle i { transform: rotate(180deg); }
+	/* icon xep chong: bar (mac dinh) <-> x (khi menu thu gon), doi cheo muot */
+	.tb-toggle__ico {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 21px;
+		transition: opacity .25s ease, transform .3s cubic-bezier(.4, 0, .2, 1);
+	}
+	.tb-toggle__ico--bar {
+		opacity: 1;
+		transform: rotate(0) scale(1);
+	}
+	.tb-toggle__ico--close {
+		opacity: 0;
+		transform: rotate(-90deg) scale(.6);
+	}
+	html.layout-menu-collapsed .tb-toggle__ico--bar {
+		opacity: 0;
+		transform: rotate(90deg) scale(.6);
+	}
+	html.layout-menu-collapsed .tb-toggle__ico--close {
+		opacity: 1;
+		transform: rotate(0) scale(1);
+	}
 
 	/* ---------- o search gop pham vi: [scope][input][icon phai],
 	   dich ra khoi vien ngan cach ---------- */
@@ -81,7 +108,6 @@
 		margin-left: 18px;
 		border: 1px solid #e6e8ec;
 		border-radius: 10px;
-		background: #f5f6f8;
 		transition: border-color .15s, background .15s;
 	}
 	.search_header.search_combo:focus-within {

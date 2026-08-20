@@ -74,7 +74,8 @@
 			</a>
 			{* nut thu gon aside: icon-only, sat vien ngan cach (class layout-menu-toggle de menu.js xu ly) *}
 			<a href="javascript:void(0);" class="layout-menu-toggle tb-toggle" title="Thu gọn / mở rộng menu">
-				<i class="bx bx-chevrons-left"></i>
+				<i class="bx bx-menu tb-toggle__ico tb-toggle__ico--bar"></i>
+				<i class="bx bx-x tb-toggle__ico tb-toggle__ico--close"></i>
 			</a>
 		</div>
 		<div class="layout-menu-toggle navbar-nav align-items-xl-center me-2 me-xl-0 d-xl-none">

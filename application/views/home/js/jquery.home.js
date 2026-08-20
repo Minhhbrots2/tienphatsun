@@ -4112,6 +4112,63 @@ $Core.project = {
 				$(".price_show",$(elm)).html($price);
 			}
 		});
+	},
+	switchStockView : (_this, e) => {
+		if(e){ e.preventDefault(); }
+		var view = $(_this).data('view');
+		$('.stock-view__btn[data-view]').removeClass('is-active');
+		$(_this).addClass('is-active');
+		$('.stock-pane').addClass('d-none');
+		$('.stock-pane[data-pane="' + view + '"]').removeClass('d-none');
+		return false;
+	},
+	switchStockRegion : (_this, e) => {
+		if(e){ e.preventDefault(); }
+		var area = String($(_this).data('area'));
+		$('.stock-region__tab').removeClass('is-active');
+		$(_this).addClass('is-active');
+		$('.stock-area-section').each(function(){
+			var show = (area === '0') || (String($(this).data('area')) === area);
+			$(this).toggleClass('d-none', !show);
+		});
+		$('.mx-region').each(function(){
+			$(this).toggleClass('d-none', String($(this).data('area')) !== area);
+		});
+		return false;
+	},
+	filterMatrixInvestor : (_this, e) => {
+		if(e){ e.preventDefault(); }
+		var investor = String($(_this).data('investor'));
+		var $scope = $(_this).closest('.mx-region');
+		if(!$scope.length){ $scope = $(document); }
+		$scope.find('.mx-cdt').removeClass('is-active');
+		$scope.find('.mx-cdt[data-investor="' + investor + '"]').addClass('is-active');
+		$scope.find('.mx-row, .mx-vcard').each(function(){
+			var match = (investor === '0') || (String($(this).data('investor')) === investor);
+			$(this).toggleClass('d-none', !match);
+		});
+		/* Ẩn cả khối card nếu lọc xong không còn item nào (vd: CĐT không có biệt thự) */
+		$scope.find('.card').each(function(){
+			var $items = $(this).find('.mx-row, .mx-vcard');
+			if($items.length){
+				$(this).toggleClass('d-none', $items.filter(':not(.d-none)').length === 0);
+			}
+		});
+		return false;
+	},
+	toggleStockCard : (_this, e) => {
+		if(e){ e.preventDefault(); }
+		$(_this).closest('.card').toggleClass('is-collapsed');
+		return false;
+	},
+	toggleAllStockCards : (_this, e) => {
+		if(e){ e.preventDefault(); }
+		var $btn = $(_this);
+		var collapse = !$btn.hasClass('is-collapsed');
+		$btn.toggleClass('is-collapsed', collapse);
+		$btn.find('.stock-collapse-all__lb').text(collapse ? 'Mở rộng' : 'Thu gọn');
+		$('.mx-card__head').closest('.card').toggleClass('is-collapsed', collapse);
+		return false;
 	}
 }
 $Core.document = {
